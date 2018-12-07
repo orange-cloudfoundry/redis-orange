@@ -1,0 +1,46 @@
+#!/bin/sh
+
+function init {
+    local REDIS_HOME="/var/vcap/packages/redis";
+    local REDIS_EXEC="${REDIS_HOME}/bin/redis-server";
+    local REDIS_CLIEXEC="${REDIS_HOME}/bin/redis-cli";
+    local REDIS_RUN_DIR="/var/vcap/sys/run/redis";
+    local REDIS_LOG_DIR="/var/vcap/sys/log/redis";
+    local REDIS_PIDFILE="${REDIS_RUN_DIR}/redis.pid";
+    local REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
+    local REDIS_PORT="6379";
+    local REDIS_PID;
+
+    case "${1}" in
+        start)
+            if [[ -f "${REDIS_PIDFILE}" ]];
+            then
+                echo "${REDIS_PIDFILE} exists, process is already running or crashed";
+            else
+                echo "Starting Redis server...";
+                ${REDIS_EXEC} ${REDIS_CONF};
+            fi
+            ;;
+        stop)
+            if [[ -f "${REDIS_PIDFILE}" ]];
+            then
+                echo "${REDIS_PIDFILE} does not exist, process is not running";
+            else
+                REDIS_PID="$(cat ${REDIS_PIDFILE})";
+                echo "Stopping ...";
+                ${REDIS_CLIEXEC} -p ${REDIS_PORT} shutdown;
+                while [[ -x "/proc/${REDIS_PID}" ]];
+                do
+                    echo "Waiting for Redis to shutdown ...";
+                    sleep 1;
+                done
+                echo "Redis stopped";
+            fi
+            ;;
+        *)
+            echo "Usage: ${0} {start|stop}";
+            ;;
+    esac
+}
+
+init "${@}";

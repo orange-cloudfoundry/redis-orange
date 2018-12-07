@@ -1,0 +1,8 @@
+---
+name: redis
+
+templates: {}
+
+packages: []
+
+properties: {}
