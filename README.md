@@ -1,4 +1,5 @@
 # bosh-redis
+<<<<<<< HEAD
 
 A [*Redis*](https://redis.io/) release for Cloud Foundry
 
@@ -36,3 +37,6 @@ bosh upload-release
 ```
 
 **Note**: For security purposes, we use [*CredHub*](https://docs.cloudfoundry.org/credhub/)  for passwords and to obfuscate some Redis admin commands.
+=======
+My first Bosh release
+>>>>>>> cb10137... Initial commit
