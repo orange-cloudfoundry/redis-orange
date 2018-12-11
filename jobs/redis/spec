@@ -1,8 +1,10 @@
 ---
 name: redis
 
-templates: {}
+templates:
+  redis.conf.erb: config/redis.conf
+  redis.sh.erb: bin/redis.sh
 
-packages: []
+packages: [redis-5]
 
 properties: {}
