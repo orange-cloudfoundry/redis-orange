@@ -1,5 +1,5 @@
 check process redis
   with pidfile /var/vcap/sys/run/redis/redis.pid
-  start program "/var/vcap/jobs/redis/bin/redis.sh start"
-  stop program "/var/vcap/jobs/redis/bin/redis.sh stop"
+  start program "/var/vcap/jobs/redis/bin/redis start"
+  stop program "/var/vcap/jobs/redis/bin/redis stop"
   group vcap
