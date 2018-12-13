@@ -1,10 +1,42 @@
 ---
 name: redis
 
+description: This package run a simple Redis server.
+
 templates:
   redis.conf.erb: config/redis.conf
-  redis.sh.erb: bin/redis.sh
+  redis.erb: bin/redis
 
-packages: [redis-5]
+packages:
+- redis
 
-properties: {}
+properties:
+################################# GENERAL #####################################
+  redis.run_dir:
+    default: /var/vcap/sys/run/redis
+    description: Directory where to store Redis pid file
+  redis.pidfile:
+    default: redis.pid
+    description: If a pid file is specified, Redis writes it where specified at startup and removes it at exit. Creating a pid file is best effort: if Redis is not able to create it nothing bad happens, the server will start and run normally.
+  redis.loglevel:
+    default: notice
+    description: Specify the server verbosity level. This can be one of: debug (a lot of information, useful for development/testing), verbose (many rarely useful info, but not a mess like the debug level), notice (moderately verbose, what you want in production probably), warning (only very important / critical messages are logged).
+  redis.log_dir:
+    default: /var/vcap/sys/log/redis
+    description: Directory where to store Redis log file
+  redis.logfile:
+    default: redis.log
+    description: Specify the log file name. Also the empty string can be used to force Redis to log on the standard output. Note that if you use standard output for logging but daemonize, logs will be sent to /dev/null.
+  redis.syslog_enabled:
+    default: yes
+    description: To enable logging to the system logger, just set 'syslog-enabled' to yes, and optionally update the other syslog parameters to suit your needs.
+  redis.syslog_ident:
+    description: Specify the syslog identity.
+    default: redis-server
+  redis.syslog_facility:
+    default: local0
+    description: Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
+  redis.databases:
+    default: 16
+    description: Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and 'databases'-1
+################################ SNAPSHOTTING  ################################
