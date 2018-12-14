@@ -11,6 +11,16 @@ packages:
 - redis
 
 properties:
+################################## NETWORK #####################################
+  redis.port:
+    default: 6379
+    description: Accept connections on the specified port, default is 6379 (IANA #815344). If port 0 is specified Redis will not listen on a TCP socket.
+  redis.timeout:
+    default: 0
+    description: Close the connection after a client is idle for N seconds (0 to disable)
+  redis.tcp_keepalive:
+    default: 300
+    description: TCP keepalive. If non-zero, use SO_KEEPALIVE to send TCP ACKs to clients in absence of communication. A reasonable value for this option is 300 seconds, which is the new Redis default starting with Redis 3.2.1.
 ################################# GENERAL #####################################
   redis.run_dir:
     default: /var/vcap/sys/run/redis
@@ -40,3 +50,22 @@ properties:
     default: 16
     description: Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and 'databases'-1
 ################################ SNAPSHOTTING  ################################
+  redis.save:
+    default:
+      - 900 1
+      - 300 10
+      - 60 10000
+    description: Save the DB on disk: save <seconds> <changes> Will save the DB if both the given number of seconds and the given number of write operations against the DB occurred.
+  redis.stop_writes_on_bgsave_error:
+    default: yes
+    description: By default Redis will stop accepting writes if RDB snapshots are enabled (at least one save point) and the latest background save failed. This will make the user aware (in a hard way) that data is not persisting on disk properly, otherwise chances are that no one will notice and some disaster will happen. However if you have setup your proper monitoring of the Redis server and persistence, you may want to disable this feature so that Redis will continue to work as usual even if there are problems with disk, permissions, and so forth.
+  redis.rdbcompression:
+    default: yes
+    description: Compress string objects using LZF when dump .rdb databases.
+  redis.rdbchecksum:
+    default: yes
+    description: Since version 5 of RDB a CRC64 checksum is placed at the end of the file. This makes the format more resistant to corruption but there is a performance hit to pay (around 10%) when saving and loading RDB files, so you can disable it for maximum performances.
+  redis.dir:
+    default: /var/vcap/store/redis
+    description: The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory.
+################################# REPLICATION #################################
