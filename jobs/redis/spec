@@ -10,8 +10,27 @@ templates:
 packages:
 - redis
 
+provides:
+- name: redis
+  type: redis
+  properties:
+  - redis.port
+  - redis.run_dir
+  - redis.pidfile
+  - redis.log_dir
+  - redis.logfile
+  - redis.dir
+  - redis.password
+
+consumes:
+- name: redis
+  type: redis
+
 properties:
 ################################## NETWORK #####################################
+  redis.bind:
+    default: false
+    description: Specify this property if you would like the bind address of a given instance to be automatically set to its assigned static IP.
   redis.port:
     default: 6379
     description: Accept connections on the specified port, default is 6379 (IANA #815344). If port 0 is specified Redis will not listen on a TCP socket.
@@ -93,4 +112,44 @@ properties:
 ################################## SECURITY ###################################
   redis.password:
     description: Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server. This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers). Warning: since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break.
+  redis.rename_command_config:
+    default: ""
+    description: The name of the obfuscated redis CONFIG command.
 ################################### CLIENTS ####################################
+  redis.maxclients:
+    default: 10000
+    description: Set the max number of connected clients at the same time. By default this limit is set to 10000 clients, however if the Redis server is not able to configure the process file limit to allow for the specified limit the max number of allowed clients is set to the current file limit minus 32 (as Redis reserves a few file descriptors for internal uses). Once the limit is reached Redis will close all the new connections sending an error 'max number of clients reached'.
+############################## APPEND ONLY MODE ###############################
+  redis.appendonly:
+    default: no
+    description: By default Redis asynchronously dumps the dataset on disk. This mode is good enough in many applications, but an issue with the Redis process or a power outage may result into a few minutes of writes lost (depending on the configured save points). The Append Only File is an alternative persistence mode that provides much better durability. For instance using the default data fsync policy (see later in the config file) Redis can lose just one second of writes in a dramatic event like a server power outage, or a single write if something wrong with the Redis process itself happens, but the operating system is still running correctly. AOF and RDB persistence can be enabled at the same time without problems. If the AOF is enabled on startup Redis will load the AOF, that is the file with the better durability guarantees. Please check http://redis.io/topics/persistence for more information.
+  redis.appendfsync:
+    default: everysec
+    description: The fsync() call tells the Operating System to actually write data on disk instead of waiting for more data in the output buffer. Some OS will really flush data on disk, some other OS will just try to do it ASAP. Redis supports three different modes: "no": don't fsync, just let the OS flush the data when it wants. Faster. "always": fsync after every write to the append only log. Slow, Safest. "everysec": fsync only one time every second. Compromise. The default is "everysec", as that's usually the right compromise between speed and data safety. It's up to you to understand if you can relax this to "no" that will let the operating system flush the output buffer when it wants, for better performances (but if you can live with the idea of some data loss consider the default persistence mode that's snapshotting), or on the contrary, use "always" that's very slow but a bit safer than everysec. More details please check the following article: http://antirez.com/post/redis-persistence-demystified.html. If unsure, use "everysec".
+################################ LUA SCRIPTING  ###############################
+  redis.lua_time_limit:
+    default: 5000
+    description: Max execution time of a Lua script in milliseconds.
+################################ REDIS CLUSTER  ###############################
+  redis.cluster_enabled:
+    default: no
+    description: If 'yes' enables Redis Cluster support in a specific Redis instance. Otherwise the instance starts as a stand alone instance as usual.
+  redis.cluster_node_timeout:
+    default: 15000
+    description: The maximum amount of time a Redis Cluster node can be unavailable, without it being considered as failing. If a master node is not reachable for more than the specified amount of time, it will be failed over by its slaves. This parameter controls other important things in Redis Cluster. Notably, every node that can't reach the majority of master nodes for the specified amount of time, will stop accepting queries.
+  redis.cluster_replica_validity_factor:
+    default: 10
+    description: If set to zero, a slave will always try to failover a master, regardless of the amount of time the link between the master and the slave remained disconnected. If the value is positive, a maximum disconnection time is calculated as the node timeout value multiplied by the factor provided with this option, and if the node is a slave, it will not try to start a failover if the master link was disconnected for more than the specified amount of time. For example if the node timeout is set to 5 seconds, and the validity factor is set to 10, a slave disconnected from the master for more than 50 seconds will not try to failover its master. Note that any value different than zero may result in Redis Cluster to be unavailable after a master failure if there is no slave able to failover it. In that case the cluster will return back available only when the original master rejoins the cluster.
+  redis.cluster_migration_barrier:
+    default: 1
+    description: Minimum number of slaves a master will remain connected with, for another slave to migrate to a master which is no longer covered by any slave. See the appropriate section about replica migration in this tutorial for more information.
+  redis.cluster_require_full_coverage:
+    default: yes
+    description: If this is set to yes, as it is by default, the cluster stops accepting writes if some percentage of the key space is not covered by any node. If the option is set to no, the cluster will still serve queries even if only requests about a subset of keys can be processed.
+################################## SLOW LOG ###################################
+  redis.slowlog_log_slower_than:
+    default: 10000
+    description: The execution time, in microseconds, to exceed in order for the command to get logged. Time is expressed in microseconds, so 1000000 is equivalent to one second. Note that a negative number disables the slow log, while a value of zero forces the logging of every command.
+  redis.slowlog_max_len:
+    default: 128
+    description: The length of the slow log. There is no limit to this length. Just be aware that it will consume memory. You can reclaim memory used by the slow log with SLOWLOG RESET.

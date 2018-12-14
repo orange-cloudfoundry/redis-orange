@@ -67,7 +67,15 @@
 # IF YOU ARE SURE YOU WANT YOUR INSTANCE TO LISTEN TO ALL THE INTERFACES
 # JUST COMMENT THE FOLLOWING LINE.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-bind <%= p('spec.ip') %>
+<%
+  if_p('redis.bind') do |bind|
+    if bind == true
+%>
+bind <%= spec.ip %>
+<%
+    end
+  end
+%>
 
 # Protected mode is a layer of security protection, in order to avoid that
 # Redis instances left open on the internet are accessed and exploited.
@@ -291,11 +299,11 @@ dir <%= p('redis.dir') %>
 #
 # replicaof <masterip> <masterport>
 <%
-  if_p("redis.replication") do |replication|
-    if replication
+  if_p('redis.replication') do |replication|
+    if replication == true
       unless spec.bootstrap
 %>
-replicaof <%= link("redis").instances.find {|redis| redis.bootstrap }.address %> <%= p("redis.port") %>
+replicaof <%= link("redis").instances.find {|redis| redis.bootstrap }.address %> <%= p('redis.port') %>
 <%
       end
     end
@@ -309,9 +317,9 @@ replicaof <%= link("redis").instances.find {|redis| redis.bootstrap }.address %>
 #
 # masterauth <master-password>
 <%
-  if_p("redis.password") do |password|
+  if_p('redis.password') do |password|
     if password.to_s != "" %>
-masterauth <%= p("redis.password") %>
+masterauth <%= p('redis.password') %>
 <%
     end
   end
@@ -531,10 +539,9 @@ replica-priority <%= p('redis.replication.replica_priority') %>
 #
 # requirepass foobared
 <%
-  if_p("redis.password") do |password|
-    if password.to_s != ""
-%>
-requirepass <%= p("redis.password") %>
+  if_p('redis.password') do |password|
+    if password.to_s != "" %>
+requirepass <%= p('redis.password') %>
 <%
     end
   end
@@ -558,6 +565,15 @@ requirepass <%= p("redis.password") %>
 #
 # Please note that changing the name of commands that are logged into the
 # AOF file or transmitted to replicas may cause problems.
+rename-command CONFIG "<%= p('redis.rename_command_config') %>"
+rename-command SAVE "SAVE"
+rename-command BGSAVE "BGSAVE"
+# rename-command BGREWRITEAOF ""
+# rename-command MONITOR ""
+rename-command DEBUG ""
+rename-command SHUTDOWN ""
+rename-command SLAVEOF ""
+rename-command SYNC ""
 
 ################################### CLIENTS ####################################
 
@@ -571,6 +587,7 @@ requirepass <%= p("redis.password") %>
 # an error 'max number of clients reached'.
 #
 # maxclients 10000
+maxclients <%= p('redis.maxclients') %>
 
 ############################## MEMORY MANAGEMENT ################################
 
@@ -730,7 +747,7 @@ replica-lazy-flush no
 #
 # Please check http://redis.io/topics/persistence for more information.
 
-appendonly no
+appendonly <%= p('redis.appendonly') %>
 
 # The name of the append only file (default: "appendonly.aof")
 
@@ -760,7 +777,7 @@ appendfilename "appendonly.aof"
 # If unsure, use "everysec".
 
 # appendfsync always
-appendfsync everysec
+appendfsync <%= p('redis.appendfsync') %>
 # appendfsync no
 
 # When the AOF fsync policy is set to always or everysec, and a background
@@ -855,7 +872,7 @@ aof-use-rdb-preamble yes
 # termination of the script.
 #
 # Set it to 0 or a negative value for unlimited execution without warnings.
-lua-time-limit 5000
+lua-time-limit <%= p('redis.lua_time_limit') %>
 
 ################################ REDIS CLUSTER  ###############################
 #
@@ -870,6 +887,15 @@ lua-time-limit 5000
 # cluster node enable the cluster support uncommenting the following:
 #
 # cluster-enabled yes
+<%
+  if_p('redis.cluster_enabled') do |cluster|
+    if cluster == yes
+%>
+cluster-enabled <%= p('redis.cluster_enabled') %>
+<%
+    end
+  end
+%>
 
 # Every cluster node has a cluster configuration file. This file is not
 # intended to be edited by hand. It is created and updated by Redis nodes.
@@ -878,12 +904,30 @@ lua-time-limit 5000
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
+<%
+  if_p('redis.cluster_enabled') do |cluster|
+    if cluster == yes
+%>
+cluster-config-file nodes-<%= p('redis.port') %>.conf
+<%
+    end
+  end
+%>
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
 # Most other internal time limits are multiple of the node timeout.
 #
 # cluster-node-timeout 15000
+<%
+  if_p('redis.cluster_enabled') do |cluster|
+    if cluster == yes
+%>
+cluster-node-timeout <%= p('redis.cluster_node_timeout') %>
+<%
+    end
+  end
+%>
 
 # A replica of a failing master will avoid to start a failover if its data
 # looks too old.
@@ -929,6 +973,15 @@ lua-time-limit 5000
 # the cluster will always be able to continue.
 #
 # cluster-replica-validity-factor 10
+<%
+  if_p('redis.cluster_enabled') do |cluster|
+    if cluster == yes
+%>
+cluster-replica-validity-factor <%= p('redis.cluster_replica_validity_factor') %>
+<%
+    end
+  end
+%>
 
 # Cluster replicas are able to migrate to orphaned masters, that are masters
 # that are left without working replicas. This improves the cluster ability
@@ -948,6 +1001,15 @@ lua-time-limit 5000
 # in production.
 #
 # cluster-migration-barrier 1
+<%
+  if_p('redis.cluster_enabled') do |cluster|
+    if cluster == yes
+%>
+cluster-migration-barrier <%= p('redis.cluster_migration_barrier') %>
+<%
+    end
+  end
+%>
 
 # By default Redis Cluster nodes stop accepting queries if they detect there
 # is at least an hash slot uncovered (no available node is serving it).
@@ -961,6 +1023,15 @@ lua-time-limit 5000
 # option to no.
 #
 # cluster-require-full-coverage yes
+<%
+  if_p('redis.cluster_enabled') do |cluster|
+    if cluster == yes
+%>
+cluster-require-full-coverage <%= p('redis.cluster_require_full_coverage') %>
+<%
+    end
+  end
+%>
 
 # This option, when set to yes, prevents replicas from trying to failover its
 # master during master failures. However the master can still perform a
@@ -1026,11 +1097,11 @@ lua-time-limit 5000
 # The following time is expressed in microseconds, so 1000000 is equivalent
 # to one second. Note that a negative number disables the slow log, while
 # a value of zero forces the logging of every command.
-slowlog-log-slower-than 10000
+slowlog-log-slower-than <%= p('redis.slowlog_log_slower_than') %>
 
 # There is no limit to this length. Just be aware that it will consume memory.
 # You can reclaim memory used by the slow log with SLOWLOG RESET.
-slowlog-max-len 128
+slowlog-max-len <%= p('redis.slowlog_max_len') %>
 
 ################################ LATENCY MONITOR ##############################
 
