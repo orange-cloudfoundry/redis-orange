@@ -67,7 +67,7 @@
 # IF YOU ARE SURE YOU WANT YOUR INSTANCE TO LISTEN TO ALL THE INTERFACES
 # JUST COMMENT THE FOLLOWING LINE.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-bind 127.0.0.1
+bind <%= p('spec.ip') %>
 
 # Protected mode is a layer of security protection, in order to avoid that
 # Redis instances left open on the internet are accessed and exploited.
@@ -90,7 +90,7 @@ protected-mode yes
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
-port 6379
+port <%= p('redis.port') %>
 
 # TCP listen() backlog.
 #
@@ -111,7 +111,7 @@ tcp-backlog 511
 # unixsocketperm 700
 
 # Close the connection after a client is idle for N seconds (0 to disable)
-timeout 0
+timeout <%= p('redis.timeout') %>
 
 # TCP keepalive.
 #
@@ -128,7 +128,7 @@ timeout 0
 #
 # A reasonable value for this option is 300 seconds, which is the new
 # Redis default starting with Redis 3.2.1.
-tcp-keepalive 300
+tcp-keepalive <%= p('redis.tcp_keepalive') %>
 
 ################################# GENERAL #####################################
 
@@ -156,7 +156,7 @@ supervised no
 #
 # Creating a pid file is best effort: if Redis is not able to create it
 # nothing bad happens, the server will start and run normally.
-pidfile <%= p('redis.run_dir')'/'p('redis.pidfile') %>
+pidfile <%= p('redis.run_dir') %>/<%= p('redis.pidfile') %>
 
 # Specify the server verbosity level.
 # This can be one of:
@@ -169,7 +169,7 @@ loglevel <%= p('redis.loglevel') %>
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('redis.log_dir')'/'p('redis.logfile') %>
+logfile <%= p('redis.log_dir') %>/<%= p('redis.logfile') %>
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -215,10 +215,15 @@ always-show-logo yes
 #   like in the following example:
 #
 #   save ""
-
-save 900 1
-save 300 10
-save 60 10000
+<%
+  if_p('redis.save') do
+    p('redis.save').each do |command|
+%>
+save <%= command %>
+<%
+    end
+  end
+%>
 
 # By default Redis will stop accepting writes if RDB snapshots are enabled
 # (at least one save point) and the latest background save failed.
@@ -233,13 +238,13 @@ save 60 10000
 # and persistence, you may want to disable this feature so that Redis will
 # continue to work as usual even if there are problems with disk,
 # permissions, and so forth.
-stop-writes-on-bgsave-error yes
+stop-writes-on-bgsave-error <%= p('redis.stop_writes_on_bgsave_error') %>
 
 # Compress string objects using LZF when dump .rdb databases?
 # For default that's set to 'yes' as it's almost always a win.
 # If you want to save some CPU in the saving child set it to 'no' but
 # the dataset will likely be bigger if you have compressible values or keys.
-rdbcompression yes
+rdbcompression <%= p('redis.rdbcompression') %>
 
 # Since version 5 of RDB a CRC64 checksum is placed at the end of the file.
 # This makes the format more resistant to corruption but there is a performance
@@ -248,7 +253,7 @@ rdbcompression yes
 #
 # RDB files created with checksum disabled have a checksum of zero that will
 # tell the loading code to skip the check.
-rdbchecksum yes
+rdbchecksum  <%= p('redis.rdbchecksum') %>
 
 # The filename where to dump the DB
 dbfilename dump.rdb
@@ -261,7 +266,7 @@ dbfilename dump.rdb
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir /var/lib/redis/6379
+dir <%= p('redis.dir') %>
 
 ################################# REPLICATION #################################
 
