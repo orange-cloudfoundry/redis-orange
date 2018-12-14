@@ -290,6 +290,17 @@ dir <%= p('redis.dir') %>
 #    and resynchronize with them.
 #
 # replicaof <masterip> <masterport>
+<%
+  if_p("redis.replication") do |replication|
+    if replication
+      unless spec.bootstrap
+%>
+replicaof <%= link("redis").instances.find {|redis| redis.bootstrap }.address %> <%= p("redis.port") %>
+<%
+      end
+    end
+  end
+%>
 
 # If the master is password protected (using the "requirepass" configuration
 # directive below) it is possible to tell the replica to authenticate before
@@ -297,6 +308,14 @@ dir <%= p('redis.dir') %>
 # refuse the replica request.
 #
 # masterauth <master-password>
+<%
+  if_p("redis.password") do |password|
+    if password.to_s != "" %>
+masterauth <%= p("redis.password") %>
+<%
+    end
+  end
+%>
 
 # When a replica loses its connection with the master, or when the replication
 # is still in progress, the replica can act in two different ways:
@@ -311,7 +330,7 @@ dir <%= p('redis.dir') %>
 #    SUBSCRIBE, UNSUBSCRIBE, PSUBSCRIBE, PUNSUBSCRIBE, PUBLISH, PUBSUB,
 #    COMMAND, POST, HOST: and LATENCY.
 #
-replica-serve-stale-data yes
+replica-serve-stale-data  <%= p('redis.replica_serve_stale_data ') %>
 
 # You can configure a replica instance to accept writes or not. Writing against
 # a replica instance may be useful to store some ephemeral data (because data
@@ -327,7 +346,7 @@ replica-serve-stale-data yes
 # such as CONFIG, DEBUG, and so forth. To a limited extent you can improve
 # security of read only replicas using 'rename-command' to shadow all the
 # administrative / dangerous commands.
-replica-read-only yes
+replica-read-only <%= p('redis.replication.replica_read_only') %>
 
 # Replication SYNC strategy: disk or socket.
 #
@@ -376,7 +395,7 @@ repl-diskless-sync-delay 5
 # this interval with the repl_ping_replica_period option. The default value is 10
 # seconds.
 #
-# repl-ping-replica-period 10
+repl-ping-replica-period <%= p('redis.repl_ping_replica_period') %>
 
 # The following option sets the replication timeout for:
 #
@@ -388,7 +407,7 @@ repl-diskless-sync-delay 5
 # specified for repl-ping-replica-period otherwise a timeout will be detected
 # every time there is low traffic between the master and the replica.
 #
-# repl-timeout 60
+repl-timeout <%= p('redis.repl_timeout') %>
 
 # Disable TCP_NODELAY on the replica socket after SYNC?
 #
@@ -403,7 +422,7 @@ repl-diskless-sync-delay 5
 # By default we optimize for low latency, but in very high traffic conditions
 # or when the master and replicas are many hops away, turning this to "yes" may
 # be a good idea.
-repl-disable-tcp-nodelay no
+repl-disable-tcp-nodelay <%= p('redis.repl_disable_tcp_nodelay') %>
 
 # Set the replication backlog size. The backlog is a buffer that accumulates
 # replica data when replicas are disconnected for some time, so that when a replica
@@ -444,7 +463,7 @@ repl-disable-tcp-nodelay no
 # Redis Sentinel for promotion.
 #
 # By default the priority is 100.
-replica-priority 100
+replica-priority <%= p('redis.replication.replica_priority') %>
 
 # It is possible for a master to stop accepting writes if there are less than
 # N replicas connected, having a lag less or equal than M seconds.
@@ -511,6 +530,15 @@ replica-priority 100
 # use a very strong password otherwise it will be very easy to break.
 #
 # requirepass foobared
+<%
+  if_p("redis.password") do |password|
+    if password.to_s != ""
+%>
+requirepass <%= p("redis.password") %>
+<%
+    end
+  end
+%>
 
 # Command renaming.
 #
