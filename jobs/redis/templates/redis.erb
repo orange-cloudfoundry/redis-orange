@@ -3,21 +3,61 @@
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
-REDIS_RUN_DIR="/var/vcap/sys/run/redis";
-REDIS_LOG_DIR="/var/vcap/sys/log/redis";
-REDIS_PID_FILE="${REDIS_RUN_DIR}/redis.pid";
+REDIS_RUN_DIR="<%= p("redis.run_dir") %>";
+REDIS_LOG_DIR="<%= p("redis.log_dir") %>";
+REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p("redis.logfile") %>";
+REDIS_STORE_DIR="<%= p("redis.dir") %>";
+REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p("redis.pidfile") %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
-REDIS_PORT="6379";
+REDIS_PORT="<%= p("redis.port") %>";
 REDIS_PID;
 
 case "${1}" in
   start)
+    mkdir -p \
+      "${REDIS_RUN_DIR}" \
+      "${REDIS_LOG_DIR}" \
+      "${REDIS_STORE_DIR}";
+
+    chown vcap:vcap
+      "${REDIS_RUN_DIR}" \
+      "${REDIS_LOG_DIR}" \
+      "${REDIS_STORE_DIR}";
+
+    chmod 750 "${REDIS_STORE_DIR}";
+
+    if [[ -e "${REDIS_LOG_FILE}" ]];
+    then
+      chown vcap:vcap "${REDIS_LOG_FILE}";
+    fi
+
+    # Remove temp backup files that might be left over because of a
+    # previously aborted BGSAVE, just to save space
+    rm -f "${REDIS_STORE_DIR}"/temp-*.rdb
+
+    ulimit -n 10032
+
+    if [[-f /sys/kernel/mm/transparent_hugepage/enabled ]];
+    then
+      # fail silently as bosh-lite is a read-only file system
+      set +e
+      echo never > /sys/kernel/mm/transparent_hugepage/enabled
+      set -e
+    fi
+
+    sysctl -w net.core.somaxconn=511
+
+    # Recommended for running redis on a VM in production
+    # (https://www.pivotaltracker.com/story/show/74949514)
+    sysctl vm.overcommit_memory=1
+
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
       echo "${REDIS_PID_FILE} exists, process is already running or crashed";
     else
       echo "Starting Redis server...";
-      ${REDIS_SERVER} ${REDIS_CONF};
+      exec chpst -u vcap:vcap ${REDIS_SERVER} ${REDIS_CONF} \
+        >> "${REDIS_LOG_FILE}" 2>&1;
     fi
     ;;
   stop)
