@@ -10,6 +10,7 @@ REDIS_STORE_DIR="<%= p("redis.dir") %>";
 REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p("redis.pidfile") %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
 REDIS_PORT="<%= p("redis.port") %>";
+REDIS_PASSWORD="<%= p("redis.password") %>";
 REDIS_PID;
 
 case "${1}" in
@@ -56,7 +57,7 @@ case "${1}" in
       echo "${REDIS_PID_FILE} exists, process is already running or crashed";
     else
       echo "Starting Redis server...";
-      exec chpst -u vcap:vcap ${REDIS_SERVER} ${REDIS_CONF} \
+      exec chpst -u vcap:vcap "${REDIS_SERVER}" "${REDIS_CONF}" \
         >> "${REDIS_LOG_FILE}" 2>&1;
     fi
     ;;
@@ -67,7 +68,7 @@ case "${1}" in
     else
       REDIS_PID="$(cat ${REDIS_PID_FILE})";
       echo "Stopping ...";
-      ${REDIS_CLI} -p ${REDIS_PORT} shutdown;
+      "${REDIS_CLI}" -p "${REDIS_PORT}" -a "${REDIS_PASSWORD}" shutdown;
       while [[ -x "/proc/${REDIS_PID}" ]];
       do
         echo "Waiting for Redis to shutdown ...";
