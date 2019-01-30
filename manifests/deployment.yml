@@ -1,0 +1,36 @@
+---
+name: ((deployment_name))
+
+instance_groups:
+- name: redis
+  azs: [((default_az))]
+  instances: ((redis_node_count))
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: redis
+    release: bosh-redis
+    properties:
+      password: ((redis-password))
+
+variables:
+- name: redis-password
+  type: password
+
+stemcells:
+- alias: default
+  os: ((stemcell_os))
+  version: "((stemcell_version))"
+
+releases:
+- name: bosh-redis
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 30000-180000
+  max_in_flight: 6
+  update_watch_time: 30000-180000

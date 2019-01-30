@@ -1,0 +1,4 @@
+---
+name: redis
+files:
+- redis/redis-stable.tar.gz # From http://download.redis.io/releases/redis-stable.tar.gz
