@@ -4,8 +4,8 @@ name: redis
 description: This package run a simple Redis server.
 
 templates:
-  redis.conf.erb: config/redis.conf
-  redis.erb: bin/redis
+  config/redis.conf.erb: config/redis.conf
+  bin/redis_ctl.erb: bin/redis_ctl
 
 packages:
 - redis
