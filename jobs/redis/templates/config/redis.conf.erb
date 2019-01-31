@@ -309,7 +309,7 @@ dir <%= p('redis.dir') %>
     if replication == true
       unless spec.bootstrap
 %>
-replicaof <%= link("redis").instances.find {|redis| redis.bootstrap }.address %> <%= p('redis.port') %>
+replicaof <%= link("redis").instances.find { |redis| redis.bootstrap }.address %> <%= p('redis.port') %>
 <%
       end
     end
