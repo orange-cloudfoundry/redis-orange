@@ -344,7 +344,7 @@ masterauth <%= p('redis.password') %>
 #    SUBSCRIBE, UNSUBSCRIBE, PSUBSCRIBE, PUNSUBSCRIBE, PUBLISH, PUBSUB,
 #    COMMAND, POST, HOST: and LATENCY.
 #
-replica-serve-stale-data  <%= p('redis.replica_serve_stale_data ') %>
+replica-serve-stale-data  <%= p('redis.replica_serve_stale_data') %>
 
 # You can configure a replica instance to accept writes or not. Writing against
 # a replica instance may be useful to store some ephemeral data (because data
@@ -360,7 +360,7 @@ replica-serve-stale-data  <%= p('redis.replica_serve_stale_data ') %>
 # such as CONFIG, DEBUG, and so forth. To a limited extent you can improve
 # security of read only replicas using 'rename-command' to shadow all the
 # administrative / dangerous commands.
-replica-read-only <%= p('redis.replication.replica_read_only') %>
+replica-read-only <%= p('redis.replica_read_only') %>
 
 # Replication SYNC strategy: disk or socket.
 #
@@ -477,7 +477,7 @@ repl-disable-tcp-nodelay <%= p('redis.repl_disable_tcp_nodelay') %>
 # Redis Sentinel for promotion.
 #
 # By default the priority is 100.
-replica-priority <%= p('redis.replication.replica_priority') %>
+replica-priority <%= p('redis.replica_priority') %>
 
 # It is possible for a master to stop accepting writes if there are less than
 # N replicas connected, having a lag less or equal than M seconds.
@@ -893,15 +893,7 @@ lua-time-limit <%= p('redis.lua_time_limit') %>
 # cluster node enable the cluster support uncommenting the following:
 #
 # cluster-enabled yes
-<%
-  if_p('redis.cluster_enabled') do |cluster|
-    if cluster == yes
-%>
 cluster-enabled <%= p('redis.cluster_enabled') %>
-<%
-    end
-  end
-%>
 
 # Every cluster node has a cluster configuration file. This file is not
 # intended to be edited by hand. It is created and updated by Redis nodes.
@@ -912,7 +904,7 @@ cluster-enabled <%= p('redis.cluster_enabled') %>
 # cluster-config-file nodes-6379.conf
 <%
   if_p('redis.cluster_enabled') do |cluster|
-    if cluster == yes
+    if cluster == 'yes'
 %>
 cluster-config-file nodes-<%= p('redis.port') %>.conf
 <%
@@ -927,7 +919,7 @@ cluster-config-file nodes-<%= p('redis.port') %>.conf
 # cluster-node-timeout 15000
 <%
   if_p('redis.cluster_enabled') do |cluster|
-    if cluster == yes
+    if cluster == 'yes'
 %>
 cluster-node-timeout <%= p('redis.cluster_node_timeout') %>
 <%
@@ -981,7 +973,7 @@ cluster-node-timeout <%= p('redis.cluster_node_timeout') %>
 # cluster-replica-validity-factor 10
 <%
   if_p('redis.cluster_enabled') do |cluster|
-    if cluster == yes
+    if cluster == 'yes'
 %>
 cluster-replica-validity-factor <%= p('redis.cluster_replica_validity_factor') %>
 <%
@@ -1009,7 +1001,7 @@ cluster-replica-validity-factor <%= p('redis.cluster_replica_validity_factor') %
 # cluster-migration-barrier 1
 <%
   if_p('redis.cluster_enabled') do |cluster|
-    if cluster == yes
+    if cluster == 'yes'
 %>
 cluster-migration-barrier <%= p('redis.cluster_migration_barrier') %>
 <%
@@ -1031,7 +1023,7 @@ cluster-migration-barrier <%= p('redis.cluster_migration_barrier') %>
 # cluster-require-full-coverage yes
 <%
   if_p('redis.cluster_enabled') do |cluster|
-    if cluster == yes
+    if cluster == 'yes'
 %>
 cluster-require-full-coverage <%= p('redis.cluster_require_full_coverage') %>
 <%
