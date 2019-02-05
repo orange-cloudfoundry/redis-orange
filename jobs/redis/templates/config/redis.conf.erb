@@ -68,16 +68,17 @@
 # JUST COMMENT THE FOLLOWING LINE.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# If redis.bind is set to true in your manifest file, it will set the bind property
+# If bind is set to true in your manifest file, it will set the bind property
 # for each instance in your cluster to the static IP which was assigned to the instance
 # If it is set to false, it will not set the bind property which will force it to
 # fall back to default behavior, i.e. protected mode due to bind not being set.
-
 <%
-  if_p('redis.bind') do |bind|
+  if_p('bind') do |bind|
     if bind == true
 %>
 bind <%= spec.ip %>
+<%  else %>
+bind 127.0.0.1
 <%
     end
   end
@@ -104,7 +105,7 @@ bind <%= spec.ip %>
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
-port <%= p('redis.port') %>
+port <%= p('port') %>
 
 # TCP listen() backlog.
 #
@@ -125,7 +126,7 @@ tcp-backlog 511
 # unixsocketperm 700
 
 # Close the connection after a client is idle for N seconds (0 to disable)
-timeout <%= p('redis.timeout') %>
+timeout <%= p('timeout') %>
 
 # TCP keepalive.
 #
@@ -142,7 +143,7 @@ timeout <%= p('redis.timeout') %>
 #
 # A reasonable value for this option is 300 seconds, which is the new
 # Redis default starting with Redis 3.2.1.
-tcp-keepalive <%= p('redis.tcp_keepalive') %>
+tcp-keepalive <%= p('tcp_keepalive') %>
 
 ################################# GENERAL #####################################
 
@@ -170,7 +171,7 @@ supervised no
 #
 # Creating a pid file is best effort: if Redis is not able to create it
 # nothing bad happens, the server will start and run normally.
-pidfile <%= p('redis.run_dir') %>/<%= p('redis.pidfile') %>
+pidfile <%= p('run_dir') %>/<%= p('pidfile') %>
 
 # Specify the server verbosity level.
 # This can be one of:
@@ -178,27 +179,27 @@ pidfile <%= p('redis.run_dir') %>/<%= p('redis.pidfile') %>
 # verbose (many rarely useful info, but not a mess like the debug level)
 # notice (moderately verbose, what you want in production probably)
 # warning (only very important / critical messages are logged)
-loglevel <%= p('redis.loglevel') %>
+loglevel <%= p('loglevel') %>
 
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('redis.log_dir') %>/<%= p('redis.logfile') %>
+logfile <%= p('log_dir') %>/<%= p('logfile') %>
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
-syslog-enabled <%= p('redis.syslog_enabled') %>
+syslog-enabled <%= p('syslog_enabled') %>
 
 # Specify the syslog identity.
-syslog-ident <%= p('redis.syslog_ident') %>
+syslog-ident <%= p('syslog_ident') %>
 
 # Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
-syslog-facility <%= p('redis.syslog_facility') %>
+syslog-facility <%= p('syslog_facility') %>
 
 # Set the number of databases. The default database is DB 0, you can select
 # a different one on a per-connection basis using SELECT <dbid> where
 # dbid is a number between 0 and 'databases'-1
-databases <%= p('redis.databases') %>
+databases <%= p('databases') %>
 
 # By default Redis shows an ASCII art logo only when started to log to the
 # standard output and if the standard output is a TTY. Basically this means
@@ -230,8 +231,8 @@ always-show-logo yes
 #
 #   save ""
 <%
-  if_p('redis.save') do
-    p('redis.save').each do |command|
+  if_p('save') do
+    p('save').each do |command|
 %>
 save <%= command %>
 <%
@@ -252,13 +253,13 @@ save <%= command %>
 # and persistence, you may want to disable this feature so that Redis will
 # continue to work as usual even if there are problems with disk,
 # permissions, and so forth.
-stop-writes-on-bgsave-error <%= p('redis.stop_writes_on_bgsave_error') %>
+stop-writes-on-bgsave-error <%= p('stop_writes_on_bgsave_error') %>
 
 # Compress string objects using LZF when dump .rdb databases?
 # For default that's set to 'yes' as it's almost always a win.
 # If you want to save some CPU in the saving child set it to 'no' but
 # the dataset will likely be bigger if you have compressible values or keys.
-rdbcompression <%= p('redis.rdbcompression') %>
+rdbcompression <%= p('rdbcompression') %>
 
 # Since version 5 of RDB a CRC64 checksum is placed at the end of the file.
 # This makes the format more resistant to corruption but there is a performance
@@ -267,7 +268,7 @@ rdbcompression <%= p('redis.rdbcompression') %>
 #
 # RDB files created with checksum disabled have a checksum of zero that will
 # tell the loading code to skip the check.
-rdbchecksum  <%= p('redis.rdbchecksum') %>
+rdbchecksum <%= p('rdbchecksum') %>
 
 # The filename where to dump the DB
 dbfilename dump.rdb
@@ -280,7 +281,7 @@ dbfilename dump.rdb
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir <%= p('redis.dir') %>
+dir <%= p('dir') %>
 
 ################################# REPLICATION #################################
 
@@ -305,11 +306,11 @@ dir <%= p('redis.dir') %>
 #
 # replicaof <masterip> <masterport>
 <%
-  if_p('redis.replication') do |replication|
+  if_p('replication') do |replication|
     if replication == true
       unless spec.bootstrap
 %>
-replicaof <%= link("redis").instances.find { |redis| redis.bootstrap }.address %> <%= p('redis.port') %>
+replicaof <%= link("redis").instances.find { |redis| redis.bootstrap }.address %> <%= p('port') %>
 <%
       end
     end
@@ -323,9 +324,9 @@ replicaof <%= link("redis").instances.find { |redis| redis.bootstrap }.address %
 #
 # masterauth <master-password>
 <%
-  if_p('redis.password') do |password|
+  if_p('password') do |password|
     if password.to_s != "" %>
-masterauth <%= p('redis.password') %>
+masterauth <%= p('password') %>
 <%
     end
   end
@@ -344,7 +345,7 @@ masterauth <%= p('redis.password') %>
 #    SUBSCRIBE, UNSUBSCRIBE, PSUBSCRIBE, PUNSUBSCRIBE, PUBLISH, PUBSUB,
 #    COMMAND, POST, HOST: and LATENCY.
 #
-replica-serve-stale-data  <%= p('redis.replica_serve_stale_data') %>
+replica-serve-stale-data  <%= p('replica_serve_stale_data') %>
 
 # You can configure a replica instance to accept writes or not. Writing against
 # a replica instance may be useful to store some ephemeral data (because data
@@ -360,7 +361,7 @@ replica-serve-stale-data  <%= p('redis.replica_serve_stale_data') %>
 # such as CONFIG, DEBUG, and so forth. To a limited extent you can improve
 # security of read only replicas using 'rename-command' to shadow all the
 # administrative / dangerous commands.
-replica-read-only <%= p('redis.replica_read_only') %>
+replica-read-only <%= p('replica_read_only') %>
 
 # Replication SYNC strategy: disk or socket.
 #
@@ -409,7 +410,7 @@ repl-diskless-sync-delay 5
 # this interval with the repl_ping_replica_period option. The default value is 10
 # seconds.
 #
-repl-ping-replica-period <%= p('redis.repl_ping_replica_period') %>
+repl-ping-replica-period <%= p('repl_ping_replica_period') %>
 
 # The following option sets the replication timeout for:
 #
@@ -421,7 +422,7 @@ repl-ping-replica-period <%= p('redis.repl_ping_replica_period') %>
 # specified for repl-ping-replica-period otherwise a timeout will be detected
 # every time there is low traffic between the master and the replica.
 #
-repl-timeout <%= p('redis.repl_timeout') %>
+repl-timeout <%= p('repl_timeout') %>
 
 # Disable TCP_NODELAY on the replica socket after SYNC?
 #
@@ -436,7 +437,7 @@ repl-timeout <%= p('redis.repl_timeout') %>
 # By default we optimize for low latency, but in very high traffic conditions
 # or when the master and replicas are many hops away, turning this to "yes" may
 # be a good idea.
-repl-disable-tcp-nodelay <%= p('redis.repl_disable_tcp_nodelay') %>
+repl-disable-tcp-nodelay <%= p('repl_disable_tcp_nodelay') %>
 
 # Set the replication backlog size. The backlog is a buffer that accumulates
 # replica data when replicas are disconnected for some time, so that when a replica
@@ -477,7 +478,7 @@ repl-disable-tcp-nodelay <%= p('redis.repl_disable_tcp_nodelay') %>
 # Redis Sentinel for promotion.
 #
 # By default the priority is 100.
-replica-priority <%= p('redis.replica_priority') %>
+replica-priority <%= p('replica_priority') %>
 
 # It is possible for a master to stop accepting writes if there are less than
 # N replicas connected, having a lag less or equal than M seconds.
@@ -545,9 +546,9 @@ replica-priority <%= p('redis.replica_priority') %>
 #
 # requirepass foobared
 <%
-  if_p('redis.password') do |password|
+  if_p('password') do |password|
     if password.to_s != "" %>
-requirepass <%= p('redis.password') %>
+requirepass <%= p('password') %>
 <%
     end
   end
@@ -571,15 +572,15 @@ requirepass <%= p('redis.password') %>
 #
 # Please note that changing the name of commands that are logged into the
 # AOF file or transmitted to replicas may cause problems.
-rename-command CONFIG "<%= p('redis.rename_command_config') %>"
-rename-command SAVE "SAVE"
-rename-command BGSAVE "BGSAVE"
+rename-command CONFIG "<%= p('rename_command_config') %>"
+# rename-command SAVE "SAVE"
+# rename-command BGSAVE "BGSAVE"
 # rename-command BGREWRITEAOF ""
 # rename-command MONITOR ""
-rename-command DEBUG ""
-rename-command SHUTDOWN ""
-rename-command SLAVEOF ""
-rename-command SYNC ""
+# rename-command DEBUG ""
+# rename-command SHUTDOWN ""
+# rename-command SLAVEOF ""
+# rename-command SYNC ""
 
 ################################### CLIENTS ####################################
 
@@ -593,7 +594,7 @@ rename-command SYNC ""
 # an error 'max number of clients reached'.
 #
 # maxclients 10000
-maxclients <%= p('redis.maxclients') %>
+maxclients <%= p('maxclients') %>
 
 ############################## MEMORY MANAGEMENT ################################
 
@@ -753,7 +754,7 @@ replica-lazy-flush no
 #
 # Please check http://redis.io/topics/persistence for more information.
 
-appendonly <%= p('redis.appendonly') %>
+appendonly <%= p('appendonly') %>
 
 # The name of the append only file (default: "appendonly.aof")
 
@@ -783,7 +784,7 @@ appendfilename "appendonly.aof"
 # If unsure, use "everysec".
 
 # appendfsync always
-appendfsync <%= p('redis.appendfsync') %>
+appendfsync <%= p('appendfsync') %>
 # appendfsync no
 
 # When the AOF fsync policy is set to always or everysec, and a background
@@ -878,7 +879,7 @@ aof-use-rdb-preamble yes
 # termination of the script.
 #
 # Set it to 0 or a negative value for unlimited execution without warnings.
-lua-time-limit <%= p('redis.lua_time_limit') %>
+lua-time-limit <%= p('lua_time_limit') %>
 
 ################################ REDIS CLUSTER  ###############################
 #
@@ -893,7 +894,7 @@ lua-time-limit <%= p('redis.lua_time_limit') %>
 # cluster node enable the cluster support uncommenting the following:
 #
 # cluster-enabled yes
-cluster-enabled <%= p('redis.cluster_enabled') %>
+cluster-enabled <%= p('cluster_enabled') %>
 
 # Every cluster node has a cluster configuration file. This file is not
 # intended to be edited by hand. It is created and updated by Redis nodes.
@@ -903,10 +904,10 @@ cluster-enabled <%= p('redis.cluster_enabled') %>
 #
 # cluster-config-file nodes-6379.conf
 <%
-  if_p('redis.cluster_enabled') do |cluster|
+  if_p('cluster_enabled') do |cluster|
     if cluster == 'yes'
 %>
-cluster-config-file nodes-<%= p('redis.port') %>.conf
+cluster-config-file nodes-<%= p('port') %>.conf
 <%
     end
   end
@@ -918,10 +919,10 @@ cluster-config-file nodes-<%= p('redis.port') %>.conf
 #
 # cluster-node-timeout 15000
 <%
-  if_p('redis.cluster_enabled') do |cluster|
+  if_p('cluster_enabled') do |cluster|
     if cluster == 'yes'
 %>
-cluster-node-timeout <%= p('redis.cluster_node_timeout') %>
+cluster-node-timeout <%= p('cluster_node_timeout') %>
 <%
     end
   end
@@ -972,10 +973,10 @@ cluster-node-timeout <%= p('redis.cluster_node_timeout') %>
 #
 # cluster-replica-validity-factor 10
 <%
-  if_p('redis.cluster_enabled') do |cluster|
+  if_p('cluster_enabled') do |cluster|
     if cluster == 'yes'
 %>
-cluster-replica-validity-factor <%= p('redis.cluster_replica_validity_factor') %>
+cluster-replica-validity-factor <%= p('cluster_replica_validity_factor') %>
 <%
     end
   end
@@ -1000,10 +1001,10 @@ cluster-replica-validity-factor <%= p('redis.cluster_replica_validity_factor') %
 #
 # cluster-migration-barrier 1
 <%
-  if_p('redis.cluster_enabled') do |cluster|
+  if_p('cluster_enabled') do |cluster|
     if cluster == 'yes'
 %>
-cluster-migration-barrier <%= p('redis.cluster_migration_barrier') %>
+cluster-migration-barrier <%= p('cluster_migration_barrier') %>
 <%
     end
   end
@@ -1022,10 +1023,10 @@ cluster-migration-barrier <%= p('redis.cluster_migration_barrier') %>
 #
 # cluster-require-full-coverage yes
 <%
-  if_p('redis.cluster_enabled') do |cluster|
+  if_p('cluster_enabled') do |cluster|
     if cluster == 'yes'
 %>
-cluster-require-full-coverage <%= p('redis.cluster_require_full_coverage') %>
+cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 <%
     end
   end
@@ -1095,11 +1096,11 @@ cluster-require-full-coverage <%= p('redis.cluster_require_full_coverage') %>
 # The following time is expressed in microseconds, so 1000000 is equivalent
 # to one second. Note that a negative number disables the slow log, while
 # a value of zero forces the logging of every command.
-slowlog-log-slower-than <%= p('redis.slowlog_log_slower_than') %>
+slowlog-log-slower-than <%= p('slowlog_log_slower_than') %>
 
 # There is no limit to this length. Just be aware that it will consume memory.
 # You can reclaim memory used by the slow log with SLOWLOG RESET.
-slowlog-max-len <%= p('redis.slowlog_max_len') %>
+slowlog-max-len <%= p('slowlog_max_len') %>
 
 ################################ LATENCY MONITOR ##############################
 

@@ -3,15 +3,21 @@
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
-REDIS_RUN_DIR="<%= p("redis.run_dir") %>";
-REDIS_LOG_DIR="<%= p("redis.log_dir") %>";
-REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p("redis.logfile") %>";
-REDIS_STORE_DIR="<%= p("redis.dir") %>";
-REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p("redis.pidfile") %>";
+REDIS_RUN_DIR="<%= p('run_dir') %>";
+REDIS_LOG_DIR="<%= p('log_dir') %>";
+REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p('logfile') %>";
+REDIS_STORE_DIR="<%= p('dir') %>";
+REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
-REDIS_PORT="<%= p("redis.port") %>";
-REDIS_PASSWORD="<%= p("redis.password") %>";
-REDIS_PID;
+REDIS_PORT="<%= p('port') %>";
+<%
+  if_p('password') do |password|
+    if password.to_s != "" %>
+REDIS_PASSWORD="<%= p('password') %>";
+<%
+    end
+  end
+%>
 
 case "${1}" in
   start)
@@ -20,17 +26,14 @@ case "${1}" in
       "${REDIS_LOG_DIR}" \
       "${REDIS_STORE_DIR}";
 
-    chown vcap:vcap
+    chown vcap:vcap \
       "${REDIS_RUN_DIR}" \
       "${REDIS_LOG_DIR}" \
       "${REDIS_STORE_DIR}";
 
     chmod 750 "${REDIS_STORE_DIR}";
-
-    if [[ -e "${REDIS_LOG_FILE}" ]];
-    then
-      chown vcap:vcap "${REDIS_LOG_FILE}";
-    fi
+    touch "${REDIS_LOG_FILE}";
+    chown vcap:vcap "${REDIS_LOG_FILE}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted BGSAVE, just to save space
@@ -38,7 +41,7 @@ case "${1}" in
 
     ulimit -n 10032
 
-    if [[-f /sys/kernel/mm/transparent_hugepage/enabled ]];
+    if [[ -f /sys/kernel/mm/transparent_hugepage/enabled ]];
     then
       # fail silently as bosh-lite is a read-only file system
       set +e
@@ -64,17 +67,18 @@ case "${1}" in
   stop)
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
-      echo "${REDIS_PID_FILE} does not exist, process is not running";
-    else
-      REDIS_PID="$(cat ${REDIS_PID_FILE})";
+      redis_pid="$(cat ${REDIS_PID_FILE})";
       echo "Stopping ...";
-      "${REDIS_CLI}" -p "${REDIS_PORT}" -a "${REDIS_PASSWORD}" shutdown;
+      redis_password_opt="${REDIS_PASSWORD:+"-a ${REDIS_PASSWORD}"}";
+      exec chpst -u vcap:vcap "${REDIS_CLI}" -p "${REDIS_PORT}" ${redis_password_opt} SHUTDOWN;
       while [[ -x "/proc/${REDIS_PID}" ]];
       do
         echo "Waiting for Redis to shutdown ...";
         sleep 1;
       done
       echo "Redis stopped";
+    else
+      echo "${REDIS_PID_FILE} does not exist, process is not running";
     fi
     ;;
   *)
