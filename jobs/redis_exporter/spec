@@ -5,11 +5,12 @@ packages:
 
 templates:
   bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
+  config/script.erb: config/script
 
 properties:
-  redis.check_keys:
+  redis_check_keys:
     description: "Comma separated list of key-patterns to export value and length/size, searched for with SCAN"
-  redis.check_single_keys:
+  redis_check_single_keys:
     description: "Comma separated list of single keys to export value and length/size"
   debug:
     description: "Output verbose debug information"
@@ -21,18 +22,18 @@ properties:
   redis_only_metrics:
     description: "Whether to export go runtime metrics also"
     default: false
-  redis.address:
+  redis_address:
     description: "Address of one or more redis nodes, separated by separator"
-  redis.alias:
+  redis_alias:
     description: "Redis instance alias for one or more redis nodes, separated by separator"
-  redis.password:
+  redis_password:
     description: "Password for one or more redis nodes, separated by separator"
-  redis.script:
+  redis_script:
     description: "Lua Redis script for collecting extra metrics"
-  redis.separator:
-    description: "separator used to split redis.addr and redis.password into several elements"
-  web.port:
+  redis_separator:
+    description: "separator used to split redis_addr and redis_password into several elements"
+  web_port:
     description: "Port on which to expose web interface and telemetry"
     default: "9121"
-  web.telemetry_path:
+  web_telemetry_path:
     description: "Path under which to expose metrics"

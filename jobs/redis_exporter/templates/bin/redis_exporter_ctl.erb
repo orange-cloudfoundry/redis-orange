@@ -10,7 +10,7 @@ mkdir -p ${RUN_DIR} ${LOG_DIR} ${TMP_DIR} ${STORE_DIR}
 
 PIDFILE=${RUN_DIR}/redis_exporter.pid
 
-source /var/vcap/packages/redis_exporter/common/utils.sh
+source /var/vcap/packages/redis_exporter/bin/utils.sh
 exec 1>> ${LOG_DIR}/$(basename "$0").stdout.log
 exec 2>> ${LOG_DIR}/$(basename "$0").stderr.log
 
@@ -55,8 +55,8 @@ case $1 in
       <% if_p('redis_separator') do |separator| %> \
       -separator="<%= separator %>" \
       <% end %> \
-      -web.listen-address=":<%= p('web.port') %>" \
-      <% if_p('web.telemetry_path') do |telemetry_path| %> \
+      -web.listen-address=":<%= p('web_port') %>" \
+      <% if_p('web_telemetry_path') do |telemetry_path| %> \
       -web.telemetry-path="<%= telemetry_path %>" \
       <% end %> \
       >>  ${LOG_DIR}/redis_exporter.stdout.log \
