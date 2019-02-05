@@ -2,26 +2,27 @@
 
 set -eu
 
-RUN_DIR=/var/vcap/sys/run/redis_exporter
-LOG_DIR=/var/vcap/sys/log/redis_exporter
-TMP_DIR=/var/vcap/sys/tmp/redis_exporter
-STORE_DIR=/var/vcap/store/redis_exporter
-mkdir -p ${RUN_DIR} ${LOG_DIR} ${TMP_DIR} ${STORE_DIR}
+PROGNAME="redis_exporter"
+RUN_DIR="/var/vcap/sys/run/${PROGNAME}"
+LOG_DIR="/var/vcap/sys/log/${PROGNAME}"
+TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}"
+STORE_DIR="/var/vcap/store/${PROGNAME}"
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}"
 
-PIDFILE=${RUN_DIR}/redis_exporter.pid
+PIDFILE="${RUN_DIR}/${PROGNAME}.pid"
 
-source /var/vcap/packages/redis_exporter/bin/utils.sh
-exec 1>> ${LOG_DIR}/$(basename "$0").stdout.log
-exec 2>> ${LOG_DIR}/$(basename "$0").stderr.log
+source /var/vcap/packages/${PROGNAME}/bin/utils.sh
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log
 
-export PATH=/var/vcap/packages/redis_exporter/bin:${PATH}
+export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH}
 
 case $1 in
   start)
-    pid_guard ${PIDFILE} "redis_exporter"
+    pid_guard ${PIDFILE} "${PROGNAME}"
     echo $$ > ${PIDFILE}
 
-    exec redis_exporter \
+    exec ${PROGNAME} \
       <% if_p('redis_check_keys') do |check_keys| %> \
       -check-keys="<%= check_keys %>" \
       <% end %> \
@@ -43,8 +44,8 @@ case $1 in
       <% if_p('redis_address') do |address| %> \
       -redis.addr="<%= address %>" \
       <% end %> \
-      <% if_p('redis_alias') do |redis_alias| %> \
-      -redis.alias="<%= redis_alias %>" \
+      <% if_p('redis_alias') do |alias| %> \
+      -redis.alias="<%= alias %>" \
       <% end %> \
       <% if_p('redis_password') do |password| %> \
       -redis.password="<%= password %>" \
@@ -59,8 +60,8 @@ case $1 in
       <% if_p('web_telemetry_path') do |telemetry_path| %> \
       -web.telemetry-path="<%= telemetry_path %>" \
       <% end %> \
-      >>  ${LOG_DIR}/redis_exporter.stdout.log \
-      2>> ${LOG_DIR}/redis_exporter.stderr.log
+      >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
+      2>> ${LOG_DIR}/${PROGNAME}.stderr.log
     ;;
 
   stop)

@@ -9,31 +9,34 @@ templates:
 
 properties:
   redis_check_keys:
-    description: "Comma separated list of key-patterns to export value and length/size, searched for with SCAN"
+    description: Comma separated list of key-patterns to export value and length/size, searched for with SCAN
   redis_check_single_keys:
-    description: "Comma separated list of single keys to export value and length/size"
+    description: Comma separated list of single keys to export value and length/size
   debug:
-    description: "Output verbose debug information"
+    description: Output verbose debug information
     default: false
   log_format:
-    description: "Log format, valid options are txt and json"
+    description: Log format, valid options are txt and json
+    default: 'txt'
   namespace:
-    description: "Namespace for metrics"
+    description: Namespace for metrics
+    default: 'redis'
   redis_only_metrics:
-    description: "Whether to export go runtime metrics also"
+    description: Whether to export go runtime metrics also
     default: false
   redis_address:
-    description: "Address of one or more redis nodes, separated by separator"
+    description: Address of one or more redis nodes, separated by separator
   redis_alias:
-    description: "Redis instance alias for one or more redis nodes, separated by separator"
+    description: Redis instance alias for one or more redis nodes, separated by separator
   redis_password:
-    description: "Password for one or more redis nodes, separated by separator"
+    description: Password for one or more redis nodes, separated by separator
   redis_script:
-    description: "Lua Redis script for collecting extra metrics"
+    description: Lua Redis script for collecting extra metrics
   redis_separator:
-    description: "separator used to split redis_addr and redis_password into several elements"
+    description: Separator used to split redis_addr and redis_password into several elements
   web_port:
-    description: "Port on which to expose web interface and telemetry"
-    default: "9121"
+    description: Port on which to expose web interface and telemetry
+    default: '9121'
   web_telemetry_path:
-    description: "Path under which to expose metrics"
+    description: Path under which to expose metrics
+    default: '/metrics'
