@@ -1,0 +1,7 @@
+---
+name: redis_exporter
+dependencies:
+- golang
+files:
+- redis_exporter/utils.sh
+- redis_exporter/redis_exporter-v0.28.0.linux-amd64.tar.gz

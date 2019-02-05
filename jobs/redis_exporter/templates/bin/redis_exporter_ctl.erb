@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+set -eu
+
+RUN_DIR=/var/vcap/sys/run/redis_exporter
+LOG_DIR=/var/vcap/sys/log/redis_exporter
+TMP_DIR=/var/vcap/sys/tmp/redis_exporter
+STORE_DIR=/var/vcap/store/redis_exporter
+mkdir -p ${RUN_DIR} ${LOG_DIR} ${TMP_DIR} ${STORE_DIR}
+
+PIDFILE=${RUN_DIR}/redis_exporter.pid
+
+source /var/vcap/packages/redis_exporter/common/utils.sh
+exec 1>> ${LOG_DIR}/$(basename "$0").stdout.log
+exec 2>> ${LOG_DIR}/$(basename "$0").stderr.log
+
+export PATH=/var/vcap/packages/redis_exporter/bin:${PATH}
+
+case $1 in
+  start)
+    pid_guard ${PIDFILE} "redis_exporter"
+    echo $$ > ${PIDFILE}
+
+    exec redis_exporter \
+      <% if_p('redis_check_keys') do |check_keys| %> \
+      -check-keys="<%= check_keys %>" \
+      <% end %> \
+      <% if_p('redis_check_single_keys') do |check_single_keys| %> \
+      -check-single-keys="<%= check_single_keys %>" \
+      <% end %> \
+      <% if p('debug') %> \
+      -debug \
+      <% end %> \
+      <% if_p('log_format') do |log_format| %> \
+      -log-format="<%= log_format %>" \
+      <% end %> \
+      <% if_p('namespace') do |namespace| %> \
+      -namespace="<%= namespace %>" \
+      <% end %> \
+      <% if p('redis_only_metrics') %> \
+      -redis-only-metrics \
+      <% end %> \
+      <% if_p('redis_address') do |address| %> \
+      -redis.addr="<%= address %>" \
+      <% end %> \
+      <% if_p('redis_alias') do |redis_alias| %> \
+      -redis.alias="<%= redis_alias %>" \
+      <% end %> \
+      <% if_p('redis_password') do |password| %> \
+      -redis.password="<%= password %>" \
+      <% end %> \
+      <% if_p('redis_script') do |script| %> \
+      -script="/var/vcap/jobs/redis_exporter/config/script" \
+      <% end %> \
+      <% if_p('redis_separator') do |separator| %> \
+      -separator="<%= separator %>" \
+      <% end %> \
+      -web.listen-address=":<%= p('web.port') %>" \
+      <% if_p('web.telemetry_path') do |telemetry_path| %> \
+      -web.telemetry-path="<%= telemetry_path %>" \
+      <% end %> \
+      >>  ${LOG_DIR}/redis_exporter.stdout.log \
+      2>> ${LOG_DIR}/redis_exporter.stderr.log
+    ;;
+
+  stop)
+    kill_and_wait ${PIDFILE}
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
+
+esac
+exit 0
