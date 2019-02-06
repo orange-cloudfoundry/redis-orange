@@ -72,17 +72,11 @@
 # for each instance in your cluster to the static IP which was assigned to the instance
 # If it is set to false, it will not set the bind property which will force it to
 # fall back to default behavior, i.e. protected mode due to bind not being set.
-<%
-  if_p('bind') do |bind|
-    if bind == true
-%>
+<% if p('bind') %>
 bind <%= spec.ip %>
-<%  else %>
+<% else %>
 bind 127.0.0.1
-<%
-    end
-  end
-%>
+<% end %>
 
 # Protected mode is a layer of security protection, in order to avoid that
 # Redis instances left open on the internet are accessed and exploited.
@@ -184,7 +178,7 @@ loglevel <%= p('loglevel') %>
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('log_dir') %>/<%= p('logfile') %>
+logfile <%= p('log_dir') + '/' + p('logfile') %>
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -306,13 +300,11 @@ dir <%= p('dir') %>
 #
 # replicaof <masterip> <masterport>
 <%
-  if_p('replication') do |replication|
-    if replication == true
-      unless spec.bootstrap
+  if p('replication')
+    unless spec.bootstrap
 %>
-replicaof <%= link("redis").instances.find { |redis| redis.bootstrap }.address %> <%= p('port') %>
+slaveof <%= link("redis_conn").instances.find { |x| x.bootstrap }.address %> <%= p('port') %>
 <%
-      end
     end
   end
 %>

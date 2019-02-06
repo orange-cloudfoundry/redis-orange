@@ -9,16 +9,16 @@ packages:
 - redis
 
 provides:
-- name: redis
-  type: redis
+- name: redis_conn
+  type: conn
   properties:
+  - bind
   - port
   - password
-  - dir
 
 consumes:
-- name: redis
-  type: redis
+- name: redis_conn
+  type: conn
 
 properties:
 ################################## NETWORK #####################################
