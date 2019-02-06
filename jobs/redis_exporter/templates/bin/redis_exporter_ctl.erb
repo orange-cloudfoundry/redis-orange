@@ -23,43 +23,33 @@ case $1 in
     echo $$ > ${PIDFILE}
 
     exec ${PROGNAME} \
-      <% if_p('redis_check_keys') do |check_keys| %> \
-      -check-keys="<%= check_keys %>" \
-      <% end %> \
-      <% if_p('redis_check_single_keys') do |check_single_keys| %> \
-      -check-single-keys="<%= check_single_keys %>" \
-      <% end %> \
       <% if p('debug') %> \
       -debug \
       <% end %> \
-      <% if_p('log_format') do |log_format| %> \
-      -log-format="<%= log_format %>" \
+      -log-format="<%= p('log_format') %>" \
+      <% if_p('check_keys') do |check_keys| %> \
+      -check-keys="<%= check_keys %>" \
       <% end %> \
+      <% if_p('check_single_keys') do |check_single_keys| %> \
+      -check-single-keys="<%= check_single_keys %>" \
+      <% end %> \
+      <% if_p('script') do |script| %> \
+      -script="/var/vcap/jobs/redis_exporter/config/script" \
+      <% end %> \
+      <% if link('redis_conn').p('bind') %> \
+      -redis.addr="redis://<%= spec.ip + ':' + link('redis_conn').p('port') %>" \
+      <% else %> \
+      -redis.addr="redis://127.0.0.1:<%= link('redis_conn').p('port') %>" \
+      <% end %> \
+      <% link('redis_conn').if_p('password') do |password| %> \
+      -redis.password="<%= password %>" \
+      <% end %> \
+      -redis.alias="<%= spec.deployment + '.' + spec.ip %>" \
       <% if_p('namespace') do |namespace| %> \
       -namespace="<%= namespace %>" \
       <% end %> \
-      <% if p('redis_only_metrics') %> \
-      -redis-only-metrics \
-      <% end %> \
-      <% if_p('redis_address') do |address| %> \
-      -redis.addr="<%= address %>" \
-      <% end %> \
-      <% if_p('redis_alias') do |alias| %> \
-      -redis.alias="<%= alias %>" \
-      <% end %> \
-      <% if_p('redis_password') do |password| %> \
-      -redis.password="<%= password %>" \
-      <% end %> \
-      <% if_p('redis_script') do |script| %> \
-      -script="/var/vcap/jobs/redis_exporter/config/script" \
-      <% end %> \
-      <% if_p('redis_separator') do |separator| %> \
-      -separator="<%= separator %>" \
-      <% end %> \
-      -web.listen-address=":<%= p('web_port') %>" \
-      <% if_p('web_telemetry_path') do |telemetry_path| %> \
-      -web.telemetry-path="<%= telemetry_path %>" \
-      <% end %> \
+      -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
+      -web.telemetry-path="<%= p('web.telemetry_path') %>" \
       >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
       2>> ${LOG_DIR}/${PROGNAME}.stderr.log
     ;;

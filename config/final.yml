@@ -1,5 +1,6 @@
-final_name: bosh-redis
+---
 blobstore:
   provider: s3
   options:
     bucket_name: bosh-redis-blobs
+final_name: bosh-redis

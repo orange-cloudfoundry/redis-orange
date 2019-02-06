@@ -1,42 +1,36 @@
+---
 name: redis_exporter
-
-packages:
-  - redis_exporter
 
 templates:
   bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
   config/script.erb: config/script
 
+packages:
+  - redis_exporter
+
+consumes:
+- name: redis_conn
+  type: conn
+
 properties:
-  redis_check_keys:
-    description: Comma separated list of key-patterns to export value and length/size, searched for with SCAN
-  redis_check_single_keys:
-    description: Comma separated list of single keys to export value and length/size
   debug:
-    description: Output verbose debug information
+    description: 'Verbose debug output.'
     default: false
   log_format:
-    description: Log format, valid options are txt and json
+    description: 'Log format, valid options are txt (default) and json.'
     default: 'txt'
+  check_keys:
+    description: 'Comma separated list of key patterns to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The key patterns specified with this flag will be found using SCAN. Use this option if you need glob pattern matching; check-single-keys is faster for non-pattern keys.'
+  script:
+    description: 'Path to Redis Lua script for gathering extra metrics.'
   namespace:
-    description: Namespace for metrics
+    description: 'Namespace for the metrics, defaults to redis.'
     default: 'redis'
-  redis_only_metrics:
-    description: Whether to export go runtime metrics also
-    default: false
-  redis_address:
-    description: Address of one or more redis nodes, separated by separator
-  redis_alias:
-    description: Redis instance alias for one or more redis nodes, separated by separator
-  redis_password:
-    description: Password for one or more redis nodes, separated by separator
-  redis_script:
-    description: Lua Redis script for collecting extra metrics
-  redis_separator:
-    description: Separator used to split redis_addr and redis_password into several elements
-  web_port:
-    description: Port on which to expose web interface and telemetry
+  web.port:
+    description: 'Port listen on for web interface and telemetry, defaults to 9121.'
     default: '9121'
-  web_telemetry_path:
-    description: Path under which to expose metrics
-    default: '/metrics'
+  web.telemetry_path:
+    description: 'Path under which to expose metrics, defaults to metrics.'
+    default: 'metrics'
+  check_single_keys:
+    description: "Comma separated list of keys to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The keys specified with this flag will be looked up directly without any glob pattern matching. Use this option if you don't need glob pattern matching; it is faster than check-keys."

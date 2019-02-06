@@ -17,8 +17,6 @@ instance_groups:
       password: ((redis_password))
   - name: redis_exporter
     release: bosh-redis
-    properties:
-      redis_password: ((redis_password))
 
 #variables:
 #- name: redis_password
