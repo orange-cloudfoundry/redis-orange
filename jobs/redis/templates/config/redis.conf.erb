@@ -564,15 +564,15 @@ requirepass <%= password %>
 #
 # Please note that changing the name of commands that are logged into the
 # AOF file or transmitted to replicas may cause problems.
-rename-command CONFIG "<%= p('rename_config_command') %>"
-rename-command SAVE "<%= p('rename_save_command') %>"
-rename-command BGSAVE "<%= p('rename_bgsave_command') %>"
-rename-command BGREWRITEAOF "<%= p('rename_bgrewriteaof_command') %>"
-rename-command MONITOR "<%= p('rename_monitor_command') %>"
-rename-command DEBUG "<%= p('rename_debug_command') %>"
-rename-command SHUTDOWN "<%= p('rename_shutdown_command') %>"
-rename-command SLAVEOF "<%= p('rename_slaveof_command') %>"
-rename-command SYNC "<%= p('rename_sync_command') %>"
+rename-command CONFIG <%= p('rename_config_command') %>
+rename-command SAVE <%= p('rename_save_command') %>
+rename-command BGSAVE <%= p('rename_bgsave_command') %>
+rename-command BGREWRITEAOF <%= p('rename_bgrewriteaof_command') %>
+rename-command MONITOR <%= p('rename_monitor_command') %>
+rename-command DEBUG <%= p('rename_debug_command') %>
+rename-command SHUTDOWN <%= p('rename_shutdown_command') %>
+rename-command SLAVEOF <%= p('rename_slaveof_command') %>
+rename-command SYNC <%= p('rename_sync_command') %>
 
 ################################### CLIENTS ####################################
 
