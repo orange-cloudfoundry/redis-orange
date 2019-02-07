@@ -2,25 +2,41 @@
 
 set -eu
 
-PROGNAME="redis_exporter"
-RUN_DIR="/var/vcap/sys/run/${PROGNAME}"
-LOG_DIR="/var/vcap/sys/log/${PROGNAME}"
-TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}"
-STORE_DIR="/var/vcap/store/${PROGNAME}"
-mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}"
+PROGNAME="redis_exporter";
+RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
+LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
+TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
+STORE_DIR="/var/vcap/store/${PROGNAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
-PIDFILE="${RUN_DIR}/${PROGNAME}.pid"
+PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
-source /var/vcap/packages/${PROGNAME}/bin/utils.sh
-exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log
-exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log
+<% if link('redis_conn').p('bind') %>
+REDIS_IP="<%= spec.ip %>";
+<% else %>
+REDIS_IP="127.0.0.1";
+<% end %>
+REDIS_PORT="<%= link('redis_conn').p('port') %>";
+REDIS_PASSWORD="";
+<%
+  link('redis_conn').if_p('password') do |password|
+    if password.to_s.empty? == false %>
+REDIS_PASSWORD="-redis.password=<%= password %>";
+<%
+    end
+  end
+%>
 
-export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH}
+source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+
+export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH};
 
 case $1 in
   start)
-    pid_guard ${PIDFILE} "${PROGNAME}"
-    echo $$ > ${PIDFILE}
+    pid_guard ${PIDFILE} "${PROGNAME}";
+    echo $$ > ${PIDFILE};
 
     exec ${PROGNAME} \
       <% if p('debug') %> \
@@ -36,14 +52,8 @@ case $1 in
       <% if_p('script') do |script| %> \
       -script="/var/vcap/jobs/redis_exporter/config/script" \
       <% end %> \
-      <% if link('redis_conn').p('bind') %> \
-      -redis.addr="redis://<%= spec.ip + ':' + link('redis_conn').p('port') %>" \
-      <% else %> \
-      -redis.addr="redis://127.0.0.1:<%= link('redis_conn').p('port') %>" \
-      <% end %> \
-      <% link('redis_conn').if_p('password') do |password| %> \
-      -redis.password="<%= password %>" \
-      <% end %> \
+      -redis.addr="redis://${REDIS_IP}:${REDIS_PORT}" \
+      ${REDIS_PASSWORD} \
       -redis.alias="<%= spec.deployment + '.' + spec.ip %>" \
       <% if_p('namespace') do |namespace| %> \
       -namespace="<%= namespace %>" \
@@ -51,17 +61,17 @@ case $1 in
       -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
       -web.telemetry-path="<%= p('web.telemetry_path') %>" \
       >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
-      2>> ${LOG_DIR}/${PROGNAME}.stderr.log
+      2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
     ;;
 
   stop)
-    kill_and_wait ${PIDFILE}
+    kill_and_wait ${PIDFILE};
     ;;
 
   *)
-    echo "Usage: $0 {start|stop}"
-    exit 1
+    echo "Usage: $0 {start|stop}";
+    exit 1;
     ;;
 
 esac
-exit 0
+exit 0;

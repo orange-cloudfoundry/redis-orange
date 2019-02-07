@@ -9,15 +9,21 @@ REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p('logfile') %>";
 REDIS_STORE_DIR="<%= p('dir') %>";
 REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
+<% if p('bind') %>
+REDIS_IP="<%= spec.ip %>";
+<% else %>
+REDIS_IP="127.0.0.1";
+<% end %>
 REDIS_PORT="<%= p('port') %>";
 <%
   if_p('password') do |password|
-    if password.to_s != "" %>
-REDIS_PASSWORD="<%= p('password') %>";
+    if password.to_s.empty? == false %>
+REDIS_PASSWORD="<%= password %>";
 <%
     end
   end
 %>
+REDIS_SHUTDOWN="<%= p('rename_shutdown_command') %>";
 
 case "${1}" in
   start)
@@ -44,16 +50,16 @@ case "${1}" in
     if [[ -f /sys/kernel/mm/transparent_hugepage/enabled ]];
     then
       # fail silently as bosh-lite is a read-only file system
-      set +e
-      echo never > /sys/kernel/mm/transparent_hugepage/enabled
-      set -e
+      set +e;
+      echo never > /sys/kernel/mm/transparent_hugepage/enabled;
+      set -e;
     fi
 
-    sysctl -w net.core.somaxconn=511
+    sysctl -w net.core.somaxconn=511;
 
     # Recommended for running redis on a VM in production
     # (https://www.pivotaltracker.com/story/show/74949514)
-    sysctl vm.overcommit_memory=1
+    sysctl vm.overcommit_memory=1;
 
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
@@ -70,7 +76,12 @@ case "${1}" in
       redis_pid="$(cat ${REDIS_PID_FILE})";
       echo "Stopping ...";
       redis_password_opt="${REDIS_PASSWORD:+"-a ${REDIS_PASSWORD}"}";
-      exec chpst -u vcap:vcap "${REDIS_CLI}" -p "${REDIS_PORT}" ${redis_password_opt} SHUTDOWN;
+      exec chpst -u vcap:vcap \
+        "${REDIS_CLI}" \
+          -h "${REDIS_IP}" \
+          -p "${REDIS_PORT}" \
+          ${redis_password_opt} \
+          ${REDIS_SHUTDOWN};
       while [[ -x "/proc/${REDIS_PID}" ]];
       do
         echo "Waiting for Redis to shutdown ...";
