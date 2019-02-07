@@ -7,4 +7,4 @@ default_network: # some network from your cloud-config
 default_az: # some az from your cloud-config
 stemcell_os: ubuntu-xenial # https://bosh.io/stemcells/bosh-openstack-kvm-ubuntu-xenial-go_agent
 stemcell_version: 250.4
-redis_password: # generate uuid, i.e. `uuidgen`
+redis_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
