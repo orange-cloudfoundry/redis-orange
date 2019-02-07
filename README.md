@@ -1,2 +1,2 @@
 # bosh-redis
-My first Bosh release
+A Redis release for Cloud Foundry
