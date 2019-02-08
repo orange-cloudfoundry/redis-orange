@@ -20,10 +20,9 @@ REDIS_PORT="<%= link('redis_conn').p('port') %>";
 REDIS_PASSWORD="";
 <%
   link('redis_conn').if_p('password') do |password|
-    if password.to_s.empty? == false %>
+    unless password.to_s.empty? %>
 REDIS_PASSWORD="-redis.password=<%= password %>";
-<%
-    end
+<%  end
   end
 %>
 

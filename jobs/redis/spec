@@ -15,6 +15,15 @@ provides:
   - bind
   - port
   - password
+  - rename_config_command
+  - rename_save_command
+  - rename_bgsave_command
+  - rename_bgrewriteaof_command
+  - rename_monitor_command
+  - rename_debug_command
+  - rename_shutdown_command
+  - rename_slaveof_command
+  - rename_sync_command
 
 consumes:
 - name: redis_conn
@@ -54,8 +63,8 @@ properties:
     default: 'yes'
     description: To enable logging to the system logger, just set 'syslog-enabled' to yes, and optionally update the other syslog parameters to suit your needs.
   syslog_ident:
-    description: Specify the syslog identity.
     default: redis-server
+    description: Specify the syslog identity.
   syslog_facility:
     default: local0
     description: Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.
@@ -83,8 +92,8 @@ properties:
     description: The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory.
 ################################# REPLICATION #################################
   replication:
-    description: When set to false, master/slave replication will be disabled and all instances will run as standalone deployments.
     default: false
+    description: When set to false, master/slave replication will be disabled and all instances will run as standalone deployments.
   replica_serve_stale_data:
     default: 'yes'
     description: When a replica loses its connection with the master, or when the replication is still in progress, the replica can act in two different ways - 1) if replica-serve-stale-data is set to 'yes' (the default) the replica will still reply to client requests, possibly with out of date data, or the data set may just be empty if this is the first synchronization. 2) if replica-serve-stale-data is set to 'no' the replica will reply with an error "SYNC with master in progress" to all the kind of commands but to INFO, replicaOF, AUTH, PING, SHUTDOWN, REPLCONF, ROLE, CONFIG, SUBSCRIBE, UNSUBSCRIBE, PSUBSCRIBE, PUNSUBSCRIBE, PUBLISH, PUBSUB, COMMAND, POST, HOST and LATENCY.
@@ -103,6 +112,15 @@ properties:
   replica_priority:
     default: 100
     description: The replica priority is an integer number published by Redis in the INFO output. It is used by Redis Sentinel in order to select a replica to promote into a master if the master is no longer working correctly. A replica with a low priority number is considered better for promotion, so for instance if there are three replicas with priority 10, 100, 25 Sentinel will pick the one with priority 10, that is the lowest. However a special priority of 0 marks the replica as not able to perform the role of master, so a replica with priority of 0 will never be selected by Redis Sentinel for promotion.
+  min_replicas_to_write:
+    default: 1
+    description: It is possible for a master to stop accepting writes if there are less than N replicas connected, having a lag less or equal than M seconds. The N replicas need to be in "online" state. The lag in seconds, that must be <= the specified value, is calculated from the last ping received from the replica, that is usually sent every second. This option does not GUARANTEE that N replicas will accept the write, but will limit the window of exposure for lost writes in case not enough replicas are available, to the specified number of seconds. For example to require at least 3 replicas with a lag <= 10 seconds use - min-replicas-to-write 3 and  min-replicas-max-lag 10. Setting one or the other to 0 disables the feature.
+  min_replicas_max_lag:
+    default: 10
+    description: See 'min_replicas_to_write'.
+  replica_announce:
+    default: false
+    description: When port forwarding or Network Address Translation (NAT) is used, the replica may be actually reachable via different IP and port pairs. The option can be used by a replica in order to report to its master a specific set of IP and port, so that both INFO and ROLE will report those values.
 ################################## SECURITY ###################################
   password:
     description: Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server. This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers). Warning - since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break.
@@ -164,6 +182,9 @@ properties:
   cluster_require_full_coverage:
     default: 'yes'
     description: If this is set to yes, as it is by default, the cluster stops accepting writes if some percentage of the key space is not covered by any node. If the option is set to no, the cluster will still serve queries even if only requests about a subset of keys can be processed.
+  cluster_announce:
+    default: false
+    description: In certain deployments, Redis Cluster nodes address discovery fails, because addresses are NAT-ted or because ports are forwarded (the typical case is Docker and other containers). In order to make Redis Cluster working in such environments, a static configuration where each node knows its public address is needed. This property instruct the node about its address, client port, and cluster message bus port. The information is then published in the header of the bus packets so that other nodes will be able to correctly map the address of the node publishing the information. If the above options are not used, the normal Redis Cluster auto-detection will be used instead.
 ################################## SLOW LOG ###################################
   slowlog_log_slower_than:
     default: 10000

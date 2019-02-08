@@ -165,7 +165,7 @@ supervised no
 #
 # Creating a pid file is best effort: if Redis is not able to create it
 # nothing bad happens, the server will start and run normally.
-pidfile <%= p('run_dir') %>/<%= p('pidfile') %>
+pidfile <%= p('run_dir') + '/' + p('pidfile') %>
 
 # Specify the server verbosity level.
 # This can be one of:
@@ -226,13 +226,10 @@ always-show-logo yes
 #   save ""
 <%
   if_p('save') do
-    p('save').each do |command|
-%>
+    p('save').each do |command| %>
 save <%= command %>
-<%
-    end
-  end
-%>
+<%  end
+  end %>
 
 # By default Redis will stop accepting writes if RDB snapshots are enabled
 # (at least one save point) and the latest background save failed.
@@ -301,13 +298,10 @@ dir <%= p('dir') %>
 # replicaof <masterip> <masterport>
 <%
   if p('replication')
-    unless spec.bootstrap
-%>
-slaveof <%= link("redis_conn").instances.find { |x| x.bootstrap }.address %> <%= p('port') %>
-<%
-    end
-  end
-%>
+    unless spec.bootstrap %>
+replicaof <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= p('port') %>
+<%  end
+  end %>
 
 # If the master is password protected (using the "requirepass" configuration
 # directive below) it is possible to tell the replica to authenticate before
@@ -317,12 +311,10 @@ slaveof <%= link("redis_conn").instances.find { |x| x.bootstrap }.address %> <%=
 # masterauth <master-password>
 <%
   if_p('password') do |password|
-    if password.to_s.empty? == false %>
+    unless password.to_s.empty? %>
 masterauth <%= password %>
-<%
-    end
-  end
-%>
+<%  end
+  end %>
 
 # When a replica loses its connection with the master, or when the replication
 # is still in progress, the replica can act in two different ways:
@@ -493,6 +485,8 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
+min-replicas-to-write <%= p('min_replicas_to_write') %>
+min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 
 # A Redis master is able to list the address and port of the attached
 # replicas in different ways. For example the "INFO replication" section
@@ -522,6 +516,14 @@ replica-priority <%= p('replica_priority') %>
 #
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
+<%
+  if p('replica_annonce)
+    if p('bind')
+      unless spec.bootstrap %>
+replica-announce-ip <%= spec.ip %>
+<%    end
+    end
+  end %>
 
 ################################## SECURITY ###################################
 
@@ -539,12 +541,10 @@ replica-priority <%= p('replica_priority') %>
 # requirepass foobared
 <%
   if_p('password') do |password|
-    if password.to_s.empty? == false %>
+    unless password.to_s.empty? %>
 requirepass <%= password %>
-<%
-    end
-  end
-%>
+<%  end
+  end %>
 
 # Command renaming.
 #
@@ -895,30 +895,14 @@ cluster-enabled <%= p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-<%
-  if_p('cluster_enabled') do |cluster|
-    if cluster == 'yes'
-%>
-cluster-config-file nodes-<%= p('port') %>.conf
-<%
-    end
-  end
-%>
+cluster-config-file <%= p('run_dir') + '/nodes-' + p('port') + '.conf' %>
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
 # Most other internal time limits are multiple of the node timeout.
 #
 # cluster-node-timeout 15000
-<%
-  if_p('cluster_enabled') do |cluster|
-    if cluster == 'yes'
-%>
 cluster-node-timeout <%= p('cluster_node_timeout') %>
-<%
-    end
-  end
-%>
 
 # A replica of a failing master will avoid to start a failover if its data
 # looks too old.
@@ -964,15 +948,7 @@ cluster-node-timeout <%= p('cluster_node_timeout') %>
 # the cluster will always be able to continue.
 #
 # cluster-replica-validity-factor 10
-<%
-  if_p('cluster_enabled') do |cluster|
-    if cluster == 'yes'
-%>
 cluster-replica-validity-factor <%= p('cluster_replica_validity_factor') %>
-<%
-    end
-  end
-%>
 
 # Cluster replicas are able to migrate to orphaned masters, that are masters
 # that are left without working replicas. This improves the cluster ability
@@ -992,15 +968,7 @@ cluster-replica-validity-factor <%= p('cluster_replica_validity_factor') %>
 # in production.
 #
 # cluster-migration-barrier 1
-<%
-  if_p('cluster_enabled') do |cluster|
-    if cluster == 'yes'
-%>
 cluster-migration-barrier <%= p('cluster_migration_barrier') %>
-<%
-    end
-  end
-%>
 
 # By default Redis Cluster nodes stop accepting queries if they detect there
 # is at least an hash slot uncovered (no available node is serving it).
@@ -1014,15 +982,7 @@ cluster-migration-barrier <%= p('cluster_migration_barrier') %>
 # option to no.
 #
 # cluster-require-full-coverage yes
-<%
-  if_p('cluster_enabled') do |cluster|
-    if cluster == 'yes'
-%>
 cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
-<%
-    end
-  end
-%>
 
 # This option, when set to yes, prevents replicas from trying to failover its
 # master during master failures. However the master can still perform a
@@ -1069,7 +1029,14 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # cluster-announce-ip 10.1.1.5
 # cluster-announce-port 6379
 # cluster-announce-bus-port 6380
-
+<%
+  if p('cluster_annonce')
+    if p('bind')
+cluster-announce-ip <%= spec.ip %>
+<%  end %>
+cluster-announce-port <%= p('port') %>
+<%
+  end %>
 ################################## SLOW LOG ###################################
 
 # The Redis Slow Log is a system to log queries that exceeded a specified
