@@ -17,10 +17,9 @@ REDIS_IP="127.0.0.1";
 REDIS_PORT="<%= p('port') %>";
 <%
   if_p('password') do |password|
-    if password.to_s.empty? == false %>
+    unless password.to_s.empty? %>
 REDIS_PASSWORD="<%= password %>";
-<%
-    end
+<%  end
   end
 %>
 REDIS_SHUTDOWN="<%= p('rename_shutdown_command') %>";
@@ -82,11 +81,12 @@ case "${1}" in
           -p "${REDIS_PORT}" \
           ${redis_password_opt} \
           ${REDIS_SHUTDOWN};
-      while [[ -x "/proc/${REDIS_PID}" ]];
+      while [[ -x "/proc/${redis_pid}" ]];
       do
         echo "Waiting for Redis to shutdown ...";
         sleep 1;
       done
+      rm -f "${REDIS_PID_FILE}"
       echo "Redis stopped";
     else
       echo "${REDIS_PID_FILE} does not exist, process is not running";

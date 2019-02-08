@@ -14,7 +14,12 @@ instance_groups:
   - name: redis
     release: bosh-redis
     properties:
+      bind: ((redis_bind))
       password: ((redis_password))
+  - name: resdis_sentinel
+    release: bosh-redis
+    properties:
+      bind: ((redis_sentinel_bind))
   - name: redis_exporter
     release: bosh-redis
 

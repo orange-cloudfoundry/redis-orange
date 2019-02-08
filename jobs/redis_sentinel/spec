@@ -1,0 +1,48 @@
+---
+name: redis_sentinel
+
+templates:
+  config/redis_sentinel.conf.erb: config/redis_sentinel.conf
+  bin/redis_sentinel_ctl.erb: bin/redis_sentinel_ctl
+
+packages:
+- redis
+
+consumes:
+- name: redis_conn
+  type: conn
+
+properties:
+  bind:
+    default: false
+    description: Specify this property if you would like the bind address of a given instance to be automatically set to its assigned static IP.
+  port:
+    default: 26379
+    description: The port that this sentinel instance will run on
+  run_dir:
+    default: /var/vcap/sys/run/redis_sentinel
+    description: Directory where to store Redis Sentinel pid file
+  pidfile:
+    default: redis_sentinel.pid
+    description: When running daemonized, Redis Sentinel writes a pid file.
+  log_dir:
+    default: /var/vcap/sys/log/redis_sentinel
+    description: Directory where to store Redis log file
+  logfile:
+    default: redis_sentinel.log
+    description: Specify the log file name. Also the empty string can be used to force Redis to log on the standard output. Note that if you use standard output for logging but daemonize, logs will be sent to /dev/null.
+  announce:
+    default: false
+    description: It is useful in environments where, because of NAT, Sentinel is reachable from outside via a non-local address. When announce is provided, the Sentinel will claim the specified IP address in HELLO messages used to gossip its presence, instead of auto-detecting the local address as it usually does.
+  dir:
+    default: /var/vcap/store/redis_sentinel
+    description: Every long running process should have a well-defined working directory. For Redis Sentinel to chdir to /tmp at startup is the simplest thing for the process to don't interfere with administrative tasks such as unmounting filesystems.
+  down_after_milliseconds:
+    default: 30000
+    description: Number of milliseconds the master (or any attached replica or sentinel) should be unreachable (as in, not acceptable reply to PING, continuously, for the specified period) in order to consider it in S_DOWN state (Subjectively Down).
+  parallel_syncs:
+    default: 1
+    description: How many replicas we can reconfigure to point to the new replica simultaneously during the failover. Use a low number if you use the replicas to serve query to avoid that all the replicas will be unreachable at about the same time while performing the synchronization with the master.
+  failover_timeout:
+    default: 180000
+    description: Specifies the failover timeout in milliseconds. It is used in many ways - The time needed to re-start a failover after a previous failover was already tried against the same master by a given Sentinel, is two times the failover timeout. - The time needed for a replica replicating to a wrong master according to a Sentinel current configuration, to be forced to replicate with the right master, is exactly the failover timeout (counting since the moment a Sentinel detected the misconfiguration). - The time needed to cancel a failover that is already in progress but did not produced any configuration change (SLAVEOF NO ONE yet not acknowledged by the promoted replica). - The maximum time a failover in progress waits for all the replicas to be reconfigured as replicas of the new master. However even after this time the replicas will be reconfigured by the Sentinels anyway, but not with the exact parallel-syncs progression as specified.
