@@ -517,7 +517,7 @@ min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
 <%
-  if p('replica_annonce)
+  if p('replica_announce')
     if p('bind')
       unless spec.bootstrap %>
 replica-announce-ip <%= spec.ip %>
@@ -1030,13 +1030,13 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # cluster-announce-port 6379
 # cluster-announce-bus-port 6380
 <%
-  if p('cluster_annonce')
+  if p('cluster_announce')
     if p('bind')
 cluster-announce-ip <%= spec.ip %>
-<%  end %>
 cluster-announce-port <%= p('port') %>
-<%
+<%  end
   end %>
+
 ################################## SLOW LOG ###################################
 
 # The Redis Slow Log is a system to log queries that exceeded a specified

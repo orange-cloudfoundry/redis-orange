@@ -62,9 +62,9 @@ logfile <%= p('log_dir') + '/' + p('logfile') %>
 #
 # sentinel announce-ip 1.2.3.4
 <%
-  if p('annonce')
+  if p('announce')
     if p('bind') %>
-sentinel announce-ip <% spec.ip %>
+sentinel announce-ip <%= spec.ip %>
 <%  end
   end %>
 
@@ -73,7 +73,7 @@ sentinel announce-ip <% spec.ip %>
 # For Redis Sentinel to chdir to /tmp at startup is the simplest thing
 # for the process to don't interfere with administrative tasks such as
 # unmounting filesystems.
-dir <%= p'(dir') %>
+dir <%= p('dir') %>
 
 # sentinel monitor <master-name> <ip> <redis-port> <quorum>
 #
@@ -132,7 +132,7 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= p('down_after_millis
 # to avoid that all the replicas will be unreachable at about the same
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
-sentinel parallel-syncs <%= spec.deployment %> <%= parallel_syncs %>
+sentinel parallel-syncs <%= spec.deployment %> <%= p('parallel_syncs') %>
 
 # sentinel failover-timeout <master-name> <milliseconds>
 #
@@ -158,7 +158,7 @@ sentinel parallel-syncs <%= spec.deployment %> <%= parallel_syncs %>
 #
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
-sentinel failover-timeout <%= spec.deployment %> <%= failover_timeout %>
+sentinel failover-timeout <%= spec.deployment %> <%= p('failover_timeout') %>
 
 # SCRIPTS EXECUTION
 #
@@ -266,3 +266,33 @@ sentinel rename-command <%= spec.deployment %> rename-command DEBUG <%= link('re
 sentinel rename-command <%= spec.deployment %> rename-command SHUTDOWN <%= link('redis_conn').p('rename_shutdown_command') %>
 sentinel rename-command <%= spec.deployment %> rename-command SLAVEOF <%= link('redis_conn').p('rename_slaveof_command') %>
 sentinel rename-command <%= spec.deployment %> rename-command SYNC <%= link('redis_conn').p('rename_sync_command') %>
+
+# You can also configure the Sentinel instance itself in order to require client
+# authentication via the AUTH command, however this feature is only available starting with
+# Redis 5.0.1.
+#
+# In order to do so, just add the following configuration directive to all your Sentinel
+# instances:
+#
+# requirepass "your_password_here"
+# When configured this way, Sentinels will do two things:
+#
+# 1. A password will be required from clients in order to send commands to Sentinels. This
+# is obvious since this is how such configuration directive works in Redis in general.
+# 2. Moreover the same password configured to access the local Sentinel, will be used by
+# this Sentinel instance in order to authenticate to all the other Sentinel instances it
+# connects to.
+#
+# This means that you will have to configure the same requirepass password in all the
+# Sentinel instances. This way every Sentinel can talk with every other Sentinel without
+# any need to configure for each Sentinel the password to access all the other Sentinels,
+# that would be very impractical.
+#
+# Before using this configuration make sure your client library is able to send the AUTH
+# command to Sentinel instances.
+<%
+  if_p('password') do |password|
+    unless password.to_s.empty? %>
+requirepass <%= password %>
+<%  end
+  end %>

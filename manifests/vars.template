@@ -10,3 +10,4 @@ stemcell_version: 250.4
 redis_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
 redis_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
 redis_sentinel_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
+redis_sentinel_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
