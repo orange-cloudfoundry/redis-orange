@@ -16,10 +16,11 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
-  - name: resdis_sentinel
+  - name: redis_sentinel
     release: bosh-redis
     properties:
       bind: ((redis_sentinel_bind))
+      password: ((redis_sentinel_password))
   - name: redis_exporter
     release: bosh-redis
 
