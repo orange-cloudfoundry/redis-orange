@@ -1031,7 +1031,7 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # cluster-announce-bus-port 6380
 <%
   if p('cluster_announce')
-    if p('bind')
+    if p('bind') %>
 cluster-announce-ip <%= spec.ip %>
 cluster-announce-port <%= p('port') %>
 <%  end

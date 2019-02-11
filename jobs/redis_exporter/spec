@@ -14,23 +14,23 @@ consumes:
 
 properties:
   debug:
-    description: 'Verbose debug output.'
     default: false
+    description: 'Verbose debug output.'
   log_format:
-    description: 'Log format, valid options are txt (default) and json.'
     default: 'txt'
+    description: 'Log format, valid options are txt (default) and json.'
   check_keys:
     description: 'Comma separated list of key patterns to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The key patterns specified with this flag will be found using SCAN. Use this option if you need glob pattern matching; check-single-keys is faster for non-pattern keys.'
   script:
     description: 'Path to Redis Lua script for gathering extra metrics.'
   namespace:
-    description: 'Namespace for the metrics, defaults to redis.'
     default: 'redis'
+    description: 'Namespace for the metrics, defaults to redis.'
   web.port:
-    description: 'Port listen on for web interface and telemetry, defaults to 9121.'
     default: '9121'
+    description: 'Port listen on for web interface and telemetry, defaults to 9121.'
   web.telemetry_path:
-    description: 'Path under which to expose metrics, defaults to metrics.'
     default: 'metrics'
+    description: 'Path under which to expose metrics, defaults to metrics.'
   check_single_keys:
-    description: "Comma separated list of keys to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The keys specified with this flag will be looked up directly without any glob pattern matching. Use this option if you don't need glob pattern matching; it is faster than check-keys."
+    description: 'Comma separated list of keys to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The keys specified with this flag will be looked up directly without any glob pattern matching. Use this option if you don't need glob pattern matching; it is faster than check-keys.'
