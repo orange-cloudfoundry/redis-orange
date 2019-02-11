@@ -33,162 +33,162 @@ properties:
 ################################## NETWORK #####################################
   bind:
     default: false
-    description: 'Specify this property if you would like the bind address of a given instance to be automatically set to its assigned static IP.'
+    description: "Specify this property if you would like the bind address of a given instance to be automatically set to its assigned static IP."
   port:
-    default: '6379'
-    description: 'Accept connections on the specified port, default is 6379 (IANA #815344). If port 0 is specified Redis will not listen on a TCP socket.'
+    default: "6379"
+    description: "Accept connections on the specified port, default is 6379 (IANA #815344). If port 0 is specified Redis will not listen on a TCP socket."
   timeout:
-    default: '0'
-    description: 'Close the connection after a client is idle for N seconds (0 to disable)'
+    default: "0"
+    description: "Close the connection after a client is idle for N seconds (0 to disable)"
   tcp_keepalive:
-    default: '300'
-    description: 'TCP keepalive. If non-zero, use SO_KEEPALIVE to send TCP ACKs to clients in absence of communication. A reasonable value for this option is 300 seconds, which is the new Redis default starting with Redis 3.2.1.'
+    default: "300"
+    description: "TCP keepalive. If non-zero, use SO_KEEPALIVE to send TCP ACKs to clients in absence of communication. A reasonable value for this option is 300 seconds, which is the new Redis default starting with Redis 3.2.1."
 ################################# GENERAL #####################################
   run_dir:
-    default: '/var/vcap/sys/run/redis'
-    description: 'Directory where to store Redis pid file.'
+    default: "/var/vcap/sys/run/redis"
+    description: "Directory where to store Redis pid file."
   pidfile:
-    default: 'redis.pid'
-    description: 'If a pid file is specified, Redis writes it where specified at startup and removes it at exit. Creating a pid file is best effort - if Redis is not able to create it nothing bad happens, the server will start and run normally.'
+    default: "redis.pid"
+    description: "If a pid file is specified, Redis writes it where specified at startup and removes it at exit. Creating a pid file is best effort - if Redis is not able to create it nothing bad happens, the server will start and run normally."
   loglevel:
-    default: 'notice'
-    description: 'Specify the server verbosity level. This can be one of - debug (a lot of information, useful for development/testing), verbose (many rarely useful info, but not a mess like the debug level), notice (moderately verbose, what you want in production probably), warning (only very important / critical messages are logged).'
+    default: "notice"
+    description: "Specify the server verbosity level. This can be one of - debug (a lot of information, useful for development/testing), verbose (many rarely useful info, but not a mess like the debug level), notice (moderately verbose, what you want in production probably), warning (only very important / critical messages are logged)."
   log_dir:
-    default: '/var/vcap/sys/log/redis'
-    description: 'Directory where to store Redis log file.'
+    default: "/var/vcap/sys/log/redis"
+    description: "Directory where to store Redis log file."
   logfile:
-    default: 'redis.log'
-    description: 'Specify the log file name. Also the empty string can be used to force Redis to log on the standard output. Note that if you use standard output for logging but daemonize, logs will be sent to /dev/null.'
+    default: "redis.log"
+    description: "Specify the log file name. Also the empty string can be used to force Redis to log on the standard output. Note that if you use standard output for logging but daemonize, logs will be sent to /dev/null."
   syslog_enabled:
-    default: 'yes'
-    description: 'To enable logging to the system logger, just set syslog-enabled to yes, and optionally update the other syslog parameters to suit your needs.'
+    default: "yes"
+    description: "To enable logging to the system logger, just set syslog-enabled to yes, and optionally update the other syslog parameters to suit your needs."
   syslog_ident:
-    default: 'redis-server'
-    description: 'Specify the syslog identity.'
+    default: "redis-server"
+    description: "Specify the syslog identity."
   syslog_facility:
-    default: 'local0'
-    description: 'Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7.'
+    default: "local0"
+    description: "Specify the syslog facility. Must be USER or between LOCAL0-LOCAL7."
   databases:
-    default: '16'
-    description: 'Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and <databases>-1.'
+    default: "16"
+    description: "Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and <databases>-1."
 ################################ SNAPSHOTTING  ################################
   save:
     default:
-      - '900 1'
-      - '300 10'
-      - '60 10000'
-    description: 'Save the DB on disk - save <seconds> <changes> Will save the DB if both the given number of seconds and the given number of write operations against the DB occurred.'
+      - "900 1"
+      - "300 10"
+      - "60 10000"
+    description: "Save the DB on disk - save <seconds> <changes> Will save the DB if both the given number of seconds and the given number of write operations against the DB occurred."
   stop_writes_on_bgsave_error:
-    default: 'yes'
-    description: 'By default Redis will stop accepting writes if RDB snapshots are enabled (at least one save point) and the latest background save failed. This will make the user aware (in a hard way) that data is not persisting on disk properly, otherwise chances are that no one will notice and some disaster will happen. However if you have setup your proper monitoring of the Redis server and persistence, you may want to disable this feature so that Redis will continue to work as usual even if there are problems with disk, permissions, and so forth.'
+    default: "yes"
+    description: "By default Redis will stop accepting writes if RDB snapshots are enabled (at least one save point) and the latest background save failed. This will make the user aware (in a hard way) that data is not persisting on disk properly, otherwise chances are that no one will notice and some disaster will happen. However if you have setup your proper monitoring of the Redis server and persistence, you may want to disable this feature so that Redis will continue to work as usual even if there are problems with disk, permissions, and so forth."
   rdbcompression:
-    default: 'yes'
-    description: 'Compress string objects using LZF when dump .rdb databases.'
+    default: "yes"
+    description: "Compress string objects using LZF when dump .rdb databases."
   rdbchecksum:
-    default: 'yes'
-    description: 'Since version 5 of RDB a CRC64 checksum is placed at the end of the file. This makes the format more resistant to corruption but there is a performance hit to pay (around 10%) when saving and loading RDB files, so you can disable it for maximum performances.'
+    default: "yes"
+    description: "Since version 5 of RDB a CRC64 checksum is placed at the end of the file. This makes the format more resistant to corruption but there is a performance hit to pay (around 10%) when saving and loading RDB files, so you can disable it for maximum performances."
   dir:
-    default: '/var/vcap/store/redis'
-    description: 'The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory.'
+    default: "/var/vcap/store/redis"
+    description: "The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory."
 ################################# REPLICATION #################################
   replication:
     default: false
-    description: 'When set to false, master/slave replication will be disabled and all instances will run as standalone deployments.'
+    description: "When set to false, master/slave replication will be disabled and all instances will run as standalone deployments."
   replica_serve_stale_data:
-    default: 'yes'
-    description: 'When a replica loses its connection with the master, or when the replication is still in progress, the replica can act in two different ways - 1) if replica-serve-stale-data is set to yes (the default) the replica will still reply to client requests, possibly with out of date data, or the data set may just be empty if this is the first synchronization. 2) if replica-serve-stale-data is set to no the replica will reply with an error SYNC with master in progress to all the kind of commands but to INFO, replicaOF, AUTH, PING, SHUTDOWN, REPLCONF, ROLE, CONFIG, SUBSCRIBE, UNSUBSCRIBE, PSUBSCRIBE, PUNSUBSCRIBE, PUBLISH, PUBSUB, COMMAND, POST, HOST and LATENCY.'
+    default: "yes"
+    description: "When a replica loses its connection with the master, or when the replication is still in progress, the replica can act in two different ways - 1) if replica-serve-stale-data is set to yes (the default) the replica will still reply to client requests, possibly with out of date data, or the data set may just be empty if this is the first synchronization. 2) if replica-serve-stale-data is set to no the replica will reply with an error SYNC with master in progress to all the kind of commands but to INFO, replicaOF, AUTH, PING, SHUTDOWN, REPLCONF, ROLE, CONFIG, SUBSCRIBE, UNSUBSCRIBE, PSUBSCRIBE, PUNSUBSCRIBE, PUBLISH, PUBSUB, COMMAND, POST, HOST and LATENCY."
   replica_read_only:
-    default: 'yes'
-    description: 'You can configure a replica instance to accept writes or not. Writing against a replica instance may be useful to store some ephemeral data (because data written on a replica will be easily deleted after resync with the master) but may also cause problems if clients are writing to it because of a misconfiguration. Since Redis 2.6 by default replicas are read-only.'
+    default: "yes"
+    description: "You can configure a replica instance to accept writes or not. Writing against a replica instance may be useful to store some ephemeral data (because data written on a replica will be easily deleted after resync with the master) but may also cause problems if clients are writing to it because of a misconfiguration. Since Redis 2.6 by default replicas are read-only."
   repl_ping_replica_period:
-    default: '10'
-    description: 'Replicas send PINGs to server in a predefined interval. It is possible to change this interval with the repl_ping_replica_period option. The default value is 10 seconds.'
+    default: "10"
+    description: "Replicas send PINGs to server in a predefined interval. It is possible to change this interval with the repl_ping_replica_period option. The default value is 10 seconds."
   repl_timeout:
-    default: '60'
-    description: 'Sets the replication timeout for - 1) Bulk transfer I/O during SYNC, from the point of view of replica. 2) Master timeout from the point of view of replicas (data, pings). 3) Replica timeout from the point of view of masters (REPLCONF ACK pings). It is important to make sure that this value is greater than the value specified for repl-ping-replica-period otherwise a timeout will be detected every time there is low traffic between the master and the replica.'
+    default: "60"
+    description: "Sets the replication timeout for - 1) Bulk transfer I/O during SYNC, from the point of view of replica. 2) Master timeout from the point of view of replicas (data, pings). 3) Replica timeout from the point of view of masters (REPLCONF ACK pings). It is important to make sure that this value is greater than the value specified for repl-ping-replica-period otherwise a timeout will be detected every time there is low traffic between the master and the replica."
   repl_disable_tcp_nodelay:
-    default: 'no'
-    description: 'Disable TCP_NODELAY on the replica socket after SYNC? If you select yes Redis will use a smaller number of TCP packets and less bandwidth to send data to replicas. But this can add a delay for the data to appear on the replica side, up to 40 milliseconds with Linux kernels using a default configuration. If you select no the delay for data to appear on the replica side will be reduced but more bandwidth will be used for replication. By default we optimize for low latency, but in very high traffic conditions or when the master and replicas are many hops away, turning this to yes may be a good idea.'
+    default: "no"
+    description: "Disable TCP_NODELAY on the replica socket after SYNC? If you select yes Redis will use a smaller number of TCP packets and less bandwidth to send data to replicas. But this can add a delay for the data to appear on the replica side, up to 40 milliseconds with Linux kernels using a default configuration. If you select no the delay for data to appear on the replica side will be reduced but more bandwidth will be used for replication. By default we optimize for low latency, but in very high traffic conditions or when the master and replicas are many hops away, turning this to yes may be a good idea."
   replica_priority:
-    default: '100'
-    description: 'The replica priority is an integer number published by Redis in the INFO output. It is used by Redis Sentinel in order to select a replica to promote into a master if the master is no longer working correctly. A replica with a low priority number is considered better for promotion, so for instance if there are three replicas with priority 10, 100, 25 Sentinel will pick the one with priority 10, that is the lowest. However a special priority of 0 marks the replica as not able to perform the role of master, so a replica with priority of 0 will never be selected by Redis Sentinel for promotion.'
+    default: "100"
+    description: "The replica priority is an integer number published by Redis in the INFO output. It is used by Redis Sentinel in order to select a replica to promote into a master if the master is no longer working correctly. A replica with a low priority number is considered better for promotion, so for instance if there are three replicas with priority 10, 100, 25 Sentinel will pick the one with priority 10, that is the lowest. However a special priority of 0 marks the replica as not able to perform the role of master, so a replica with priority of 0 will never be selected by Redis Sentinel for promotion."
   min_replicas_to_write:
-    default: '1'
-    description: 'It is possible for a master to stop accepting writes if there are less than N replicas connected, having a lag less or equal than M seconds. The N replicas need to be in online state. The lag in seconds, that must be <= the specified value, is calculated from the last ping received from the replica, that is usually sent every second. This option does not GUARANTEE that N replicas will accept the write, but will limit the window of exposure for lost writes in case not enough replicas are available, to the specified number of seconds. For example to require at least 3 replicas with a lag <= 10 seconds use - min-replicas-to-write 3 and  min-replicas-max-lag 10. Setting one or the other to 0 disables the feature.'
+    default: "1"
+    description: "It is possible for a master to stop accepting writes if there are less than N replicas connected, having a lag less or equal than M seconds. The N replicas need to be in online state. The lag in seconds, that must be <= the specified value, is calculated from the last ping received from the replica, that is usually sent every second. This option does not GUARANTEE that N replicas will accept the write, but will limit the window of exposure for lost writes in case not enough replicas are available, to the specified number of seconds. For example to require at least 3 replicas with a lag <= 10 seconds use - min-replicas-to-write 3 and  min-replicas-max-lag 10. Setting one or the other to 0 disables the feature."
   min_replicas_max_lag:
-    default: '10'
-    description: 'See previous min_replicas_to_write.'
+    default: "10"
+    description: "See previous min_replicas_to_write."
   replica_announce:
     default: false
-    description: 'When port forwarding or Network Address Translation (NAT) is used, the replica may be actually reachable via different IP and port pairs. The option can be used by a replica in order to report to its master a specific set of IP and port, so that both INFO and ROLE will report those values.'
+    description: "When port forwarding or Network Address Translation (NAT) is used, the replica may be actually reachable via different IP and port pairs. The option can be used by a replica in order to report to its master a specific set of IP and port, so that both INFO and ROLE will report those values."
 ################################## SECURITY ###################################
   password:
-    description: 'Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server. This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers). Warning - since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break.'
+    description: "Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server. This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers). Warning - since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break."
   rename_config_command:
-    default: 'e580549972fac7f7f319ba7abc47a850'
-    description: 'The name of the obfuscated redis CONFIG command.'
+    default: "e580549972fac7f7f319ba7abc47a850"
+    description: "The name of the obfuscated redis CONFIG command."
   rename_save_command:
-    default: '5007ff382563fd119f80e9bc47069ad1'
-    description: 'The name of the obfuscated redis SAVE command.'
+    default: "5007ff382563fd119f80e9bc47069ad1"
+    description: "The name of the obfuscated redis SAVE command."
   rename_bgsave_command:
-    default: '3566a00fba6abb264009697ecb4c6f2f'
-    description: 'The name of the obfuscated redis BGSAVE command.'
+    default: "3566a00fba6abb264009697ecb4c6f2f"
+    description: "The name of the obfuscated redis BGSAVE command."
   rename_bgrewriteaof_command:
-    default: '3fa62ca48237045a551d376ca51b952e'
-    description: 'The name of the obfuscated redis BGREWRITEAOF command.'
+    default: "3fa62ca48237045a551d376ca51b952e"
+    description: "The name of the obfuscated redis BGREWRITEAOF command."
   rename_monitor_command:
-    default: '24d17519bd433649e9cade60361d3aa2'
-    description: 'The name of the obfuscated redis MONITOR command.'
+    default: "24d17519bd433649e9cade60361d3aa2"
+    description: "The name of the obfuscated redis MONITOR command."
   rename_debug_command:
-    default: '2b6ec7ad943aba4c26435375e88fc9cb'
-    description: 'The name of the obfuscated redis DEBUG command.'
+    default: "2b6ec7ad943aba4c26435375e88fc9cb"
+    description: "The name of the obfuscated redis DEBUG command."
   rename_shutdown_command:
-    default: 'ce18460508096137293daa0ee3d05348'
-    description: 'The name of the obfuscated redis SHUTDOWN command.'
+    default: "ce18460508096137293daa0ee3d05348"
+    description: "The name of the obfuscated redis SHUTDOWN command."
   rename_slaveof_command:
-    default: 'ac7dd025dbd0c2d38848ceaf29931d0f'
-    description: 'The name of the obfuscated redis SLAVEOF command.'
+    default: "ac7dd025dbd0c2d38848ceaf29931d0f"
+    description: "The name of the obfuscated redis SLAVEOF command."
   rename_sync_command:
-    default: '906e7d6da5591228de2541d9f394e966'
-    description: 'The name of the obfuscated redis SYNC command.'
+    default: "906e7d6da5591228de2541d9f394e966"
+    description: "The name of the obfuscated redis SYNC command."
 ################################### CLIENTS ####################################
   maxclients:
-    default: '10000'
-    description: 'Set the max number of connected clients at the same time. By default this limit is set to 10000 clients, however if the Redis server is not able to configure the process file limit to allow for the specified limit the max number of allowed clients is set to the current file limit minus 32 (as Redis reserves a few file descriptors for internal uses). Once the limit is reached Redis will close all the new connections sending an error max number of clients reached.'
+    default: "10000"
+    description: "Set the max number of connected clients at the same time. By default this limit is set to 10000 clients, however if the Redis server is not able to configure the process file limit to allow for the specified limit the max number of allowed clients is set to the current file limit minus 32 (as Redis reserves a few file descriptors for internal uses). Once the limit is reached Redis will close all the new connections sending an error max number of clients reached."
 ############################## APPEND ONLY MODE ###############################
   appendonly:
-    default: 'no'
-    description: 'By default Redis asynchronously dumps the dataset on disk. This mode is good enough in many applications, but an issue with the Redis process or a power outage may result into a few minutes of writes lost (depending on the configured save points). The Append Only File is an alternative persistence mode that provides much better durability. For instance using the default data fsync policy (see later in the config file) Redis can lose just one second of writes in a dramatic event like a server power outage, or a single write if something wrong with the Redis process itself happens, but the operating system is still running correctly. AOF and RDB persistence can be enabled at the same time without problems. If the AOF is enabled on startup Redis will load the AOF, that is the file with the better durability guarantees. Please check http://redis.io/topics/persistence for more information.'
+    default: "no"
+    description: "By default Redis asynchronously dumps the dataset on disk. This mode is good enough in many applications, but an issue with the Redis process or a power outage may result into a few minutes of writes lost (depending on the configured save points). The Append Only File is an alternative persistence mode that provides much better durability. For instance using the default data fsync policy (see later in the config file) Redis can lose just one second of writes in a dramatic event like a server power outage, or a single write if something wrong with the Redis process itself happens, but the operating system is still running correctly. AOF and RDB persistence can be enabled at the same time without problems. If the AOF is enabled on startup Redis will load the AOF, that is the file with the better durability guarantees. Please check http://redis.io/topics/persistence for more information."
   appendfsync:
-    default: 'everysec'
-    description: 'The fsync() call tells the Operating System to actually write data on disk instead of waiting for more data in the output buffer. Some OS will really flush data on disk, some other OS will just try to do it ASAP. Redis supports three different modes - no - do not fsync, just let the OS flush the data when it wants. Faster. always - fsync after every write to the append only log. Slow, Safest. everysec - fsync only one time every second. Compromise. The default is everysec, as that is usually the right compromise between speed and data safety. It is up to you to understand if you can relax this to no that will let the operating system flush the output buffer when it wants, for better performances (but if you can live with the idea of some data loss consider the default persistence mode that is snapshotting), or on the contrary, use always that is very slow but a bit safer than everysec. More details please check the following article http://antirez.com/post/redis-persistence-demystified.html. If unsure, use everysec.'
+    default: "everysec"
+    description: "The fsync() call tells the Operating System to actually write data on disk instead of waiting for more data in the output buffer. Some OS will really flush data on disk, some other OS will just try to do it ASAP. Redis supports three different modes - no - do not fsync, just let the OS flush the data when it wants. Faster. always - fsync after every write to the append only log. Slow, Safest. everysec - fsync only one time every second. Compromise. The default is everysec, as that is usually the right compromise between speed and data safety. It is up to you to understand if you can relax this to no that will let the operating system flush the output buffer when it wants, for better performances (but if you can live with the idea of some data loss consider the default persistence mode that is snapshotting), or on the contrary, use always that is very slow but a bit safer than everysec. More details please check the following article http://antirez.com/post/redis-persistence-demystified.html. If unsure, use everysec."
 ################################ LUA SCRIPTING  ###############################
   lua_time_limit:
-    default: '5000'
-    description: 'Max execution time of a Lua script in milliseconds.'
+    default: "5000"
+    description: "Max execution time of a Lua script in milliseconds."
 ################################ REDIS CLUSTER  ###############################
   cluster_enabled:
-    default: 'no'
-    description: 'If yes enables Redis Cluster support in a specific Redis instance. Otherwise the instance starts as a stand alone instance as usual.'
+    default: "no"
+    description: "If yes enables Redis Cluster support in a specific Redis instance. Otherwise the instance starts as a stand alone instance as usual."
   cluster_node_timeout:
-    default: '15000'
-    description: 'The maximum amount of time a Redis Cluster node can be unavailable, without it being considered as failing. If a master node is not reachable for more than the specified amount of time, it will be failed over by its slaves. This parameter controls other important things in Redis Cluster. Notably, every node that can not reach the majority of master nodes for the specified amount of time, will stop accepting queries.'
+    default: "15000"
+    description: "The maximum amount of time a Redis Cluster node can be unavailable, without it being considered as failing. If a master node is not reachable for more than the specified amount of time, it will be failed over by its slaves. This parameter controls other important things in Redis Cluster. Notably, every node that can not reach the majority of master nodes for the specified amount of time, will stop accepting queries."
   cluster_replica_validity_factor:
-    default: '10'
-    description: 'If set to zero, a slave will always try to failover a master, regardless of the amount of time the link between the master and the slave remained disconnected. If the value is positive, a maximum disconnection time is calculated as the node timeout value multiplied by the factor provided with this option, and if the node is a slave, it will not try to start a failover if the master link was disconnected for more than the specified amount of time. For example if the node timeout is set to 5 seconds, and the validity factor is set to 10, a slave disconnected from the master for more than 50 seconds will not try to failover its master. Note that any value different than zero may result in Redis Cluster to be unavailable after a master failure if there is no slave able to failover it. In that case the cluster will return back available only when the original master rejoins the cluster.'
+    default: "10"
+    description: "If set to zero, a slave will always try to failover a master, regardless of the amount of time the link between the master and the slave remained disconnected. If the value is positive, a maximum disconnection time is calculated as the node timeout value multiplied by the factor provided with this option, and if the node is a slave, it will not try to start a failover if the master link was disconnected for more than the specified amount of time. For example if the node timeout is set to 5 seconds, and the validity factor is set to 10, a slave disconnected from the master for more than 50 seconds will not try to failover its master. Note that any value different than zero may result in Redis Cluster to be unavailable after a master failure if there is no slave able to failover it. In that case the cluster will return back available only when the original master rejoins the cluster."
   cluster_migration_barrier:
-    default: '1'
-    description: 'Minimum number of slaves a master will remain connected with, for another slave to migrate to a master which is no longer covered by any slave. See the appropriate section about replica migration in this tutorial for more information.'
+    default: "1"
+    description: "Minimum number of slaves a master will remain connected with, for another slave to migrate to a master which is no longer covered by any slave. See the appropriate section about replica migration in this tutorial for more information."
   cluster_require_full_coverage:
-    default: 'yes'
-    description: 'If this is set to yes, as it is by default, the cluster stops accepting writes if some percentage of the key space is not covered by any node. If the option is set to no, the cluster will still serve queries even if only requests about a subset of keys can be processed.'
+    default: "yes"
+    description: "If this is set to yes, as it is by default, the cluster stops accepting writes if some percentage of the key space is not covered by any node. If the option is set to no, the cluster will still serve queries even if only requests about a subset of keys can be processed."
   cluster_announce:
     default: false
-    description: 'In certain deployments, Redis Cluster nodes address discovery fails, because addresses are NAT-ted or because ports are forwarded (the typical case is Docker and other containers). In order to make Redis Cluster working in such environments, a static configuration where each node knows its public address is needed. This property instruct the node about its address, client port, and cluster message bus port. The information is then published in the header of the bus packets so that other nodes will be able to correctly map the address of the node publishing the information. If the above options are not used, the normal Redis Cluster auto-detection will be used instead.'
+    description: "In certain deployments, Redis Cluster nodes address discovery fails, because addresses are NAT-ted or because ports are forwarded (the typical case is Docker and other containers). In order to make Redis Cluster working in such environments, a static configuration where each node knows its public address is needed. This property instruct the node about its address, client port, and cluster message bus port. The information is then published in the header of the bus packets so that other nodes will be able to correctly map the address of the node publishing the information. If the above options are not used, the normal Redis Cluster auto-detection will be used instead."
 ################################## SLOW LOG ###################################
   slowlog_log_slower_than:
-    default: '10000'
-    description: 'The execution time, in microseconds, to exceed in order for the command to get logged. Time is expressed in microseconds, so 1000000 is equivalent to one second. Note that a negative number disables the slow log, while a value of zero forces the logging of every command.'
+    default: "10000"
+    description: "The execution time, in microseconds, to exceed in order for the command to get logged. Time is expressed in microseconds, so 1000000 is equivalent to one second. Note that a negative number disables the slow log, while a value of zero forces the logging of every command."
   slowlog_max_len:
-    default: '128'
-    description: 'The length of the slow log. There is no limit to this length. Just be aware that it will consume memory. You can reclaim memory used by the slow log with SLOWLOG RESET.'
+    default: "128"
+    description: "The length of the slow log. There is no limit to this length. Just be aware that it will consume memory. You can reclaim memory used by the slow log with SLOWLOG RESET."
