@@ -296,12 +296,9 @@ dir <%= p('dir') %>
 #    and resynchronize with them.
 #
 # replicaof <masterip> <masterport>
-<%
-  if p('replication')
-    unless spec.bootstrap %>
+<% if p('replication') && !spec.bootstrap %>
 replicaof <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= p('port') %>
-<%  end
-  end %>
+<% end %>
 
 # If the master is password protected (using the "requirepass" configuration
 # directive below) it is possible to tell the replica to authenticate before
@@ -310,10 +307,12 @@ replicaof <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%
 #
 # masterauth <master-password>
 <%
-  if_p('password') do |password|
-    unless password.to_s.empty? %>
+  if p('replication') && !spec.bootstrap
+    if_p('password') do |password|
+      unless password.to_s.empty? %>
 masterauth <%= password %>
-<%  end
+<%    end
+    end
   end %>
 
 # When a replica loses its connection with the master, or when the replication
@@ -485,8 +484,10 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
+<% if p('replication') && spec.bootstrap %>
 min-replicas-to-write <%= p('min_replicas_to_write') %>
 min-replicas-max-lag <%= p('min_replicas_max_lag') %>
+<% end %>
 
 # A Redis master is able to list the address and port of the attached
 # replicas in different ways. For example the "INFO replication" section
@@ -516,14 +517,9 @@ min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 #
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
-<%
-  if p('replica_announce')
-    if p('bind')
-      unless spec.bootstrap %>
+<% if p('replica_announce') && p('bind') && !spec.bootstrap %>
 replica-announce-ip <%= spec.ip %>
-<%    end
-    end
-  end %>
+<% end %>
 
 ################################## SECURITY ###################################
 
@@ -1029,13 +1025,10 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # cluster-announce-ip 10.1.1.5
 # cluster-announce-port 6379
 # cluster-announce-bus-port 6380
-<%
-  if p('cluster_announce')
-    if p('bind') %>
+<% if p('cluster_announce') && p('bind') %>
 cluster-announce-ip <%= spec.ip %>
 cluster-announce-port <%= p('port') %>
-<%  end
-  end %>
+<% end %>
 
 ################################## SLOW LOG ###################################
 
