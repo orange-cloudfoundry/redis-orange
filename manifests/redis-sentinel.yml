@@ -24,6 +24,8 @@ instance_groups:
       password: ((redis_sentinel_password))
   - name: redis_exporter
     release: bosh-redis
+    properties:
+      debug: ((redis_exporter_debug))
 
 #variables:
 #- name: redis_password
