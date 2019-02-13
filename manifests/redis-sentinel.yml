@@ -28,6 +28,8 @@ instance_groups:
 #variables:
 #- name: redis_password
   #type: password
+#- name: redis_sentinel_password
+  #type: password
 
 stemcells:
 - alias: default

@@ -22,7 +22,8 @@ REDIS_SENTINEL_PASSWORD="<%= password %>";
 <%  end
   end
 %>
-REDIS_SHUTDOWN="<%= link('redis_conn').p('rename_shutdown_command') %>";
+#REDIS_SHUTDOWN="<%= link('redis_conn').p('rename_shutdown_command') %>";
+REDIS_SHUTDOWN="SHUTDOWN";
 
 case "${1}" in
   start)
@@ -39,6 +40,7 @@ case "${1}" in
     chmod 750 "${REDIS_SENTINEL_STORE_DIR}";
     touch "${REDIS_SENTINEL_LOG_FILE}";
     chown vcap:vcap "${REDIS_SENTINEL_LOG_FILE}";
+    chmod 660 "${REDIS_SENTINEL_CONF}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted

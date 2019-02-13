@@ -89,7 +89,7 @@ dir <%= p('dir') %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-sentinel monitor <%= spec.deployment %> <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %> <%= link('redis_conn').instances.length - 1 %>
+sentinel monitor <%= spec.deployment %> <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %> <%= link('redis_conn').instances.length %>
 
 # sentinel auth-pass <master-name> <password>
 #
@@ -255,14 +255,14 @@ sentinel deny-scripts-reconfig yes
 #
 # SENTINEL rename-command mymaster CONFIG CONFIG
 sentinel rename-command <%= spec.deployment %> CONFIG <%= link('redis_conn').p('rename_config_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command SAVE <%= link('redis_conn').p('rename_save_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command BGSAVE <%= link('redis_conn').p('rename_bgsave_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command BGREWRITEAOF <%= link('redis_conn').p('rename_bgrewriteaof_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command MONITOR <%= link('redis_conn').p('rename_monitor_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command DEBUG <%= link('redis_conn').p('rename_debug_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command SHUTDOWN <%= link('redis_conn').p('rename_shutdown_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command SLAVEOF <%= link('redis_conn').p('rename_slaveof_command') %>
-sentinel rename-command <%= spec.deployment %> rename-command SYNC <%= link('redis_conn').p('rename_sync_command') %>
+sentinel rename-command <%= spec.deployment %> SAVE <%= link('redis_conn').p('rename_save_command') %>
+sentinel rename-command <%= spec.deployment %> BGSAVE <%= link('redis_conn').p('rename_bgsave_command') %>
+sentinel rename-command <%= spec.deployment %> BGREWRITEAOF <%= link('redis_conn').p('rename_bgrewriteaof_command') %>
+sentinel rename-command <%= spec.deployment %> MONITOR <%= link('redis_conn').p('rename_monitor_command') %>
+sentinel rename-command <%= spec.deployment %> DEBUG <%= link('redis_conn').p('rename_debug_command') %>
+sentinel rename-command <%= spec.deployment %> SHUTDOWN <%= link('redis_conn').p('rename_shutdown_command') %>
+sentinel rename-command <%= spec.deployment %> SLAVEOF <%= link('redis_conn').p('rename_slaveof_command') %>
+sentinel rename-command <%= spec.deployment %> SYNC <%= link('redis_conn').p('rename_sync_command') %>
 
 # You can also configure the Sentinel instance itself in order to require client
 # authentication via the AUTH command, however this feature is only available starting with
