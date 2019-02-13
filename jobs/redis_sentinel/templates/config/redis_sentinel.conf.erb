@@ -89,7 +89,7 @@ dir <%= p('dir') %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-sentinel monitor <%= spec.deployment %> <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %> <%= link('redis_conn').instances.length %>
+sentinel monitor <%= spec.deployment %> <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %> <%= (link('redis_conn').instances.length/2)+1 %>
 
 # sentinel auth-pass <master-name> <password>
 #
