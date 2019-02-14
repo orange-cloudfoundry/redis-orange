@@ -5,8 +5,10 @@ set -eu
 PROGNAME="redis_exporter";
 RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
 LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
-mkdir -p "${RUN_DIR}" "${LOG_DIR}";
-chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}";
+TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
+STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
@@ -26,20 +28,17 @@ REDIS_PASSWORD="<%= password %>";
   end
 %>
 
-REDIS_ALIAS="<%= spec.deployment + '.' + spec.ip %>";
-
-export REDIS_ADDR REDIS_PASSWORD REDIS_ALIAS;
+REDIS_ALIAS="<%= spec.deployment + '/' + spec.ip %>";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
-
-touch \
-  ${LOG_DIR}/${PROGNAME}.stdout.log \
-  ${LOG_DIR}/${PROGNAME}.stderr.log;
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log
 chown vcap:vcap \
   ${LOG_DIR}/${PROGNAME}.stdout.log \
   ${LOG_DIR}/${PROGNAME}.stderr.log;
 
 export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH};
+export REDIS_ADDR REDIS_PASSWORD REDIS_ALIAS;
 
 case $1 in
   start)
