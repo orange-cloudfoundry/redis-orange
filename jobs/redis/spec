@@ -23,6 +23,7 @@ provides:
   - rename_debug_command
   - rename_shutdown_command
   - rename_slaveof_command
+  - rename_replicaof_command
   - rename_sync_command
 
 consumes:
@@ -127,31 +128,24 @@ properties:
   password:
     description: "Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server. This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers). Warning - since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break."
   rename_config_command:
-    default: "e580549972fac7f7f319ba7abc47a850"
     description: "The name of the obfuscated redis CONFIG command."
   rename_save_command:
-    default: "5007ff382563fd119f80e9bc47069ad1"
     description: "The name of the obfuscated redis SAVE command."
   rename_bgsave_command:
-    default: "3566a00fba6abb264009697ecb4c6f2f"
     description: "The name of the obfuscated redis BGSAVE command."
   rename_bgrewriteaof_command:
-    default: "3fa62ca48237045a551d376ca51b952e"
     description: "The name of the obfuscated redis BGREWRITEAOF command."
   rename_monitor_command:
-    default: "24d17519bd433649e9cade60361d3aa2"
     description: "The name of the obfuscated redis MONITOR command."
   rename_debug_command:
-    default: "2b6ec7ad943aba4c26435375e88fc9cb"
     description: "The name of the obfuscated redis DEBUG command."
   rename_shutdown_command:
-    default: "ce18460508096137293daa0ee3d05348"
     description: "The name of the obfuscated redis SHUTDOWN command."
   rename_slaveof_command:
-    default: "ac7dd025dbd0c2d38848ceaf29931d0f"
     description: "The name of the obfuscated redis SLAVEOF command."
+  rename_replicaof_command:
+    description: "The name of the obfuscated redis REPLICAOF command."
   rename_sync_command:
-    default: "906e7d6da5591228de2541d9f394e966"
     description: "The name of the obfuscated redis SYNC command."
 ################################### CLIENTS ####################################
   maxclients:
