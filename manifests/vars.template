@@ -8,7 +8,18 @@ default_az: # some az from your cloud-config
 stemcell_os: ubuntu-xenial # https://bosh.io/stemcells/bosh-openstack-kvm-ubuntu-xenial-go_agent
 stemcell_version: 250.4
 redis_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
+# Security
 redis_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
 redis_sentinel_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
 redis_sentinel_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
 redis_exporter_debug: # if true, redis_exporter run in debug mode
+rename_config_command: # e580549972fac7f7f319ba7abc47a850
+rename_save_command: # 5007ff382563fd119f80e9bc47069ad1
+rename_bgsave_command # 3566a00fba6abb264009697ecb4c6f2f
+rename_bgrewriteaof_command: # 3fa62ca48237045a551d376ca51b952e
+rename_monitor_command: # 24d17519bd433649e9cade60361d3aa2
+rename_debug_command: # 2b6ec7ad943aba4c26435375e88fc9cb
+rename_shutdown_command: # ce18460508096137293daa0ee3d05348
+rename_slaveof_command: # ac7dd025dbd0c2d38848ceaf29931d0f
+rename_replicaof_command: # 9f4b6fa3c35268797c63bfaf9040be22
+rename_sync_command: # 906e7d6da5591228de2541d9f394e966
