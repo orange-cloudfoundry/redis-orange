@@ -1,6 +1,6 @@
 ---
 deployment_name: # name of your redis deployment e.g. `my-redis`
-redis_node_count: 1 # Number of Redis instances
+redis_node_count: # Number of Redis instances
 default_vm_type: # some vm_type from your cloud-config
 default_persistent_disk_type: # some disk_type from your cloud-config
 default_network: # some network from your cloud-config

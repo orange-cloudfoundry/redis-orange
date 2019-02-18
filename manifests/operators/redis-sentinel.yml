@@ -1,0 +1,13 @@
+- type: replace
+  path: /instance_groups/name=redis/jobs/name=redis?:after
+  value:
+    name: redis_sentinel
+- type: replace
+  path: /instance_groups/name=redis/jobs/name=redis_sentinel?/release
+  value: bosh-redis
+- type: replace
+  path: /instance_groups/name=redis/jobs/name=redis_sentinel?/properties/bind
+  value: ((redis_sentinel_bind))
+- type: replace
+  path: /instance_groups/name=redis/jobs/name=redis_sentinel?/properties/password
+  value: ((redis_sentinel_password))
