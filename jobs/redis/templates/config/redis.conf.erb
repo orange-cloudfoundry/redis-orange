@@ -298,9 +298,11 @@ dir <%= p('dir') %>
 # replicaof <masterip> <masterport>
 <%
   if p('replication')
-    if p('cluster_enabled').eql('yes') %>
-replicaof <%= link('redis_master_conn').instances[spec.index].address %> <%= link('redis_master_conn').p('port') %>
-<%  else
+    if p('cluster_enabled').eql?('yes')
+      if_link('redis_master_conn') do |master| %>
+replicaof <%= master.instances[spec.index/p('cluster_replica_node_count').to_i].address %> <%= master.p('port') %>
+<%    end
+    else
       unless spec.bootstrap %>
 replicaof <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %>
 <%    end
@@ -491,18 +493,10 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
-<%
-  if p('replication')
-    if p(cluster_enabled').eql('yes') %>
-min-replicas-to-write 1
-min-replicas-max-lag 10
-<%  else
-      if spec.bootstrap  && (link('redis_conn').instances.length > 1) %>
+<% if p('replication') && (p(cluster_enabled').eql?('yes') || (spec.bootstrap  && (link('redis_conn').instances.length > 1))) %>
 min-replicas-to-write <%= p('min_replicas_to_write') %>
 min-replicas-max-lag <%= p('min_replicas_max_lag') %>
-<%    end
-    end
-  end %>
+<% end %>
 
 # A Redis master is able to list the address and port of the attached
 # replicas in different ways. For example the "INFO replication" section
