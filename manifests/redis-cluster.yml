@@ -24,7 +24,7 @@ instance_groups:
 # Redis slaves for each node in the previous Redis cluster. A master has only one slave.
 - name: redis_slave
   azs: [((default_az))]
-  instances: ((redis_node_count))
+  instances: ((redis_node_count*replica_per_node_count))
   vm_type: ((default_vm_type))
   stemcell: default
   persistent_disk_type: ((default_persistent_disk_type))
@@ -38,6 +38,7 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      cluster_replica_node_count: ((replica_per_node_count))
   - name: redis_exporter
     release: bosh-redis
     properties:
