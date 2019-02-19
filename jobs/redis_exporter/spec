@@ -36,7 +36,7 @@ properties:
     description: |
       Port listen on for web interface and telemetry, defaults to "9121".
   web.telemetry_path:
-    default: "metrics"
+    default: "/metrics"
     description: |
       Path under which to expose metrics, defaults to "metrics".
   check_single_keys:
