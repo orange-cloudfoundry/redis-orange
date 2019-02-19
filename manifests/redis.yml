@@ -4,7 +4,7 @@ name: ((deployment_name))
 instance_groups:
 - name: redis
   azs: [((default_az))]
-  instances: ((redis_node_count))
+  instances: ((node_count))
   vm_type: ((default_vm_type))
   stemcell: default
   persistent_disk_type: ((default_persistent_disk_type))
