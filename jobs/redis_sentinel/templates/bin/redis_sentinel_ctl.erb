@@ -25,11 +25,10 @@ REDIS_SENTINEL_PASSWORD="<%= password %>";
   end
 %>
 
+REDIS_SHUTDOWN="SHUTDOWN";
 <% link('redis_conn').if_p('rename_shutdown_command') do |command| %>
 REDIS_SHUTDOWN="<%= command %>";
-<% else %>
-REDIS_SHUTDOWN="SHUTDOWN";
-<%end %>
+<% end %>
 
 case "${1}" in
   start)
