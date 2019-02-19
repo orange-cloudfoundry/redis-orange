@@ -1,7 +1,6 @@
 ---
 deployment_name: # name of your redis deployment e.g. `my-redis`
-redis_node_count: # Number of Redis instances
-replica_per_node_count: # The number of replica per cluster's node
+node_count: # Number of Redis nodes
 default_vm_type: # some vm_type from your cloud-config
 default_persistent_disk_type: # some disk_type from your cloud-config
 default_network: # some network from your cloud-config
@@ -9,7 +8,10 @@ default_az: # some az from your cloud-config
 stemcell_os: ubuntu-xenial # https://bosh.io/stemcells/bosh-openstack-kvm-ubuntu-xenial-go_agent
 stemcell_version: 250.4
 redis_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
+
+#
 # Security
+#
 redis_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
 redis_sentinel_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
 redis_sentinel_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen`
@@ -24,3 +26,15 @@ rename_shutdown_command: # ce18460508096137293daa0ee3d05348
 rename_slaveof_command: # ac7dd025dbd0c2d38848ceaf29931d0f
 rename_replicaof_command: # 9f4b6fa3c35268797c63bfaf9040be22
 rename_sync_command: # 906e7d6da5591228de2541d9f394e966
+
+#
+# High Avaibility (i.e.: replication and Redis Sentinel)
+#
+redis_replication: # If 'true', master/slave replication will be enabled. Default: 'false'. Note: Redis Sentinel will be activated if replcation is enable.
+
+#
+# Cluster High Avaibility
+#
+redis_replication: # If 'true', master/slave replication will be enabled. Default: 'false'. Note: In cluster mode, Redis Sentinel is disable.
+redis_cluster_enable: # If 'yes', Redis cluster features are enable. Default: 'no'
+replicas_per_node_count: # Number of replicas per cluster's node. Default: 1

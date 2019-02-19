@@ -300,7 +300,7 @@ dir <%= p('dir') %>
   if p('replication')
     if p('cluster_enabled').eql?('yes')
       if_link('redis_master_conn') do |master| %>
-replicaof <%= master.instances[spec.index/p('cluster_replica_node_count').to_i].address %> <%= master.p('port') %>
+replicaof <%= master.instances[spec.index/p('cluster_replicas_node_count').to_i].address %> <%= master.p('port') %>
 <%    end
     else
       unless spec.bootstrap %>
@@ -493,7 +493,7 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
-<% if p('replication') && (p(cluster_enabled').eql?('yes') || (spec.bootstrap  && (link('redis_conn').instances.length > 1))) %>
+<% if p('replication') && (p('cluster_enabled').eql?('yes') || (spec.bootstrap  && (link('redis_conn').instances.length > 1))) %>
 min-replicas-to-write <%= p('min_replicas_to_write') %>
 min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 <% end %>
