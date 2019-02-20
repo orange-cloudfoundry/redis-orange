@@ -25,10 +25,7 @@ REDIS_SENTINEL_PASSWORD="<%= password %>";
   end
 %>
 
-REDIS_SHUTDOWN="SHUTDOWN";
-<% link('redis_conn').if_p('rename_shutdown_command') do |command| %>
-REDIS_SHUTDOWN="<%= command %>";
-<% end %>
+REDIS_SENTINEL_SHUTDOWN="SHUTDOWN";
 
 case "${1}" in
   start)
@@ -50,6 +47,8 @@ case "${1}" in
     # Remove temp backup files that might be left over because of a
     # previously aborted
     rm -f "${REDIS_SENTINEL_STORE_DIR}"/*
+
+    ulimit -n 10032
 
     if [[ -f "${REDIS_SENTINEL_PID_FILE}" ]];
     then
@@ -73,7 +72,7 @@ case "${1}" in
           -h "${REDIS_SENTINEL_IP}" \
           -p "${REDIS_SENTINEL_PORT}" \
           ${redis_sentinel_password_opt} \
-          ${REDIS_SHUTDOWN};
+          ${REDIS_SENTINEL_SHUTDOWN};
       while [[ -x "/proc/${redis_sentinel_pid}" ]];
       do
         echo "Waiting for Redis Sentinel to shutdown ...";
