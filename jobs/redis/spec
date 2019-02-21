@@ -29,8 +29,6 @@ provides:
 consumes:
 - name: redis_conn
   type: conn
-- name: redis_master_conn
-  type: conn
 
 properties:
 ################################## NETWORK #####################################

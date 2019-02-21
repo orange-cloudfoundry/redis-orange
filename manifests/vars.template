@@ -30,10 +30,19 @@ redis_rename_sync_command: # 906e7d6da5591228de2541d9f394e966
 #
 redis_sentinel_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
 redis_sentinel_password: # generate with https://www.random.org/bytes/ or uuid, i.e. `uuidgen` Note: Redis Sentinel will be activated if replcation is enable.
+redis_sentinel_rename_config_command: # 01fa595d348fadbef23b4f5ccb82eb1f
+redis_sentinel_rename_save_command: # 7167d2aa9afbbeb53cd8222aba2eb04d
+redis_sentinel_rename_bgsave_command: # 1c5b6dbf804918ae6ff021f8d8172b11
+redis_sentinel_rename_bgrewriteaof_command: # 6a3de6561796f32104181a20be332aaf
+redis_sentinel_rename_monitor_command: # f62dc4ffd38fe8afb925145a1ce8f6c8
+redis_sentinel_rename_debug_command: # 037491dde1dbb3ca9d7ee2bc50faec69
+redis_sentinel_rename_shutdown_command: # 80e1890252a0d86f1542c5a5f84b2dde
+redis_sentinel_rename_slaveof_command: # 285764cc1e151a655c9a41870bbfdf7c
+redis_sentinel_rename_replicaof_command: # 2e5c58704a3a1668cada8f81f91010fd
+redis_sentinel_rename_sync_command: # b37be3f8c4a676648c6025f0918f4bf3
 
 #
 # Cluster High Avaibility
 #
-redis_replication: # If 'true', master/slave replication will be enabled. Default: 'false'. Note: In cluster mode, Redis Sentinel is disable.
 redis_cluster_enable: # If 'yes', Redis cluster features are enable. Default: 'no'
 replicas_per_node_count: # Number of replicas per cluster's node. Default: 1
