@@ -71,3 +71,33 @@ properties:
         2. Moreover the same password configured to access the local Sentinel, will be used by this Sentinel instance in order to authenticate to all the other Sentinel instances it connects to.
       This means that you will have to configure the same requirepass password in all the Sentinel instances. This way every Sentinel can talk with every other Sentinel without any need to configure for each Sentinel the password to access all the other Sentinels, that would be very impractical.
       Before using this configuration make sure your client library is able to send the AUTH command to Sentinel instances.
+  rename_config_command:
+    description: |
+      The name of the obfuscated Redis CONFIG command.
+  rename_save_command:
+    description: |
+      The name of the obfuscated Redis SAVE command.
+  rename_bgsave_command:
+    description: |
+      The name of the obfuscated Redis BGSAVE command.
+  rename_bgrewriteaof_command:
+    description: |
+      The name of the obfuscated Redis BGREWRITEAOF command.
+  rename_monitor_command:
+    description: |
+      The name of the obfuscated Redis MONITOR command.
+  rename_debug_command:
+    description: |
+      The name of the obfuscated Redis DEBUG command.
+  rename_shutdown_command:
+    description: |
+      The name of the obfuscated Redis SHUTDOWN command.
+  rename_slaveof_command:
+    description: |
+      The name of the obfuscated Redis SLAVEOF command.
+  rename_replicaof_command:
+    description: |
+      The name of the obfuscated Redis REPLICAOF command.
+  rename_sync_command:
+    description: |
+      The name of the obfuscated Redis SYNC command.

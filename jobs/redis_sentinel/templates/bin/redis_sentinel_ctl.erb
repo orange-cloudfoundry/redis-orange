@@ -26,6 +26,9 @@ REDIS_SENTINEL_PASSWORD="<%= password %>";
 %>
 
 REDIS_SENTINEL_SHUTDOWN="SHUTDOWN";
+<% if_p('rename_shutdown_command') do |command| %>
+REDIS_SENTINEL_SHUTDOWN="<%= command %>";
+<% end %>
 
 case "${1}" in
   start)

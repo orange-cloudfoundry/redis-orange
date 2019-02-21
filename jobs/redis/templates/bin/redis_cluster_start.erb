@@ -1,0 +1,32 @@
+#!/bin/bash
+
+REDIS_HOME="/var/vcap/packages/redis";
+REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
+REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
+
+REDIS_PORT="<%= p('port') %>";
+
+REDIS_PASSWORD="";
+<%
+  if_p('password') do |password|
+    unless password.to_s.empty? %>
+REDIS_PASSWORD="-a <%= password %>";
+<%  end
+  end
+%>
+
+REDIS_NODES="";
+<%
+  if p('cluster_enabled').eql?('yes') && spec.bootstrap
+    addresses="";
+    link('redis_conn').instances.each{ |node| addresses}%>
+REDIS_NODES="${REDIS_NODES} <%= node.address %>";
+<%
+    end
+  end %>
+
+${REDIS_CLI} \
+  -h "${REDIS_IP}" \
+  -p "${REDIS_PORT}" \
+  ${REDIS_PASSWORD} \
+  PING;
