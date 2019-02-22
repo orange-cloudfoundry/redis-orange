@@ -31,4 +31,4 @@ redis_sentinel_password: # generate with https://www.random.org/bytes/ or uuid, 
 #
 # Cluster and High Avaibility
 #
-replicas_per_node_count: # Number of replicas per cluster's node. Default: 1
+replicas_per_node_count: # Number of replicas per cluster's node. Default: 0 (i.e.: Cluster High Avaibility is disable)
