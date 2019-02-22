@@ -40,7 +40,8 @@ do
   n=0;
   for i in ${REDIS_ADDRESSES};
   do
-    if [[ "$(${REDIS_CLI} -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} PING)" -eq "PONG" ]];
+    PING="$(${REDIS_CLI} -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} PING)";
+    if [[ -n "${PING}" ]] && [[ "${PING}" -eq "PONG" ]];
     then
       n=$((n+1));
     fi
