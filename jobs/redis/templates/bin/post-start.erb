@@ -35,7 +35,7 @@ REDIS_SLAVE_INSTANCES="--cluster-replicas <%= instances %>";
   end %>
 
 n=0;
-while [[ REDIS_INSTANCES -gt n ]];
+while [[ ${REDIS_INSTANCES} -gt ${n} ]];
 do
   n=0;
   for i in ${REDIS_ADDRESSES};
