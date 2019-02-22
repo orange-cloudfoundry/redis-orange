@@ -2,7 +2,7 @@
 
 result=0;
 
-<% if p('cluster_enabled').eql?('yes') && spec.bootstrap %>
+<% if p('cluster_enabled').eql?('yes') %>
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
 
@@ -34,30 +34,29 @@ REDIS_SLAVE_INSTANCES="--cluster-replicas <%= instances %>";
     end
   end %>
 
-n=0;
-while [[ ${REDIS_INSTANCES} -gt ${n} ]];
-do
-  n=0;
-  for i in ${REDIS_ADDRESSES};
-  do
-    PING="$(${REDIS_CLI} -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} PING)";
-    if [[ -n "${PING}" ]] && [[ "${PING}" -eq "PONG" ]];
-    then
-      n=$((n+1));
-    fi
-  done
-done
-
 REDIS_NODES="";
 for i in ${REDIS_ADDRESSES};
 do
   REDIS_NODES="${REDIS_NODES} ${i}:${REDIS_PORT}";
 done
 
-${REDIS_CLI} --cluster create ${REDIS_NODES} \
-  ${REDIS_SLAVE_INSTANCES} \
-  ${REDIS_PASSWORD} <<< "yes";
-result=${?};
+AVAILABLE_NODES=0;
+for i in ${REDIS_ADDRESSES};
+do
+  PING="$(${REDIS_CLI} -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} PING)";
+  if [[ -n "${PING}" ]] && [[ "${PING}" == "PONG" ]];
+  then
+    AVAILABLE_NODES=$((AVAILABLE_NODES+1));
+  fi
+done
+
+if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+then
+  ${REDIS_CLI} --cluster create ${REDIS_NODES} \
+    ${REDIS_SLAVE_INSTANCES} \
+    ${REDIS_PASSWORD} <<< "yes";
+  result=${?};
+fi
 
 <% end %>
 
