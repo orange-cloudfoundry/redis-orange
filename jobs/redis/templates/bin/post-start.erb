@@ -17,12 +17,22 @@ REDIS_PASSWORD="-a <%= password %>";
   end
 %>
 
-REDIS_ADDRESSES="<%=
-x=''
-link('redis_conn').instances.each{ |node| x.concat(node.address).concat(' ') }
-x %>";
+<%
+addresses=''
+link('redis_conn').instances.each{ |node| addresses.concat(node.address).concat(' ') }
+%>
+REDIS_ADDRESSES="<%= addresses %>";
 
 REDIS_INSTANCES="<%= link('redis_conn').instances.length %>";
+
+REDIS_SLAVE_INSTANCES="";
+<%
+  if_p('cluster_replicas_node_count') do |instances|
+    if instances.to_i > 0 %>
+REDIS_SLAVE_INSTANCES="--cluster-replicas <%= instances %>";
+<%
+    end
+  end %>
 
 n=0;
 while [[ REDIS_INSTANCES -gt n ]];
@@ -43,11 +53,9 @@ do
   REDIS_NODES="${REDIS_NODES} ${i}:${REDIS_PORT}";
 done
 
-REDIS_SLAVE_INSTANCES="<%= p('cluster_replicas_node_count') %>";
-
 ${REDIS_CLI} --cluster create ${REDIS_NODES} \
-  --cluster-replicas ${REDIS_SLAVE_INSTANCES} \
-  ${REDIS_PASSWORD};
+  ${REDIS_SLAVE_INSTANCES} \
+  ${REDIS_PASSWORD} <<< "yes";
 result=${?};
 
 <% end %>
