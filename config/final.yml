@@ -1,6 +1,6 @@
 ---
+final_name: redis-service
 blobstore:
   provider: s3
   options:
-    bucket_name: bosh-redis-blobs
-final_name: bosh-redis
+    bucket_name: orange-redis-cf-service-boshrelease
