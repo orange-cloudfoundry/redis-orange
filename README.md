@@ -16,4 +16,10 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Usage
 
+### Redis
+
+### Redis High Availability by Redis Sentinel
+
+### Redis Cluster with High Availability
+
 **Note**: For security purposes, we use [*CredHub*](https://docs.cloudfoundry.org/credhub/)  for passwords and to obfuscate some Redis admin commands.
