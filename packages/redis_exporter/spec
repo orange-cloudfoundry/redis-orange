@@ -2,4 +2,4 @@
 name: redis_exporter
 files:
 - redis_exporter/utils.sh
-- redis_exporter/redis_exporter-v0.29.0.linux-amd64.tar.gz # From https://github.com/oliver006/redis_exporter/releases/download/v0.29.0/redis_exporter-v0.29.0.linux-amd64.tar.gz
+- redis_exporter/redis_exporter-v0.30.0.linux-amd64.tar.gz # From https://github.com/oliver006/redis_exporter/releases/
