@@ -18,13 +18,13 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 ## Packages versions summary
 
 - Redis 5.0.3
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter/releases) 0.29.0
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter/releases) 0.30.0
 
 ## Usage
 
 - Clone the repository:
 ```
-git clone https://github.com/orange-cloudfoundry/bosh-redis
+git clone https://github.com/orange-cloudfoundry/redis-orange
 ```
 - Create release
 ```
