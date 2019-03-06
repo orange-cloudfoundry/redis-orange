@@ -296,9 +296,14 @@ dir <%= p('dir') %>
 #    and resynchronize with them.
 #
 # replicaof <masterip> <masterport>
-<% if p('replication') && !spec.bootstrap %>
-replicaof <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %>
-<% end %>
+
+<%
+  if_link('redis_conn'){ |x| master=x }
+  if_link('master_conn'){ |x| master=x }
+  if p('replication') && !master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) %>
+replicaof <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %>
+<%
+  end %>
 
 # If the master is password protected (using the "requirepass" configuration
 # directive below) it is possible to tell the replica to authenticate before
@@ -307,8 +312,10 @@ replicaof <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%
 #
 # masterauth <master-password>
 <%
+  if_link('redis_conn'){ |x| master=x }
+  if_link('master_conn'){ |x| master=x }
   if p('replication') || p('cluster_enabled').eql?('yes')
-    if_p('password') do |password|
+    master.if_p('password') do |password|
       unless password.to_s.empty? %>
 masterauth <%= password %>
 <%    end
@@ -484,7 +491,12 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
-<% if p('replication') && spec.bootstrap  && (link('redis_conn').instances.length > 1) %>
+<%
+  if_link('redis_conn'){ |x| master=x }
+  if_link('redis_conn'){ |x| slave=x }
+  if_link('master_conn'){ |x| master=x }
+  if_link('slave_conn'){ |x| slave=x }
+  if p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) && (slave.instances.length >= 1) %>
 min-replicas-to-write <%= p('min_replicas_to_write') %>
 min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 <% end %>
