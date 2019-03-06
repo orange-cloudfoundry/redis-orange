@@ -1,0 +1,28 @@
+name: redis-service
+version: "1"
+commit_hash: 9bc0b8f
+uncommitted_changes: false
+jobs:
+- name: redis
+  version: abd2d8b12ff2fd8671b9442e5829ae9bf12db4bd
+  fingerprint: abd2d8b12ff2fd8671b9442e5829ae9bf12db4bd
+  sha1: ee870c95007c01ff515b6879277e75f7722ff330
+- name: redis_exporter
+  version: 8e63b9c6cc194cdeb69e4f0736fc321eb0861eaa
+  fingerprint: 8e63b9c6cc194cdeb69e4f0736fc321eb0861eaa
+  sha1: c64e08692f2368e5d97d4b32e5671c312ac87223
+- name: redis_sentinel
+  version: 434a071a1e32e3129a01626627a0f382d247cf53
+  fingerprint: 434a071a1e32e3129a01626627a0f382d247cf53
+  sha1: 259e4006240e1b44de37ec7529ea62f063cd13d6
+packages:
+- name: redis
+  version: 3b359670d0cc8b4994e2d4b800f4fb92d2896561
+  fingerprint: 3b359670d0cc8b4994e2d4b800f4fb92d2896561
+  sha1: e4a83c26cc7cdff728bb532634a5fa1900b8e7d8
+  dependencies: []
+- name: redis_exporter
+  version: 18919c35ee2194f79e2a947665feeab69010db9b
+  fingerprint: 18919c35ee2194f79e2a947665feeab69010db9b
+  sha1: c1896b4b53f67306a046b209387e620bf4b1760c
+  dependencies: []
