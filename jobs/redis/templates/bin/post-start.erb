@@ -10,7 +10,9 @@ REDIS_PORT="<%= p('port') %>";
 
 REDIS_PASSWORD="";
 <%
-  if_p('password') do |password|
+  master=link('redis_conn')
+  if_link('master_conn'){ |x| master=x }
+  master.if_p('password') do |password|
     unless password.to_s.empty? %>
 REDIS_PASSWORD="-a <%= password %>";
 <%  end
@@ -18,20 +20,36 @@ REDIS_PASSWORD="-a <%= password %>";
 %>
 
 <%
-addresses=''
-link('redis_conn').instances.each{ |node| addresses.concat(node.address).concat(' ') }
+  master=link('redis_conn')
+  if_link('master_conn'){ |x| master=x }
+  addresses=''
+  master.instances.each{ |x| addresses.concat(x.address).concat(' ') }
+  if !link('redis_conn').eql?(master)
+    link('redis_conn').instances.each{ |x| addresses.concat(x.address).concat(' ') }
+  end
 %>
 REDIS_ADDRESSES="<%= addresses %>";
 
-REDIS_INSTANCES="<%= link('redis_conn').instances.length %>";
+<%
+  master=link('redis_conn')
+  if_link('master_conn'){ |x| master=x }
+  instances=master.instances.length
+  slave_instances=0
+  if !link('redis_conn').eql?(master)
+    slave_instances=link('redis_conn').instances.length
+    instances+=slave_instances
+  end
+%>
+REDIS_INSTANCES="<%= instances %>";
 
 REDIS_SLAVE_INSTANCES="";
 <%
-  if_p('cluster_replicas_node_count') do |instances|
-    if instances.to_i > 0 %>
-REDIS_SLAVE_INSTANCES="--cluster-replicas <%= instances %>";
+  if slave_instances == 0
+    if_p('cluster_replicas_node_count') { |x| slave_instances=x.to_i }
+  end
+  if slave_instances > 0 %>
+REDIS_SLAVE_INSTANCES="--cluster-replicas <%= slave_instances %>";
 <%
-    end
   end %>
 
 REDIS_NODES="";

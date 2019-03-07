@@ -21,9 +21,11 @@ REDIS_ADDR="redis://${REDIS_IP}:<%= link('redis_conn').p('port') %>";
 
 REDIS_PASSWORD="";
 <%
-  link('redis_conn').if_p('password') do |password|
+  master=link('redis_conn')
+  if_link('master_conn'){ |x| master=x }
+  master.if_p('password') do |password|
     unless password.to_s.empty? %>
-REDIS_PASSWORD="<%= password %>";
+REDIS_PASSWORD="-a <%= password %>";
 <%  end
   end
 %>
