@@ -24,7 +24,7 @@ REDIS_PASSWORD="-a <%= password %>";
   if_link('master_conn'){ |x| master=x }
   addresses=''
   master.instances.each{ |x| addresses.concat(x.address).concat(' ') }
-  if !link('redis_conn').eql?(master)
+  if !link('redis_conn').address.eql?(master.address)
     link('redis_conn').instances.each{ |x| addresses.concat(x.address).concat(' ') }
   end
 %>
@@ -35,7 +35,7 @@ REDIS_ADDRESSES="<%= addresses %>";
   if_link('master_conn'){ |x| master=x }
   instances=master.instances.length
   slave_instances=0
-  if !link('redis_conn').eql?(master)
+  if !link('redis_conn').address.eql?(master.address)
     slave_instances=link('redis_conn').instances.length
     instances+=slave_instances
   end
