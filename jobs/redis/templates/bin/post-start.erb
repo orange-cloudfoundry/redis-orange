@@ -24,38 +24,42 @@ REDIS_PASSWORD="-a <%= password %>";
   if_link('master_conn'){ |x| master=x }
   addresses=''
   master.instances.each{ |x| addresses.concat(x.address).concat(' ') }
-  if !link('redis_conn').address.eql?(master.address)
-    link('redis_conn').instances.each{ |x| addresses.concat(x.address).concat(' ') }
-  end
-%>
-REDIS_ADDRESSES="<%= addresses %>";
-
-<%
-  master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
   instances=master.instances.length
-  slave_instances=0
-  if !link('redis_conn').address.eql?(master.address)
-    slave_instances=link('redis_conn').instances.length
-    instances+=slave_instances
-  end
 %>
+REDIS_MASTER_ADDRESSES="<%= addresses %>";
+REDIS_MASTER_INSTANCES="<%= instances %>";
+<%
+  slave=link('redis_conn')
+  if_link('slave_conn'){ |x| slave=x }
+  slaves_addresses=''
+  slave_instances=0
+  if !slave.instances.eql?(master.instances)
+    slave.instances.each{ |x| slaves_addresses.concat(x.address).concat(' ') }
+    slave_instances=slave.instances.length
+  end
+  addresses.concat(slaves_addresses)
+  instances+=slave_instances
+%>
+REDIS_SLAVE_ADDRESSES="<%= slaves_addresses %>";
+REDIS_SLAVE_INSTANCES="<%= slave_instances %>";
+REDIS_ADDRESSES="<%= addresses %>";
 REDIS_INSTANCES="<%= instances %>";
 
-REDIS_SLAVE_INSTANCES="";
-<%
-  if slave_instances == 0
-    if_p('cluster_replicas_node_count') { |x| slave_instances=x.to_i }
-  end
-  if slave_instances > 0 %>
-REDIS_SLAVE_INSTANCES="--cluster-replicas <%= slave_instances %>";
-<%
-  end %>
+REDIS_SLAVE_PER_INSTANCE="";
+<% if_p('cluster_replicas_node_count') do |x| %>
+REDIS_SLAVE_PER_INSTANCE="--cluster-replicas <%= x %>";
+<% end %>
 
-REDIS_NODES="";
-for i in ${REDIS_ADDRESSES};
+REDIS_MASTER_NODES="";
+for i in ${REDIS_MASTER_ADDRESSES};
 do
-  REDIS_NODES="${REDIS_NODES} ${i}:${REDIS_PORT}";
+  REDIS_MASTER_NODES+=" ${i}:${REDIS_PORT}";
+done
+
+REDIS_SLAVE_NODES="";
+for i in ${REDIS_SLAVE_ADDRESSES};
+do
+  REDIS_SLAVE_NODES+=" ${i}:${REDIS_PORT}";
 done
 
 AVAILABLE_NODES=0;
@@ -64,16 +68,41 @@ do
   PING="$(${REDIS_CLI} -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} PING)";
   if [[ -n "${PING}" ]] && [[ "${PING}" == "PONG" ]];
   then
-    AVAILABLE_NODES=$((AVAILABLE_NODES+1));
+    ((AVAILABLE_NODES+=1));
   fi
 done
 
 if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
 then
-  ${REDIS_CLI} --cluster create ${REDIS_NODES} \
-    ${REDIS_SLAVE_INSTANCES} \
+<%
+  master=link('redis_conn')
+  if_link('master_conn'){ |x| master=x }
+  slave=link('redis_conn')
+  if_link('slave_conn'){ |x| slave=x }
+  if slave.instances.eql?(master.instances) %>
+  ${REDIS_CLI} \
+    --cluster create ${REDIS_MASTER_NODES} ${REDIS_SLAVE_NODES} \
+    ${REDIS_SLAVE_PER_INSTANCE} \
     ${REDIS_PASSWORD} <<< "yes";
   result=${?};
+<% else %>
+  ${REDIS_CLI} \
+    --cluster create ${REDIS_MASTER_NODES} \
+    ${REDIS_PASSWORD} <<< "yes";
+  for i in ${REDIS_MASTER_ADDRESSES};
+  do
+    MASTER_ID="$(${REDIS_CLI} \
+      -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} \
+      CLUSTER MYID)";
+    for k in ${REDIS_SLAVE_ADDRESSES};
+    do
+      ${REDIS_CLI} \
+        --cluster add-node ${k}:${REDIS_PORT} ${i}:${REDIS_PORT} \
+        --cluster-slave \
+        --cluster-master-id ${MASTER_ID}
+    done
+  done
+<% end %>
 fi
 
 <% end %>

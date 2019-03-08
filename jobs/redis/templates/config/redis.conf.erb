@@ -498,9 +498,13 @@ replica-priority <%= p('replica_priority') %>
     master=link('redis_conn')
     if_link('master_conn'){ |x| master=x }
     master_address=master.instances.find{ |x| x.bootstrap }.address
-    slave_length=link('redis_conn').instances.length
-    if link('redis_conn').address.eql?(master.address)
+    slave=link('redis_conn')
+    if_link('slave_conn'){ |x| slave=x }
+    slave_length=slave.instances.length
+    if slave.instances.eql?(master.instances)
       slave_length-=1
+    else
+      slave_length+=master.instances.length-1
     end
     if master_address.eql?(spec.address) && (slave_length >= 1) %>
 min-replicas-to-write <%= p('min_replicas_to_write') %>
@@ -540,7 +544,8 @@ min-replicas-max-lag <%= p('min_replicas_max_lag') %>
   if p('replica_announce') && p('bind')
     master=link('redis_conn')
     if_link('master_conn'){ |x| master=x }
-    if master.instances.find{ |x| x.address.eql?(spec.address) } == nil %>
+    master_address=master.instances.find{ |x| x.bootstrap }.address
+    if !master_address.eql?(spec.address) %>
 replica-announce-ip <%= spec.ip %>
 <%  end
   end %>
