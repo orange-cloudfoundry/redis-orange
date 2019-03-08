@@ -32,8 +32,6 @@ consumes:
   type: conn
 - name: master_conn
   type: conn
-- name: slave_conn
-  type: conn
 
 properties:
 ################################## NETWORK #####################################

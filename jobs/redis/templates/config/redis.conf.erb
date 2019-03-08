@@ -499,7 +499,7 @@ replica-priority <%= p('replica_priority') %>
     if_link('master_conn'){ |x| master=x }
     master_address=master.instances.find{ |x| x.bootstrap }.address
     slave_length=link('redis_conn').instances.length
-    if link('redis_conn').eql?(master)
+    if link('redis_conn').address.eql?(master.address)
       slave_length-=1
     end
     if master_address.eql?(spec.address) && (slave_length >= 1) %>
