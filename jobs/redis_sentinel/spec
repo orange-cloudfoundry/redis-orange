@@ -13,8 +13,10 @@ consumes:
   type: conn
 - name: master_conn
   type: conn
+  optional: true
 - name: slave_conn
   type: conn
+  optional: true
 
 properties:
   bind:
