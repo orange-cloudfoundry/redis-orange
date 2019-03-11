@@ -1,6 +1,8 @@
 ---
 deployment_name: # name of your redis deployment e.g. `my-redis`
-node_count: # Number of Redis nodes
+node_count: # Number of Redis nodes in single az
+master_node_count: # Number of Redis master nodes in multi azs
+slave_node_count: # Number of Redis slave nodes in multi azs
 default_vm_type: # some vm_type from your cloud-config
 default_persistent_disk_type: # some disk_type from your cloud-config
 default_network: # some network from your cloud-config
