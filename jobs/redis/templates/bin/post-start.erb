@@ -45,8 +45,10 @@ REDIS_ADDRESSES="<%= addresses %>";
 REDIS_INSTANCES="<%= instances %>";
 
 REDIS_SLAVE_PER_INSTANCE="";
+SLAVE_PER_INSTANCE=0;
 <% if_p('cluster_replicas_node_count') do |x| %>
 REDIS_SLAVE_PER_INSTANCE="--cluster-replicas <%= x %>";
+SLAVE_PER_INSTANCE=<%= x.to_i %>;
 <% end %>
 
 REDIS_MASTER_NODES="";
@@ -84,17 +86,23 @@ then
   ${REDIS_CLI} \
     --cluster create ${REDIS_MASTER_NODES} \
     ${REDIS_PASSWORD} <<< "yes";
+  REDIS_SLAVE_ARRAY=($(echo "${REDIS_SLAVE_ADDRESSES}"|tr ' ' '\n'));
+  k=0;
   for i in ${REDIS_MASTER_ADDRESSES};
   do
     MASTER_ID="$(${REDIS_CLI} \
       -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} \
       CLUSTER MYID)";
-    for k in ${REDIS_SLAVE_ADDRESSES};
+    j=0;
+    while ${j} -lt ${SLAVE_PER_INSTANCE};
     do
       ${REDIS_CLI} \
-        --cluster add-node ${k}:${REDIS_PORT} ${i}:${REDIS_PORT} \
+        --cluster add-node ${REDIS_SLAVE_ARRAY[k]}:${REDIS_PORT} \
+        ${i}:${REDIS_PORT} \
         --cluster-slave \
-        --cluster-master-id ${MASTER_ID}
+        --cluster-master-id ${MASTER_ID};
+      ((k+=1));
+      ((j+=1));
     done
   done
 <% end %>
