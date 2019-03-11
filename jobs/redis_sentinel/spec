@@ -11,6 +11,10 @@ packages:
 consumes:
 - name: redis_conn
   type: conn
+- name: master_conn
+  type: conn
+- name: slave_conn
+  type: conn
 
 properties:
   bind:
