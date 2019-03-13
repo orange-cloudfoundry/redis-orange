@@ -78,7 +78,7 @@
 # for each instance in your cluster to the static IP which was assigned to the instance
 # If it is set to false, it will not set the bind property which will force it to
 # fall back to default behavior, i.e. protected mode due to bind not being set.
-<% if p('bind') %>
+<% if master.p('bind') %>
 bind <%= spec.ip %>
 <% else %>
 bind 127.0.0.1
@@ -105,7 +105,7 @@ bind 127.0.0.1
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
-port <%= p('port') %>
+port <%= master.p('port') %>
 
 # TCP listen() backlog.
 #
@@ -304,7 +304,7 @@ dir <%= p('dir') %>
 # replicaof <masterip> <masterport>
 
 <%
-  if p('replication')
+  if master.p('replication')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     if !master_address.eql?(spec.address) %>
 replicaof <%= master_address %> <%= master.p('port') %>
@@ -318,7 +318,7 @@ replicaof <%= master_address %> <%= master.p('port') %>
 #
 # masterauth <master-password>
 <%
-  if p('replication') || p('cluster_enabled').eql?('yes')
+  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     master.if_p('password') do |password|
       unless password.to_s.empty? %>
 masterauth <%= password %>
@@ -496,7 +496,7 @@ replica-priority <%= p('replica_priority') %>
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
 <%
-  if p('replication')
+  if master.p('replication')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     slave_length=slave.instances.length
     if slave.instances.eql?(master.instances)
@@ -539,7 +539,7 @@ min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
 <%
-  if p('replica_announce') && p('bind')
+  if p('replica_announce') && master.p('bind')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     if !master_address.eql?(spec.address) %>
 replica-announce-ip <%= spec.ip %>
@@ -935,7 +935,7 @@ lua-time-limit <%= p('lua_time_limit') %>
 # cluster node enable the cluster support uncommenting the following:
 #
 # cluster-enabled yes
-cluster-enabled <%= p('cluster_enabled') %>
+cluster-enabled <%= master.p('cluster_enabled') %>
 
 # Every cluster node has a cluster configuration file. This file is not
 # intended to be edited by hand. It is created and updated by Redis nodes.
@@ -944,7 +944,7 @@ cluster-enabled <%= p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-cluster-config-file <%= p('run_dir') + '/nodes-' + p('port') + '.conf' %>
+cluster-config-file <%= p('run_dir') + '/nodes-' + master.p('port') + '.conf' %>
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
@@ -1078,9 +1078,9 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # cluster-announce-ip 10.1.1.5
 # cluster-announce-port 6379
 # cluster-announce-bus-port 6380
-<% if p('cluster_announce') && p('bind') %>
+<% if p('cluster_announce') && master.p('bind') %>
 cluster-announce-ip <%= spec.ip %>
-cluster-announce-port <%= p('port') %>
+cluster-announce-port <%= master.p('port') %>
 <% end %>
 
 ################################## SLOW LOG ###################################

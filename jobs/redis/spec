@@ -26,6 +26,9 @@ provides:
   - rename_slaveof_command
   - rename_replicaof_command
   - rename_sync_command
+  - replication
+  - cluster_enabled
+  - cluster_replicas_per_node
 
 consumes:
 - name: redis_conn

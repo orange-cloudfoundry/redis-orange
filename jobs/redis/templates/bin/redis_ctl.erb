@@ -12,12 +12,12 @@ REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p('logfile') %>";
 REDIS_STORE_DIR="<%= p('dir') %>";
 REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
-<% if p('bind') %>
+<% if master.p('bind') %>
 REDIS_IP="<%= spec.ip %>";
 <% else %>
 REDIS_IP="127.0.0.1";
 <% end %>
-REDIS_PORT="<%= p('port') %>";
+REDIS_PORT="<%= master.p('port') %>";
 
 REDIS_PASSWORD="";
 <%
