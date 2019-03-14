@@ -6,10 +6,18 @@
   if_link('slave_conn'){ |x| slave=x }
 %>
 
+ERR=0;
+
 <% if master.p('cluster_enabled').eql?('yes') && master.instances.find{ |x| x.address.eql?(spec.address) }.bootstrap %>
+
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
 
+<% if master.p('bind') %>
+REDIS_IP="<%= spec.ip %>";
+<% else %>
+REDIS_IP="127.0.0.1";
+<% end %>
 REDIS_PORT="<%= master.p('port') %>";
 
 REDIS_PASSWORD="";
@@ -31,7 +39,7 @@ REDIS_MASTER_INSTANCES="<%= instances %>";
 <%
   slaves_addresses=''
   slave_instances=0
-  if !slave.instances.eql?(master.instances)
+  if !slave.instances[0].name.eql?(master.instances[0].name)
     slave.instances.each{ |x| slaves_addresses.concat(x.address).concat(' ') }
     slave_instances=slave.instances.length
   end
@@ -62,6 +70,30 @@ do
   REDIS_SLAVE_NODES+=" ${i}:${REDIS_PORT}";
 done
 
+REDIS_CLUSTER_NODES_COMMAND="$(${REDIS_CLI} ${REDIS_PASSWORD} \
+  -h ${REDIS_IP} -p ${REDIS_PORT} CLUSTER NODES)";
+ERR=${?};
+if [[ ${ERR} -eq 0 ]];
+then
+  echo "Redis CLUSTER NODES command results:";
+  echo "${REDIS_CLUSTER_NODES_COMMAND}";
+  AVAILABLE_NODES=0;
+  for i in $(echo ${REDIS_CLUSTER_NODES_COMMAND} | awk '{print $2;}');
+  do
+    for j in ${REDIS_ADDRESSES};
+    do
+      if [[ "${i}" -eq "${j}" ]];
+      then
+        ((AVAILABLE_NODES++));
+      fi
+    done
+  done
+  if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+  then
+    exit 0;
+  fi
+fi
+
 AVAILABLE_NODES=0;
 while [[ ${REDIS_INSTANCES} -gt ${AVAILABLE_NODES} ]];
 do
@@ -69,7 +101,7 @@ do
   for i in ${REDIS_ADDRESSES};
   do
     PING="$(${REDIS_CLI} -h ${i} -p ${REDIS_PORT} ${REDIS_PASSWORD} PING)";
-    if [[ "${PING}" == "PONG" ]];
+    if [[ ${?} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
     then
       ((AVAILABLE_NODES++));
     fi
@@ -78,51 +110,61 @@ done
 
 if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
 then
-<%
-  if slave.instances.eql?(master.instances) %>
+<% if slave.instances[0].name.eql?(master.instances[0].name) %>
   ${REDIS_CLI} \
     ${REDIS_PASSWORD} \
     --cluster create ${REDIS_MASTER_NODES} ${REDIS_SLAVE_NODES} \
     ${REDIS_SLAVE_PER_INSTANCE} <<< "yes";
-  exit ${?};
+  ERR=${?};
 <% else %>
-  if [[ ${REDIS_MASTER_INSTANCES} -ge ${REDIS_SLAVE_INSTANCES}/${SLAVE_PER_INSTANCE} ]];
+  if [[ ${REDIS_MASTER_INSTANCES} -gt ${REDIS_SLAVE_INSTANCES}/${SLAVE_PER_INSTANCE} ]];
   then
-    echo "ERROR: Not enough slave: master\[${REDIS_MASTER_INSTANCES}\], slave\[${REDIS_SLAVE_INSTANCES}\], slave per master\[${SLAVE_PER_INSTANCE}\]" >&2;
-    exit 1;
+    echo "WARNING: Not enough slave: master\[${REDIS_MASTER_INSTANCES}\], slave\[${REDIS_SLAVE_INSTANCES}\], slave per master\[${SLAVE_PER_INSTANCE}\]" >&2;
   fi
   ${REDIS_CLI} \
     ${REDIS_PASSWORD} \
     --cluster create ${REDIS_MASTER_NODES} <<< "yes";
-  if [[ ! ${?} -eq 0 ]];
+  ERR=${?};
+  if [[ ${ERR} -eq 0 ]];
   then
-    exit ${?};
-  fi
-  for i in ${REDIS_MASTER_ADDRESSES};
-  do
-    MASTER_ID="$(${REDIS_CLI} \
-      ${REDIS_PASSWORD} \
-      -h ${i} -p ${REDIS_PORT} \
-      CLUSTER MYID)";
-    j=0;
-    while [[ ${j} -lt ${SLAVE_PER_INSTANCE} ]];
+    for i in ${REDIS_MASTER_ADDRESSES};
     do
-      ${REDIS_CLI} \
+      MASTER_ID="$(${REDIS_CLI} \
         ${REDIS_PASSWORD} \
-        --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:${REDIS_PORT} \
-        ${i}:${REDIS_PORT} \
-        --cluster-slave \
-        --cluster-master-id ${MASTER_ID};
-      if [[ ! ${?} -eq 0 ]];
+        -h ${i} -p ${REDIS_PORT} \
+        CLUSTER MYID)";
+      ERR=${?};
+      if [[ ${ERR} -eq 0 ]] && [[ -n "${REDIS_SLAVE_ADDRESSES}" ]];
       then
-        exit ${?};
+        j=0;
+        while [[ ${j} -lt ${SLAVE_PER_INSTANCE} ]] && \
+          [[ -n "${REDIS_SLAVE_ADDRESSES}" ]] && \
+          [[ ${ERR} -eq 0 ]];
+        do
+          ${REDIS_CLI} \
+            ${REDIS_PASSWORD} \
+            --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:${REDIS_PORT} \
+            ${i}:${REDIS_PORT} \
+            --cluster-slave \
+            --cluster-master-id ${MASTER_ID} <<< "yes";
+          ERR=${?};
+          REDIS_SLAVE_ADDRESSES="${REDIS_SLAVE_ADDRESSES#* }";
+          ((j++));
+        done
       fi
-      REDIS_SLAVE_ADDRESSES="${REDIS_SLAVE_ADDRESSES#* }";
-      ((j++));
     done
-  done
+  fi
 <% end %>
+  REDIS_CLUSTER_NODES_COMMAND="$(${REDIS_CLI} ${REDIS_PASSWORD} \
+    -h ${REDIS_IP} -p ${REDIS_PORT} CLUSTER NODES)";
+  ERR=${?};
+  if [[ ${ERR} -eq 0 ]];
+  then
+    echo "Redis CLUSTER NODES command results:";
+    echo "${REDIS_CLUSTER_NODES_COMMAND}";
+  fi
 fi
+
 <% end %>
 
-exit 0;
+exit ${ERR};

@@ -1,5 +1,5 @@
 ---
-name: redis_create_cluster
+name: redis_check_cluster
 
 templates:
   bin/run.sh: bin/run

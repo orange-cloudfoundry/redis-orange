@@ -6,11 +6,11 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 - High availability by [*Redis Sentinel*](https://redis.io/topics/sentinel)
 - [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability
+- Multi-zone for high availability by Redis Sentinel and Redis cluster with high availability,
 - Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/)
 
 ## TODO
 
-- Multi-zone for Redis Cluster
 - Tests for [*persistence*](https://redis.io/topics/persistence)
 - Backup/restore
 - Logging
