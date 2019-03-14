@@ -499,7 +499,7 @@ replica-priority <%= p('replica_priority') %>
   if master.p('replication')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     slave_length=slave.instances.length
-    if slave.instances.eql?(master.instances)
+    if slave.instances[0].name.eql?(master.instances[0].name)
       slave_length-=1
     else
       slave_length+=master.instances.length-1

@@ -34,7 +34,7 @@ instance_groups:
       rename_sync_command: ((redis_rename_sync_command))
       cluster_enabled: 'yes'
       cluster_replicas_per_node: ((replicas_per_node_count))
-  - name: redis_create_cluster
+  - name: redis_check_cluster
     release: redis-service
     consumes:
       redis_conn: {from: master}

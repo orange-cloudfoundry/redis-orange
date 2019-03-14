@@ -95,7 +95,7 @@ dir <%= p('dir') %>
 # The valid charset is A-z 0-9 and the three characters ".-_".
 <%
   instances_length=master.instances.length
-  if !slave.instances.eql?(master.instances)
+  if !slave.instances[0].name.eql?(master.instances[0].name)
     instances_length+=slave.instances.length
   end
 %>
