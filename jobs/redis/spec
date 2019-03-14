@@ -4,7 +4,7 @@ name: redis
 templates:
   config/redis.conf.erb: config/redis.conf
   bin/redis_ctl.erb: bin/redis_ctl
-  bin/post-start.erb: bin/post-start
+# bin/post-start.erb: bin/post-start
 
 packages:
 - redis
