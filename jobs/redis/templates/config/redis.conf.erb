@@ -496,15 +496,35 @@ replica-priority <%= p('replica_priority') %>
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
 <%
-  if master.p('replication')
-    master_address=master.instances.find{ |x| x.bootstrap }.address
+  if master.p('replication') && !master.p('cluster_enabled').eql?('yes')
     slave_length=slave.instances.length
     if slave.instances[0].name.eql?(master.instances[0].name)
       slave_length-=1
     else
-      slave_length+=master.instances.length-1
+      slave_length+=(master.instances.length-1)
     end
-    if master_address.eql?(spec.address) && (slave_length >= 1) %>
+    if slave_length >= 1 %>
+min-replicas-to-write <%= p('min_replicas_to_write') %>
+min-replicas-max-lag <%= p('min_replicas_max_lag') %>
+<%  end
+  end %>
+
+<%
+  if master.p('replication') && master.p('cluster_enabled').eql?('yes')
+    master_length=master.instances.length
+    slave_length=slave.instances.length
+    replicas_per_node=p('cluster_replicas_per_node')
+    enough_replicas=false
+    if slave.instances[0].name.eql?(master.instances[0].name)
+      if slave_length%(replicas_per_node+1) == 0
+        enough_replicas=true
+      end
+    else
+      if slave_length >= (master_length*replicas_per_node)
+        enough_replicas=true
+      end
+    end
+    if enough_replicas %>
 min-replicas-to-write <%= p('min_replicas_to_write') %>
 min-replicas-max-lag <%= p('min_replicas_max_lag') %>
 <%  end
