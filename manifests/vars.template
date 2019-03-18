@@ -16,8 +16,10 @@ redis_exporter_debug: # if true, redis_exporter run in debug mode
 #
 redis_replication: # if true, high avaibility is used
 redis_sentinel_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
+redis_min_replicas_to_write: # It is possible for a master to stop accepting writes if there are less than N replicas connected. Default: 0
 #
 # Cluster and High Avaibility
 #
 redis_cluster_enabled: # If 'yes', Redis Cluster is used
 replicas_per_node_count: # Number of replicas per cluster's node. Default: 0 (i.e.: Cluster High Avaibility is disable)
+redis_min_replicas_to_write: # It is possible for a master to stop accepting writes if there are less than N replicas connected. Default: 0
