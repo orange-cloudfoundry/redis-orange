@@ -84,7 +84,7 @@ then
   do
     for j in ${REDIS_ADDRESSES};
     do
-      if [[ "${i}" -eq "${j}" ]];
+      if [[ "${i}" -eq "${j}:${REDIS_PORT}" ]];
       then
         ((AVAILABLE_NODES++));
       fi
@@ -92,6 +92,7 @@ then
   done
   if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
   then
+    echo "All requested nodes are already in a cluster.";
     exit 0;
   fi
 fi
