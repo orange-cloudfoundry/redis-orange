@@ -14,8 +14,10 @@ redis_exporter_debug: # if true, redis_exporter run in debug mode
 #
 # High Avaibility (i.e.: replication and Redis Sentinel)
 #
+redis_replication: # if true, high avaibility is used
 redis_sentinel_bind: # if true spec.ip is used to bind, otherwise 127.0.0.1
 #
 # Cluster and High Avaibility
 #
+redis_cluster_enabled: # If 'yes', Redis Cluster is used
 replicas_per_node_count: # Number of replicas per cluster's node. Default: 0 (i.e.: Cluster High Avaibility is disable)

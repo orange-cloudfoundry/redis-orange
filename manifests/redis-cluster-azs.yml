@@ -32,14 +32,15 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-      cluster_enabled: 'yes'
+      cluster_enabled: "((redis_cluster_enabled))"
       cluster_replicas_per_node: ((replicas_per_node_count))
-  - name: redis_check_cluster
+  - name: redis_check
     release: redis-service
     consumes:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -63,6 +64,13 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
+  - name: redis_check
+    release: redis-service
+    consumes:
+      redis_conn: {from: slave}
+      master_conn: {from: master}
+      slave_conn: {from: slave}
+    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:

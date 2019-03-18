@@ -26,6 +26,9 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
+  - name: redis_check
+    release: redis-service
+    properties: {}
   - name: redis_exporter
     release: redis-service
     properties:

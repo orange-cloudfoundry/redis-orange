@@ -32,9 +32,11 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-      replication: true
+      replication: ((redis_replication))
   - name: redis_sentinel
     release: redis-service
+    provides:
+      redis_sentinel_conn: {as: sentinel_master}
     consumes:
       redis_conn: {from: master}
       master_conn: {from: master}
@@ -42,6 +44,14 @@ instance_groups:
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
+  - name: redis_check
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+      master_conn: {from: master}
+      slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
+    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -67,6 +77,8 @@ instance_groups:
       slave_conn: {from: slave}
   - name: redis_sentinel
     release: redis-service
+    provides:
+      redis_sentinel_conn: {as: sentinel_slave}
     consumes:
       redis_conn: {from: slave}
       master_conn: {from: master}
@@ -74,6 +86,13 @@ instance_groups:
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
+  - name: redis_check
+    release: redis-service
+    consumes:
+      redis_conn: {from: slave}
+      master_conn: {from: master}
+      slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_slave}
   - name: redis_exporter
     release: redis-service
     consumes:

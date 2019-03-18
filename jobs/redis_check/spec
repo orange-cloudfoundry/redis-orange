@@ -15,5 +15,8 @@ consumes:
 - name: slave_conn
   type: conn
   optional: true
+- name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
 
 properties: {}

@@ -285,8 +285,8 @@ properties:
     description: |
       The maximum amount of time a Redis Cluster node can be unavailable, without it being considered as failing. If a master node is not reachable for more than the specified amount of time, it will be failed over by its slaves. This parameter controls other important things in Redis Cluster. Notably, every node that can not reach the majority of master nodes for the specified amount of time, will stop accepting queries.
   cluster_replicas_per_node:
+    default: "0"
     description: |
-      default: "0"
       Number of replicas per cluster's node.
   cluster_replica_validity_factor:
     default: "10"
