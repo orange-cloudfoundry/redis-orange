@@ -214,9 +214,9 @@ then
     if [[ ${ERR} -eq 0 ]] && [[ "${KV}" -eq "${RESULT}" ]];
     then
       echo "Read operation: succeed";
-      ${REDIS_CLI} ${REDIS_CLI_OPTS} APPEND ${KV} ${KV};
+      RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} APPEND ${KV} ${KV})";
       ERR=${?};
-      if [[ ${ERR} -eq 0 ]];
+      if [[ ${ERR} -eq 0 ]] && [[ "${KV}${KV}" -eq "${RESULT}" ]];
       then
         echo "Update operation: succeed";
         ${REDIS_CLI} ${REDIS_CLI_OPTS} DEL ${KV};
