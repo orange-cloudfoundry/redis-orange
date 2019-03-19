@@ -8,7 +8,7 @@
 
 ERR=0;
 
-<% if master.p('cluster_enabled').eql?('yes') && master.instances.find{ |x| x.address.eql?(spec.address) }.bootstrap %>
+<% if master.p('cluster_enabled').eql?('yes') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) %>
 
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
@@ -80,11 +80,11 @@ then
   echo "Redis CLUSTER NODES command results:";
   echo "${REDIS_CLUSTER_NODES_COMMAND}";
   AVAILABLE_NODES=0;
-  for i in $(echo ${REDIS_CLUSTER_NODES_COMMAND} | awk '{print $2;}');
+  for i in $(echo "${REDIS_CLUSTER_NODES_COMMAND}" | awk '{print $2;}');
   do
     for j in ${REDIS_ADDRESSES};
     do
-      if [[ "${i}" -eq "${j}:${REDIS_PORT}" ]];
+      if [[ "${i%%@*}" == "${j}:${REDIS_PORT}" ]];
       then
         ((AVAILABLE_NODES++));
       fi
@@ -149,7 +149,8 @@ then
       if [[ ${ERR} -eq 0 ]] && [[ -n "${REDIS_SLAVE_ADDRESSES}" ]];
       then
         j=0;
-        while [[ ${ERR} -eq 0 ]] && [[ -n "${REDIS_SLAVE_ADDRESSES}" ]] \\
+        while [[ ${ERR} -eq 0 ]] && \
+          [[ -n "${REDIS_SLAVE_ADDRESSES}" ]] && \\
           [[ ${j} -lt ${SLAVE_PER_INSTANCE} ]];
         do
           ${REDIS_CLI} \

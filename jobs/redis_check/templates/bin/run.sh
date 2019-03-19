@@ -34,7 +34,7 @@ REDIS_PASSWORD="-a <%= password %>";
 #
 PING="$(${REDIS_CLI} ${REDIS_PASSWORD} -h ${REDIS_IP} -p ${REDIS_PORT} PING)";
 ERR=${?}
-if [[ ${ERR} -eq 0 ]] && [[ "${PING}" -eq "PONG" ]];
+if [[ ${ERR} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
 then
   echo "Redis server at address [${REDIS_IP}] and port [${REDIS_PORT}] is available.";
 fi
@@ -61,7 +61,7 @@ REDIS_SENTINEL_PASSWORD="-a <%= password %>";
 PING="$(${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
   -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} PING)";
 ERR=${?}
-if [[ ${ERR} -eq 0 ]] && [[ "${PING}" -eq "PONG" ]];
+if [[ ${ERR} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
 then
   echo "Redis Sentinel at address [${REDIS_SENTINEL_IP}] and port [${REDIS_SENTINEL_PORT}] is available.";
 fi
@@ -127,7 +127,7 @@ then
   do
     for j in ${REDIS_ADDRESSES};
     do
-      if [[ "${i}" -eq "${j}:${REDIS_PORT}" ]];
+      if [[ "${i%%@*}" == "${j}:${REDIS_PORT}" ]];
       then
         ((AVAILABLE_NODES++));
       fi
@@ -137,14 +137,14 @@ then
   then
     echo "All requested Redis nodes [${REDIS_INSTANCES}] are available the cluster";
 <% if !slave.instances[0].name.eql?(master.instances[0].name) %>
-    REDIS_CLUSTER_NODES_MASTER="$(echo ${REDIS_CLUSTER_NODES_COMMAND} | \
+    REDIS_CLUSTER_NODES_MASTER="$(echo "${REDIS_CLUSTER_NODES_COMMAND}" | \
       awk '$3~/master/{print $2;}')";
     AVAILABLE_NODES=0;
     for i in ${REDIS_MASTER_ADDRESSES};
     do
       for j in ${REDIS_CLUSTER_NODES_MASTER};
       do
-        if [[ "${i}:${REDIS_PORT}" -eq "${j}" ]];
+        if [[ "${i}:${REDIS_PORT}" == "${j%%@*}" ]];
         then
           ((AVAILABLE_NODES++));
         fi
@@ -158,14 +158,14 @@ then
       echo "ERROR: The requested Redis master nodes [${REDIS_MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
-    REDIS_CLUSTER_NODES_SLAVE="$(echo ${REDIS_CLUSTER_NODES_COMMAND} | \
+    REDIS_CLUSTER_NODES_SLAVE="$(echo "${REDIS_CLUSTER_NODES_COMMAND}" | \
       awk '$3~/slave/{print $2;}')";
     AVAILABLE_NODES=0;
     for i in ${REDIS_SLAVE_ADDRESSES};
     do
       for j in ${REDIS_CLUSTER_NODES_SLAVE};
       do
-        if [[ "${i}:${REDIS_PORT}" -eq "${j}" ]];
+        if [[ "${i}:${REDIS_PORT}" == "${j%%@*}" ]];
         then
           ((AVAILABLE_NODES++));
         fi
@@ -211,27 +211,35 @@ then
     echo "Create operation: succeed";
     RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} GET ${KV})";
     ERR=${?};
-    if [[ ${ERR} -eq 0 ]] && [[ "${KV}" -eq "${RESULT}" ]];
+    if [[ ${ERR} -eq 0 ]] && [[ "${KV}" == "${RESULT}" ]];
     then
       echo "Read operation: succeed";
-      RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} APPEND ${KV} ${KV})";
+      ${REDIS_CLI} ${REDIS_CLI_OPTS} APPEND ${KV} ${KV};
       ERR=${?};
-      if [[ ${ERR} -eq 0 ]] && [[ "${KV}${KV}" -eq "${RESULT}" ]];
+      if [[ ${ERR} -eq 0 ]];
       then
-        echo "Update operation: succeed";
-        ${REDIS_CLI} ${REDIS_CLI_OPTS} DEL ${KV};
+        echo "Append operation: succeed";
+        RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} GET ${KV})";
         ERR=${?};
-        if [[ ${ERR} -eq 0 ]];
+        if [[ ${ERR} -eq 0 ]] && [[ "${KV}${KV}" == "${RESULT}" ]];
         then
-          echo "Delete operation: succeed";
+          echo "Update operation: succeed";
         else
-          echo "Delete operation: failed";
+          echo "Update operation: failed";
         fi
       else
-        echo "Update operation: failed";
+        echo "Append operation: failed";
       fi
     else
       echo "Read operation: failed";
+    fi
+    ${REDIS_CLI} ${REDIS_CLI_OPTS} DEL ${KV};
+    ERR=${?};
+    if [[ ${ERR} -eq 0 ]];
+    then
+      echo "Delete operation: succeed";
+    else
+      echo "Delete operation: failed";
     fi
   else
     echo "Create operation: failed";
