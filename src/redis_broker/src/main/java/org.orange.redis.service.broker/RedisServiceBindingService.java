@@ -1,4 +1,4 @@
-package com.example.servicebroker;
+package com.orange.redis.service.broker;
 
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
