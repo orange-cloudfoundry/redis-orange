@@ -1,0 +1,4 @@
+com/orange/redis/service/broker/RedisServiceInstanceService.class
+com/example/servicebroker/RedisServiceBindingService.class
+com/orange/redis/service/broker/RedisCatalogService.class
+com/orange/redis/service/broker/RedisBroker.class
