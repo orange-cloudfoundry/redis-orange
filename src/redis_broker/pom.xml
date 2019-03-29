@@ -8,9 +8,12 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
+<<<<<<< HEAD
         <java.version>12</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+=======
+>>>>>>> 09122f7f3f8158151dfb1cfca4f73bbdb4e9d9d4
         <spring.cloud.version>2.1.1.RELEASE</spring.cloud.version>
         <spring.credhub.version>2.0.0.RELEASE</spring.credhub.version>
         <spring.security.version>5.1.4.RELEASE</spring.security.version>
@@ -83,6 +86,7 @@
     <build>
         <plugins>
             <plugin>
+<<<<<<< HEAD
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
@@ -92,10 +96,16 @@
                 </configuration>
             </plugin>
             <plugin>
+=======
+>>>>>>> 09122f7f3f8158151dfb1cfca4f73bbdb4e9d9d4
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
 
+<<<<<<< HEAD
 </project>
+=======
+</project>
+>>>>>>> 09122f7f3f8158151dfb1cfca4f73bbdb4e9d9d4

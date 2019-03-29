@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 src/redis
 src/redis_exporter
 src/openjdk
+=======
+>>>>>>> 09122f7f3f8158151dfb1cfca4f73bbdb4e9d9d4
 config/private.yml
 blobs
 dev_releases
