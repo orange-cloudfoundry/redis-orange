@@ -1,5 +1,5 @@
 ---
 name: redis_exporter
 files:
-- redis_exporter/utils.sh
+- redis_exporter/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
 - redis_exporter/redis_exporter-v0.32.0.linux-amd64.tar.gz # From https://github.com/oliver006/redis_exporter/releases/
