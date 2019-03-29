@@ -17,7 +17,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Packages versions summary
 
-- Redis 5.0.3
+- Redis 5.0.4
 - [*redis_exporter*](https://github.com/oliver006/redis_exporter/releases) 0.30.0
 
 ## Usage
