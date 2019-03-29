@@ -1,0 +1,8 @@
+---
+name: redis_broker
+
+templates: {}
+
+packages: []
+
+properties: {}

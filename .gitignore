@@ -1,3 +1,6 @@
+src/redis
+src/redis_exporter
+src/openjdk
 config/private.yml
 blobs
 dev_releases
