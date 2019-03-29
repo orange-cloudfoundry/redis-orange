@@ -1,4 +1,5 @@
 src/redis
+src/redis_exporter
 src/openjdk
 src/redis_broker/target
 config/private.yml
