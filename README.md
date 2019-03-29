@@ -1,4 +1,4 @@
-# bosh-redis
+# redis-orange
 
 A [*Redis*](https://redis.io/) release for Cloud Foundry
 
