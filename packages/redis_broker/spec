@@ -2,7 +2,6 @@
 name: redis_broker
 dependencies:
 - openjdk
-- redis_exporter
 files:
 - redis_exporter/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
 - redis_broker/target/broker-0.0.1-SNAPSHOT.jar
