@@ -1,8 +1,14 @@
 ---
 name: redis_broker
 
-templates: {}
+templates:
+  config/redis_exporter.conf.erb: config/redis_exporter.conf
+  bin/redis_broker.erb: bin/redis_broker
 
-packages: []
+packages:
+- redis_broker
 
-properties: {}
+properties:
+  credhub_url:
+    default:
+    description: |
