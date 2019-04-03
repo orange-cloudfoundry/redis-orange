@@ -7,33 +7,24 @@ import org.springframework.cloud.servicebroker.service.CatalogService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisCatalogService implements CatalogService {
+public
+class RedisCatalogService implements CatalogService {
 
-    @Override
-    public Catalog getCatalog() {
-        return Catalog.builder()
-                .serviceDefinitions(getServiceDefinition("example-service"))
-                .build();
-    }
+  @Override
+  public
+  Catalog getCatalog() {
+    return Catalog.builder().serviceDefinitions(getServiceDefinition("example-service")).build();
+  }
 
-    @Override
-    public ServiceDefinition getServiceDefinition(String serviceId) {
-        return ServiceDefinition.builder()
-                .id(serviceId)
-                .name("example")
-                .description("A simple example")
-                .bindable(true)
-                .tags("example", "tags")
-                .plans(getPlan())
-                .build();
-    }
+  @Override
+  public
+  ServiceDefinition getServiceDefinition(String serviceId) {
+    return ServiceDefinition.builder().id(serviceId).name("example").description("A simple example").bindable(true)
+                            .tags("example", "tags").plans(getPlan()).build();
+  }
 
-    private Plan getPlan() {
-        return Plan.builder()
-                .id("simple-plan")
-                .name("standard")
-                .description("A simple plan")
-                .free(true)
-                .build();
-    }
+  private
+  Plan getPlan() {
+    return Plan.builder().id("simple-plan").name("standard").description("A simple plan").free(true).build();
+  }
 }
