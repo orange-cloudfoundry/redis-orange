@@ -3,7 +3,7 @@ name: redis_broker
 
 templates:
   config/redis_exporter.conf.erb: config/redis_exporter.conf
-  bin/redis_broker.erb: bin/redis_broker
+  bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
 - redis_broker
