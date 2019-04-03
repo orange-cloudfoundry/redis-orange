@@ -12,61 +12,54 @@ import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingSer
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisServiceBindingService implements ServiceInstanceBindingService {
+public
+class RedisServiceBindingService implements ServiceInstanceBindingService {
 
-    @Override
-    public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
-        String serviceInstanceId = request.getServiceInstanceId();
-        String bindingId = request.getBindingId();
+  @Override
+  public
+  CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
+    String serviceInstanceId = request.getServiceInstanceId(); String bindingId = request.getBindingId();
 
-        //
-        // create credentials and store for later retrieval
-        //
+    //
+    // create credentials and store for later retrieval
+    //
 
-        String url = new String(/* build a URL to access the service instance */);
-        String bindingUsername = new String(/* create a user */);
-        String bindingPassword = new String(/* create a password */);
+    String url = new String(/* build a URL to access the service instance */);
+    String bindingUsername = new String(/* create a user */);
+    String bindingPassword = new String(/* create a password */);
 
-        return CreateServiceInstanceAppBindingResponse.builder()
-                .credentials("url", url)
-                .credentials("username", bindingUsername)
-                .credentials("password", bindingPassword)
-                .bindingExisted(false)
-                .async(true)
-                .build();
-    }
+    return CreateServiceInstanceAppBindingResponse.builder().credentials("url", url)
+                                                  .credentials("username", bindingUsername)
+                                                  .credentials("password", bindingPassword).bindingExisted(false)
+                                                  .async(true).build();
+  }
 
-    @Override
-    public DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
-        String serviceInstanceId = request.getServiceInstanceId();
-        String bindingId = request.getBindingId();
+  @Override
+  public
+  DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
+    String serviceInstanceId = request.getServiceInstanceId(); String bindingId = request.getBindingId();
 
-        //
-        // delete any binding-specific credentials
-        //
+    //
+    // delete any binding-specific credentials
+    //
 
-        return DeleteServiceInstanceBindingResponse.builder()
-                .async(true)
-                .build();
-    }
+    return DeleteServiceInstanceBindingResponse.builder().async(true).build();
+  }
 
-    @Override
-    public GetServiceInstanceBindingResponse getServiceInstanceBinding(GetServiceInstanceBindingRequest request) {
-        String serviceInstanceId = request.getServiceInstanceId();
-        String bindingId = request.getBindingId();
+  @Override
+  public
+  GetServiceInstanceBindingResponse getServiceInstanceBinding(GetServiceInstanceBindingRequest request) {
+    String serviceInstanceId = request.getServiceInstanceId(); String bindingId = request.getBindingId();
 
-        //
-        // retrieve the details of the specified service binding
-        //
+    //
+    // retrieve the details of the specified service binding
+    //
 
-        String url = new String(/* retrieved URL */);
-        String bindingUsername = new String(/* retrieved user */);
-        String bindingPassword = new String(/* retrieved password */);
+    String url = new String(/* retrieved URL */); String bindingUsername = new String(/* retrieved user */);
+    String bindingPassword = new String(/* retrieved password */);
 
-        return GetServiceInstanceAppBindingResponse.builder()
-                .credentials("username", bindingUsername)
-                .credentials("password", bindingPassword)
-                .credentials("url", url)
-                .build();
-    }
+    return GetServiceInstanceAppBindingResponse.builder().credentials("username", bindingUsername)
+                                               .credentials("password", bindingPassword).credentials("url", url)
+                                               .build();
+  }
 }
