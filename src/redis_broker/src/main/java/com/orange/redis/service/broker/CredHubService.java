@@ -7,19 +7,22 @@ import org.springframework.credhub.support.password.PasswordCredential;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CredHubService {
+public
+class CredHubService {
   private final CredHubOperations credHubOperations;
   private final SimpleCredentialName credentialName;
 
-  public CredHubService(CredHubOperations credHubOperations, String deployment, String property) {
+  public
+  CredHubService(CredHubOperations credHubOperations, String deployment, String property) {
     this.credHubOperations = credHubOperations;
 
     credentialName = new SimpleCredentialName(deployment, property);
   }
 
-  public String getPassword() {
-    CredentialDetails<PasswordCredential> password = credHubOperations.credentials()
-        .getByName(credentialName, PasswordCredential.class);
+  public
+  String getPassword() {
+    CredentialDetails<PasswordCredential> password =
+            credHubOperations.credentials().getByName(credentialName, PasswordCredential.class);
 
     return password.getValue().getPassword();
   }
