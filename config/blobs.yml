@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 redis/redis-stable.tar.gz:
   size: 1999982
   object_id: de503ffb-9780-4f96-573c-2941e6f949c6
@@ -6,3 +7,17 @@ redis_exporter/redis_exporter-v0.30.0.linux-amd64.tar.gz:
   size: 2494343
   object_id: 615bd4d7-5100-4ac6-6056-2cda3b2b2c59
   sha: 167ea26e787995167694f763e64282ff35ee92f7
+=======
+openjdk/openjdk-12_linux-x64_bin.tar.gz:
+  size: 197633782
+  sha: fc09c74f57ec308d784e5d115f465a75519a3c7b
+redis/redis-5.0.4.tar.gz:
+  size: 1966337
+  sha: db4cad466db8fbde7c05131d72f526a2e860078a
+redis_exporter/redis_exporter-v0.32.0.linux-amd64.tar.gz:
+  size: 2749479
+  sha: 768d74dea8f2450ee62bd77c88fdbd6556ccc505
+redis_exporter/utils.sh:
+  size: 2821
+  sha: fca7fa6aa60b72e1277f2d2185d23303280c5823
+>>>>>>> upstream/master

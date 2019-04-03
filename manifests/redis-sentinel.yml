@@ -26,12 +26,16 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-      replication: true
+      replication: ((redis_replication))
+      min_replicas_to_write: ((redis_min_replicas_to_write))
   - name: redis_sentinel
     release: redis-service
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
+  - name: redis_check
+    release: redis-service
+    properties: {}
   - name: redis_exporter
     release: redis-service
     properties:
@@ -73,7 +77,8 @@ releases:
   version: latest
 
 update:
-  canaries: 1
-  canary_watch_time: 30000-180000
-  max_in_flight: 6
-  update_watch_time: 30000-180000
+  canaries: 2
+  canary_watch_time: 30000-60000
+  max_in_flight: 2
+  update_watch_time: 30000-60000
+  serial: false

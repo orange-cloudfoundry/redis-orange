@@ -4,7 +4,7 @@ name: redis
 templates:
   config/redis.conf.erb: config/redis.conf
   bin/redis_ctl.erb: bin/redis_ctl
-  bin/post-start.erb: bin/post-start
+  bin/post-deploy.erb: bin/post-deploy
 
 packages:
 - redis
@@ -26,10 +26,21 @@ provides:
   - rename_slaveof_command
   - rename_replicaof_command
   - rename_sync_command
+  - replication
+  - min_replicas_to_write
+  - min_replicas_max_lag
+  - cluster_enabled
+  - cluster_replicas_per_node
 
 consumes:
 - name: redis_conn
   type: conn
+- name: master_conn
+  type: conn
+  optional: true
+- name: slave_conn
+  type: conn
+  optional: true
 
 properties:
 ################################## NETWORK #####################################
@@ -177,7 +188,7 @@ properties:
       However a special priority of 0 marks the replica as not able to perform the role of master, so a replica with priority of 0 will never be selected by Redis Sentinel for promotion.
       By default the priority is 100.
   min_replicas_to_write:
-    default: "1"
+    default: "0"
     description: |
       It is possible for a master to stop accepting writes if there are less than N replicas connected, having a lag less or equal than M seconds.
       The N replicas need to be in "online" state.
@@ -273,9 +284,9 @@ properties:
     default: "15000"
     description: |
       The maximum amount of time a Redis Cluster node can be unavailable, without it being considered as failing. If a master node is not reachable for more than the specified amount of time, it will be failed over by its slaves. This parameter controls other important things in Redis Cluster. Notably, every node that can not reach the majority of master nodes for the specified amount of time, will stop accepting queries.
-  cluster_replicas_node_count:
+  cluster_replicas_per_node:
+    default: "0"
     description: |
-      default: "0"
       Number of replicas per cluster's node.
   cluster_replica_validity_factor:
     default: "10"

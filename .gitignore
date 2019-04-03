@@ -1,3 +1,5 @@
+src/openjdk
+src/redis_broker/target
 config/private.yml
 blobs
 dev_releases
