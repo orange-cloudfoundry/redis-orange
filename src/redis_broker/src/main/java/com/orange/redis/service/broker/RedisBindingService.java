@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public
-class RedisServiceBindingService implements ServiceInstanceBindingService {
+class RedisBindingService implements ServiceInstanceBindingService {
 
   @Override
   public
