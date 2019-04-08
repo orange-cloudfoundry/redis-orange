@@ -1,6 +1,0 @@
-server:
-  port: 8080
-
-spring:
-  credhub:
-    url: https://credhub.service.cf.internal:8844
