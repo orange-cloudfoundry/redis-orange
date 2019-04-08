@@ -1,14 +1,27 @@
----
+----
 name: redis_broker
 
 templates:
-  config/redis_exporter.conf.erb: config/redis_exporter.conf
+  config/application.yml.erb: config/application.yml
+  config/log4j2.yml.erb: config/log4j2.xml
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
 - redis_broker
 
+consumes:
+- name: redis_conn
+  type: conn
+- name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
+
 properties:
-  credhub_url:
-    default:
+  loglevel:
+    default: "info"
     description: |
+      Redis broker's logs level.
+  port:
+    default: "8080"
+    description: |
+      The port that this Redis broker instance will run on.

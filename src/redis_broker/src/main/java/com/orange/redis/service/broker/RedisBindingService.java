@@ -1,6 +1,7 @@
 package com.orange.redis.service.broker;
 
 import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,32 +16,32 @@ import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceB
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 
 @Service
-public class RedisBindingService implements ServiceInstanceBindingService {
-  private final RedisConfig redisConfig;
+public
+class RedisBindingService implements ServiceInstanceBindingService {
 
   @Autowired
-  public RedisBindingService(RedisConfig redisConfig) {
-    this.redisConfig = redisConfig;
-  }
+  private RedisConfig redisConfig;
 
   @Override
-  public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
+  public
+  CreateServiceInstanceBindingResponse createServiceInstanceBinding(
           CreateServiceInstanceBindingRequest request) {
-
     return CreateServiceInstanceAppBindingResponse.builder().async(true)
                                                   .build();
   }
 
   @Override
-  public DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(
+  public
+  DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(
           DeleteServiceInstanceBindingRequest request) {
     return DeleteServiceInstanceBindingResponse.builder().async(true).build();
   }
 
   @Override
-  public GetServiceInstanceBindingResponse getServiceInstanceBinding(
+  public
+  GetServiceInstanceBindingResponse getServiceInstanceBinding(
           GetServiceInstanceBindingRequest request) {
-    Map<String, String> credentials;
+    Map<String, Object> credentials = new HashMap<>();
     return GetServiceInstanceAppBindingResponse.builder()
                                                .credentials(credentials)
                                                .build();

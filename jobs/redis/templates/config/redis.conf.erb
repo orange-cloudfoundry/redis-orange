@@ -231,8 +231,8 @@ always-show-logo yes
 #
 #   save ""
 <%
-  if_p('save') do
-    p('save').each do |command| %>
+  if_p('save') do |x|
+    x.each do |command| %>
 save <%= command %>
 <%  end
   end %>

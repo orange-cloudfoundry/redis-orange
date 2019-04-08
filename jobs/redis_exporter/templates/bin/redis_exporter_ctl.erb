@@ -31,8 +31,8 @@ REDIS_PASSWORD="-a <%= password %>";
 REDIS_ALIAS="<%= spec.deployment + '/' + spec.ip %>";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
-exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log
-exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
 chown vcap:vcap \
   ${LOG_DIR}/${PROGNAME}.stdout.log \
   ${LOG_DIR}/${PROGNAME}.stderr.log;
