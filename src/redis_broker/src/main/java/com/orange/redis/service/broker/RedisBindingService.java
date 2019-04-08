@@ -41,16 +41,18 @@ public class RedisBindingService implements ServiceInstanceBindingService {
     Map<String, Object> credentials = new HashMap<>();
     String servers = new String();
     for (InetAddress address : redisConfig.getServers())
-      servers = servers.concat(address.toString()).concat(" ");
+      servers = servers.concat(address.getHostAddress()).concat(" ");
     credentials.put("Redis servers:", servers);
     credentials.put("Redis port:", redisConfig.getPort().toString());
     credentials.put("Redis password:", redisConfig.getPassword());
-    credentials.put("Redis Sentinel master name:",
-                    redisConfig.getSentinel().getMasterName());
-    credentials.put("Redis Sentinel port:",
-                    redisConfig.getSentinel().getPort().toString());
-    credentials.put("Redis Sentinel password:",
-                    redisConfig.getSentinel().getPassword());
+    if (!redisConfig.getSentinel().isEmpty()) {
+      credentials.put("Redis Sentinel master name:",
+                      redisConfig.getSentinel().getMasterName());
+      credentials.put("Redis Sentinel port:",
+                      redisConfig.getSentinel().getPort().toString());
+      credentials.put("Redis Sentinel password:",
+                      redisConfig.getSentinel().getPassword());
+    }
     return GetServiceInstanceAppBindingResponse.builder()
                                                .credentials(credentials)
                                                .build();

@@ -62,14 +62,11 @@ public class RedisConfig {
 
   public static class Sentinel {
 
-    @NotEmpty
-    private String masterName;
+    private String masterName = null;
 
-    @NotNull
-    private Integer port;
+    private Integer port = null;
 
-    @NotEmpty
-    private String password;
+    private String password = null;
 
     public String getMasterName() {
       return masterName;
@@ -93,6 +90,10 @@ public class RedisConfig {
 
     public void setPassword(String password) {
       this.password = password;
+    }
+
+    public boolean isEmpty() {
+      return masterName == null && port == null && password == null;
     }
   }
 }
