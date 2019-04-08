@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
   <properties>
-    <property name = "logDirectory">/tmp</property>
+    <property name = "logDirectory">/var/vcap/sys/log/redis_broker</property>
     <property name = "applicationName">redis_broker</property>
     <property name = "pattern">"%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] %C{2} (%F:%L)
       -
@@ -27,7 +27,7 @@
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level = "info">
+    <Root level = "<%= p('loglevel') %>">
       <AppenderRef ref = "ConsoleAppender"/> <!-- To console -->
       <AppenderRef
               ref = "DailyRollingFileAppender"/> <!-- And to a rotated file -->
