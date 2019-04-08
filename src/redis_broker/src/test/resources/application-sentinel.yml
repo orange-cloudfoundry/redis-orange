@@ -1,0 +1,13 @@
+server:
+  port: 8080
+orange:
+  redis:
+    servers:
+      - 192.168.56.101
+      - 192.168.56.102
+    port: 6379
+    password: redis_secret
+    sentinel:
+      masterName: master
+      port: 26379
+      password: redis_sentinel_secret
