@@ -8,14 +8,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public
-class RedisConfigTest {
+public class RedisConfigTest {
 
   @Autowired
   private RedisConfig redisConfig;
 
   @Test
-  public
-  void SingleRedisServer() {
+  public void SingleRedisServer() {
   }
 }
