@@ -17,30 +17,35 @@ import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceB
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 
 @Service
-public class RedisBindingService implements ServiceInstanceBindingService {
+public
+class RedisBindingService implements ServiceInstanceBindingService {
 
   private final RedisConfig redisConfig;
 
   @Autowired
-  public RedisBindingService(RedisConfig redisConfig) {
+  public
+  RedisBindingService(final RedisConfig redisConfig) {
     this.redisConfig = redisConfig;
   }
 
   @Override
-  public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
+  public
+  CreateServiceInstanceBindingResponse createServiceInstanceBinding(
           CreateServiceInstanceBindingRequest request) {
     return CreateServiceInstanceAppBindingResponse.builder().async(true)
                                                   .build();
   }
 
   @Override
-  public DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(
+  public
+  DeleteServiceInstanceBindingResponse deleteServiceInstanceBinding(
           DeleteServiceInstanceBindingRequest request) {
     return DeleteServiceInstanceBindingResponse.builder().async(true).build();
   }
 
   @Override
-  public GetServiceInstanceBindingResponse getServiceInstanceBinding(
+  public
+  GetServiceInstanceBindingResponse getServiceInstanceBinding(
           GetServiceInstanceBindingRequest request) {
     Map<String, Object> credentials = new HashMap<>();
     String servers = new String();
@@ -51,14 +56,13 @@ public class RedisBindingService implements ServiceInstanceBindingService {
     credentials.put("Redis password:", redisConfig.getPassword());
     if (!redisConfig.getSentinel().isEmpty()) {
       credentials.put("Redis Sentinel master name:",
-                      redisConfig.getSentinel().getMasterName());
-      credentials.put("Redis Sentinel port:",
-                      redisConfig.getSentinel().getPort().toString());
-      credentials.put("Redis Sentinel password:",
-                      redisConfig.getSentinel().getPassword());
-    }
-    return GetServiceInstanceAppBindingResponse.builder()
-                                               .credentials(credentials)
-                                               .build();
+                      redisConfig.getSentinel().getMasterName()); credentials
+              .put("Redis Sentinel port:",
+                   redisConfig.getSentinel().getPort().toString()); credentials
+              .put("Redis Sentinel password:",
+                   redisConfig.getSentinel().getPassword());
+    } return GetServiceInstanceAppBindingResponse.builder()
+                                                 .credentials(credentials)
+                                                 .build();
   }
 }

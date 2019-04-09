@@ -2,6 +2,8 @@ package com.orange.redis.service.broker;
 
 import java.net.InetAddress;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -11,13 +13,18 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class RedisConfigTest {
+public
+class RedisConfigTest {
+
+  private static final Logger logger =
+          LogManager.getLogger(RedisConfigTest.class);
 
   @Autowired
   private RedisConfig redisConfig;
 
   @Test
-  public void Redis() {
+  public
+  void Redis() {
     String servers = new String();
     for (InetAddress address : redisConfig.getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");

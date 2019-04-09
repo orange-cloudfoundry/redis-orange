@@ -7,11 +7,13 @@ import org.apache.logging.log4j.LogManager;
 
 @SpringBootApplication
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
-public class RedisService {
+public
+class RedisService {
 
   private static final Logger logger = LogManager.getLogger(RedisService.class);
 
-  public static void main(String[] args) {
+  public static
+  void main(String[] args) {
     SpringApplication.run(RedisService.class, args);
   }
 
