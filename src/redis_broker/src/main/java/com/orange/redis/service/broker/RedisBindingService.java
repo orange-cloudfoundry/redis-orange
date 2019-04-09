@@ -19,8 +19,12 @@ import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingSer
 @Service
 public class RedisBindingService implements ServiceInstanceBindingService {
 
+  private final RedisConfig redisConfig;
+
   @Autowired
-  private RedisConfig redisConfig;
+  public RedisBindingService(RedisConfig redisConfig) {
+    this.redisConfig = redisConfig;
+  }
 
   @Override
   public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
