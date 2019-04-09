@@ -237,4 +237,3 @@ redis_sentinel_bind: true
 redis_min_replicas_to_write: 1
 ```
 ##### With Distinct AZs
-[!INCLUDE[blabla](manifests/redis-sentinel-azs.yml)]
