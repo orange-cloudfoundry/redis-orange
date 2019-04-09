@@ -14,7 +14,8 @@ import org.springframework.validation.annotation.Validated;
 @Component
 @ConfigurationProperties(prefix = "orange.redis")
 @Validated
-public class RedisConfig {
+public
+class RedisConfig {
 
   @NotEmpty
   private List<InetAddress> servers = new ArrayList<>();
@@ -28,39 +29,48 @@ public class RedisConfig {
   @Valid
   private Sentinel sentinel = new Sentinel();
 
-  public List<InetAddress> getServers() {
+  public
+  List<InetAddress> getServers() {
     return servers;
   }
 
-  public void setServers(List<InetAddress> servers) {
+  public
+  void setServers(List<InetAddress> servers) {
     this.servers = servers;
   }
 
-  public Integer getPort() {
+  public
+  Integer getPort() {
     return port;
   }
 
-  public void setPort(Integer port) {
+  public
+  void setPort(Integer port) {
     this.port = port;
   }
 
-  public String getPassword() {
+  public
+  String getPassword() {
     return password;
   }
 
-  public void setPassword(String password) {
+  public
+  void setPassword(String password) {
     this.password = password;
   }
 
-  public Sentinel getSentinel() {
+  public
+  Sentinel getSentinel() {
     return sentinel;
   }
 
-  public void setSentinel(Sentinel sentinel) {
+  public
+  void setSentinel(Sentinel sentinel) {
     this.sentinel = sentinel;
   }
 
-  public static class Sentinel {
+  public static
+  class Sentinel {
 
     private String masterName = null;
 
@@ -68,31 +78,38 @@ public class RedisConfig {
 
     private String password = null;
 
-    public String getMasterName() {
+    public
+    String getMasterName() {
       return masterName;
     }
 
-    public void setMasterName(String masterName) {
+    public
+    void setMasterName(String masterName) {
       this.masterName = masterName;
     }
 
-    public Integer getPort() {
+    public
+    Integer getPort() {
       return port;
     }
 
-    public void setPort(Integer port) {
+    public
+    void setPort(Integer port) {
       this.port = port;
     }
 
-    public String getPassword() {
+    public
+    String getPassword() {
       return password;
     }
 
-    public void setPassword(String password) {
+    public
+    void setPassword(String password) {
       this.password = password;
     }
 
-    public boolean isEmpty() {
+    public
+    boolean isEmpty() {
       return masterName == null && port == null && password == null;
     }
   }
