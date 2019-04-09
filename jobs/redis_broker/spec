@@ -1,12 +1,13 @@
-----
+---
 name: redis_broker
 
 templates:
   config/application.yml.erb: config/application.yml
-  config/log4j2.yml.erb: config/log4j2.xml
+  config/log4j2.xml.erb: config/log4j2.xml
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
+- openjdk
 - redis_broker
 
 consumes:
@@ -17,6 +18,10 @@ consumes:
   optional: true
 
 properties:
+  bind:
+    default: false
+    description: |
+      Specify this property to "true" if you would like the bind address of a given instance to be automatically set to its assigned static IP. Otherwise, Redis listens only on "localhost".
   loglevel:
     default: "info"
     description: |
