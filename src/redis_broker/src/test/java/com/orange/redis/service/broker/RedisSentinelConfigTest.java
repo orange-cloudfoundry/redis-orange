@@ -2,8 +2,6 @@ package com.orange.redis.service.broker;
 
 import java.net.InetAddress;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -15,18 +13,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("sentinel")
-public
-class RedisSentinelConfigTest {
-
-  private static final Logger logger =
-          LogManager.getLogger(RedisSentinelConfigTest.class);
+public class RedisSentinelConfigTest {
 
   @Autowired
   private RedisConfig redisConfig;
 
   @Test
-  public
-  void RedisSentinel() {
+  public void RedisSentinel() {
     String servers = new String();
     for (InetAddress address : redisConfig.getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");

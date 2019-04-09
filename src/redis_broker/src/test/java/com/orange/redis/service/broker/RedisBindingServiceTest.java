@@ -3,8 +3,6 @@ package com.orange.redis.service.broker;
 import java.net.InetAddress;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
@@ -20,11 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("sentinel")
-public
-class RedisBindingServiceTest {
-
-  private static final Logger logger =
-          LogManager.getLogger(RedisBindingServiceTest.class);
+public class RedisBindingServiceTest {
 
   @Autowired
   private RedisConfig redisConfig;
@@ -32,14 +26,12 @@ class RedisBindingServiceTest {
   private RedisBindingService service;
 
   @Before
-  public
-  void setUp() {
+  public void setUp() {
     service = new RedisBindingService(redisConfig);
   }
 
   @Test
-  public
-  void getServiceInstanceBinding() {
+  public void getServiceInstanceBinding() {
     GetServiceInstanceAppBindingResponse response =
             (GetServiceInstanceAppBindingResponse) service
                     .getServiceInstanceBinding(

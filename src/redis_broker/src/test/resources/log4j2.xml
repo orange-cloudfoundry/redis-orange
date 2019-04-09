@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
   <properties>
-    <property name = "logDirectory">/tmp</property>
-    <property name = "applicationName">redis_broker</property>
-    <property name = "pattern">"%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] %C{2} (%F:%L)
+    <property name="logDirectory">/tmp</property>
+    <property name="applicationName">redis_broker</property>
+    <property name="pattern">"%d{yyyy-MM-dd HH:mm:ss} %-5p [%t] %C{2} (%F:%L)
       - %m%n"
     </property>
   </properties>
   <Appenders>
-    <Console name = "ConsoleAppender" target = "SYSTEM_OUT">
-      <PatternLayout pattern = "${pattern}"/>
+    <Console name="ConsoleAppender" target="SYSTEM_OUT">
+      <PatternLayout pattern="${pattern}"/>
     </Console>
 
     <RollingFile
-            name = "DailyRollingFileAppender"
-            fileName = "${logDirectory}/${applicationName}.log"
-            filePattern = "${logDirectory}/$${date:yyyy-MM}/${applicationName}.%d{yyyy-MM-dd}-%i.log.gz">
-      <PatternLayout pattern = "${pattern}"/>
+            name="DailyRollingFileAppender"
+            fileName="${logDirectory}/${applicationName}.log"
+            filePattern="${logDirectory}/$${date:yyyy-MM}/${applicationName}.%d{yyyy-MM-dd}-%i.log.gz">
+      <PatternLayout pattern="${pattern}"/>
       <Policies>
         <OnStartupTriggeringPolicy/> <!-- Rotated every day -->
-        <SizeBasedTriggeringPolicy size = "32 MB"/> <!-- Or every 32 MB -->
+        <SizeBasedTriggeringPolicy size="32 MB"/> <!-- Or every 32 MB -->
         <TimeBasedTriggeringPolicy/>
       </Policies>
-      <DefaultRolloverStrategy max = "5"/>
+      <DefaultRolloverStrategy max="5"/>
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level = "info">
-      <AppenderRef ref = "ConsoleAppender"/> <!-- To console -->
+    <Root level="info">
+      <AppenderRef ref="ConsoleAppender"/> <!-- To console -->
       <AppenderRef
-              ref = "DailyRollingFileAppender"/> <!-- And to a rotated file -->
+              ref="DailyRollingFileAppender"/> <!-- And to a rotated file -->
     </Root>
   </Loggers>
 </Configuration>
