@@ -1,11 +1,13 @@
 <%
   master=link('redis_conn')
-  instances=master.instances
-  sentinel=nil
-  if_link('redis_sentinel_conn') do |x|
-    sentinel=x
-    instances=x.instances
-  end
+  if_link('master_conn'){ |x| master=x }
+  slave=nil
+  if_link('slave_conn'){ |x| slave=x }
+  sentinel_master=nil
+  if_link('redis_sentinel_conn') { |x| sentinel_master=x }
+  if_link('redis_sentinel_master_conn') { |x| sentinel_master=x }
+  sentinel_slave=nil
+  if_link('redis_sentinel_slave_conn') { |x| sentinel_slave=x }
 %>
 server:
 <% if p('bind') %>
@@ -17,9 +19,26 @@ server:
 orange:
   redis:
     servers:
-<% instances.each do |x| %>
+<%
+  if !sentinel_master.nil?
+    sentinel_master.instances.each do |x| %>
       - <%= x.address %>
-<% end %>
+<%  end
+    if !sentinel_slave.nil?
+      sentinel_slave.instances.each do |x| %>
+      - <%= x.address %>
+<%    end
+    end
+  else
+    master.instances.each do |x| %>
+      - <%= x.address %>
+<%  end
+    if !slave.nil?
+      slave.instances.each do |x| %>
+      - <%= x.address %>
+<%    end
+    end
+  end %>
     port:
       <%= master.p('port') %>
 <%
@@ -28,11 +47,11 @@ orange:
     password: <%= password %>
 <%  end
   end %>
-<% if !sentinel.nil? %>
+<% if !sentinel_master.nil? %>
     sentinel:
-      port: <%= sentinel.p('port') %>
+      port: <%= sentinel_master.p('port') %>
 <%
-    sentinel.if_p('password') do |password|
+    sentinel_master.if_p('password') do |password|
       unless password.to_s.empty? %>
       password: <%= password %>
 <%    end
