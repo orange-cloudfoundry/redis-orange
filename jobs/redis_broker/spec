@@ -13,7 +13,19 @@ packages:
 consumes:
 - name: redis_conn
   type: conn
+- name: master_conn
+  type: conn
+  optional: true
+- name: slave_conn
+  type: conn
+  optional: true
 - name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
+- name: redis_sentinel_master_conn
+  type: sentinel_conn
+  optional: true
+- name: redis_sentinel_slave_conn
   type: sentinel_conn
   optional: true
 
