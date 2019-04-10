@@ -52,7 +52,13 @@ instance_groups:
       master_conn: {from: master}
       slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
-    properties: {}
+  - name: redis_broker
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      bind: ((redis_bind))
   - name: redis_exporter
     release: redis-service
     consumes:
