@@ -36,6 +36,19 @@ instance_groups:
     release: redis-service
     properties:
       debug: ((redis_exporter_debug))
+- name: broker
+  azs: [((default_az))]
+  instances: 1
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: redis_broker
+    release: redis-service
+    properties:
+      bind: ((redis_bind))
 
 variables:
 - name: redis_password
