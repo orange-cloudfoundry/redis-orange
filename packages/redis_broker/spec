@@ -2,4 +2,4 @@
 name: redis_broker
 files:
 - redis_broker/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
-- redis_broker/target/broker-0.0.1-SNAPSHOT.jar
+- redis_broker/broker-0.0.1-SNAPSHOT.jar
