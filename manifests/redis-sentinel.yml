@@ -50,6 +50,9 @@ instance_groups:
   jobs:
   - name: redis_broker
     release: redis-service
+    consumes:
+      redis_sentinel_master_conn: nil
+      redis_sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
 
