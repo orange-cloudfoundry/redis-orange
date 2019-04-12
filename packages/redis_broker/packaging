@@ -6,7 +6,7 @@ set -u # report the usage of uninitialized variables
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME="/var/vcap"
 
-# Copy redis_broker jar
+# Copy redis_broker's jar
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
-cp -a redis_exporter/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
-cp -a redis_broker/target/broker-0.0.1-SNAPSHOT.jar ${BOSH_INSTALL_TARGET}/bin/.
+cp -a redis_broker/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
+cp -a redis_broker/broker-0.0.1-SNAPSHOT.jar ${BOSH_INSTALL_TARGET}/bin/redis_broker.jar

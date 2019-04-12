@@ -28,7 +28,10 @@ instance_groups:
       rename_sync_command: ((redis_rename_sync_command))
   - name: redis_check
     release: redis-service
-    properties: {}
+  - name: redis_broker
+    release: redis-service
+    properties:
+      bind: ((redis_bind))
   - name: redis_exporter
     release: redis-service
     properties:
