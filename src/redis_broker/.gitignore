@@ -1,6 +1,5 @@
 HELP.md
-target
-!target/broker*jar
+/target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
