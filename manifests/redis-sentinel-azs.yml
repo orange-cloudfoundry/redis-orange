@@ -52,16 +52,6 @@ instance_groups:
       master_conn: {from: master}
       slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
-  - name: redis_broker
-    release: redis-service
-    consumes:
-      redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
-      redis_sentinel_master_conn: {from: sentinel_master}
-      redis_sentinel_slave_conn: {from: sentinel_slave}
-    properties:
-      bind: ((redis_bind))
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -109,6 +99,26 @@ instance_groups:
       redis_conn: {from: slave}
     properties:
       debug: ((redis_exporter_debug))
+- name: broker
+  azs: [((default_az))]
+  instances: 1
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: redis_broker
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+      master_conn: {from: master}
+      slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_master_conn: {from: sentinel_master}
+      redis_sentinel_slave_conn: {from: sentinel_slave}
+    properties:
+      bind: ((redis_bind))
 
 variables:
 - name: redis_password
