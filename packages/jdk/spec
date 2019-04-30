@@ -1,4 +1,0 @@
----
-name: jdk
-files:
-- jdk/jdk-12.0.1_linux-x64_bin.tar.gz # From https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html

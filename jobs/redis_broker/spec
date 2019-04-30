@@ -7,7 +7,7 @@ templates:
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
-- jdk
+- openjdk
 - redis_broker
 
 consumes:
