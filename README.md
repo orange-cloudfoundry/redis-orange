@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-# bosh-redis
-<<<<<<< HEAD
-=======
 # redis-orange
->>>>>>> upstream/master
 
 A [*Redis*](https://redis.io/) release for Cloud Foundry
 
@@ -212,12 +207,6 @@ stemcells:
   os: ((stemcell_os))
   version: "((stemcell_version))"
 
-<<<<<<< HEAD
-**Note**: For security purposes, we use [*CredHub*](https://docs.cloudfoundry.org/credhub/)  for passwords and to obfuscate some Redis admin commands.
-=======
-My first Bosh release
->>>>>>> cb10137... Initial commit
-=======
 releases:
 - name: redis-service
   version: latest
@@ -248,4 +237,3 @@ redis_sentinel_bind: true
 redis_min_replicas_to_write: 1
 ```
 ##### With Distinct AZs
->>>>>>> bd5b220968ce01803424622a4841144765748a85
