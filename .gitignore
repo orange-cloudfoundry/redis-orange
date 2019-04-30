@@ -1,4 +1,4 @@
-src/openjdk
+src/jdk
 config/private.yml
 blobs
 dev_releases
