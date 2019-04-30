@@ -6,6 +6,6 @@ set -u # report the usage of uninitialized variables
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME="/var/vcap"
 
-# Extract openjdk package
+# Extract jdk package
 mkdir -p ${BOSH_INSTALL_TARGET}
-tar xzf openjdk/openjdk-12_linux-x64_bin.tar.gz -C ${BOSH_INSTALL_TARGET}
+tar xzf openjdk/openjdk-*_linux-x64_bin.tar.gz -C ${BOSH_INSTALL_TARGET}

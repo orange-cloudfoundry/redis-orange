@@ -23,7 +23,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <spring.cloud.version>2.1.1.RELEASE</spring.cloud.version>
+    <spring.cloud.version>2.1.2.RELEASE</spring.cloud.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
   </properties>
 
   <dependencies>
@@ -66,7 +67,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <release>${java.version}</release>
           <target>${java.version}</target>
