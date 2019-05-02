@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
-public class RedisService {
+public class RedisBrokerApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(RedisService.class, args);
+    SpringApplication.run(RedisBrokerApplication.class, args);
   }
 
 }

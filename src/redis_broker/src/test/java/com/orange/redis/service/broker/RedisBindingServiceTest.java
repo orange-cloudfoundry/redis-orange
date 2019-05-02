@@ -1,8 +1,10 @@
 package com.orange.redis.service.broker;
 
-import java.net.InetAddress;
 import java.util.Map;
+import java.net.InetAddress;
 
+import com.orange.redis.service.broker.model.RedisConfig;
+import com.orange.redis.service.broker.service.RedisBindingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;

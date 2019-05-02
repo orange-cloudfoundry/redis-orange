@@ -1,4 +1,4 @@
-package com.orange.redis.service.broker;
+package com.orange.redis.service.broker.model;
 
 import java.util.HashMap;
 import java.util.List;

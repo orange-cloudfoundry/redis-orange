@@ -8,3 +8,19 @@ orange:
       - 192.168.56.102
     port: 6379
     password: redis_secret
+spring:
+  cloud:
+    openservicebroker:
+      catalog:
+        services:
+        - id: example-service
+          name: example
+          description: A simple example
+          bindable: true
+          tags:
+          - example
+          - tags
+          plans:
+          - id: simple-plan
+            name: standard
+            description: A simple plan

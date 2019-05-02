@@ -9,4 +9,8 @@ export HOME="/var/vcap"
 # Copy redis_broker's jar
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
-cp -a redis_broker/broker-0.0.1-SNAPSHOT.jar ${BOSH_INSTALL_TARGET}/bin/redis_broker.jar
+. common/proxy-env.sh
+export JAVA_HOME=/var/vcap/packages/openjdk/jdk
+cd redis_broker
+./mvnw clean package
+cp -a target/broker-0.0.1-SNAPSHOT.jar ${BOSH_INSTALL_TARGET}/bin/redis_broker.jar

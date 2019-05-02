@@ -1,5 +1,8 @@
-package com.orange.redis.service.broker;
+package com.orange.redis.service.broker.service;
 
+import com.orange.redis.service.broker.model.RedisConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
@@ -14,6 +17,9 @@ import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingSer
 
 @Service
 public class RedisBindingService implements ServiceInstanceBindingService {
+
+  private static final Logger logger =
+          LogManager.getLogger(RedisBindingService.class);
 
   private final RedisConfig redisConfig;
 

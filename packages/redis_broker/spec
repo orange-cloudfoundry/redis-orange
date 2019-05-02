@@ -4,4 +4,5 @@ dependencies:
 - openjdk
 files:
 - common/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
+- common/proxy-env.sh
 - redis_broker/**/*
