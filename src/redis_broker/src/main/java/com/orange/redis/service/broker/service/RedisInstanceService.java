@@ -1,9 +1,14 @@
 package com.orange.redis.service.broker.service;
 
 import com.orange.redis.service.broker.model.RedisConfig;
+
+import reactor.core.publisher.Mono;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse;
@@ -13,8 +18,7 @@ import org.springframework.cloud.servicebroker.model.instance.GetServiceInstance
 import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceResponse;
 
 public class RedisInstanceService implements ServiceInstanceService {
-  private static final Logger logger =
-          LogManager.getLogger(RedisInstanceService.class);
+  private static final Logger logger = LogManager.getLogger(RedisInstanceService.class);
 
   private final RedisConfig redisConfig;
 
@@ -24,21 +28,17 @@ public class RedisInstanceService implements ServiceInstanceService {
   }
 
   @Override
-  public CreateServiceInstanceResponse createServiceInstance(
-          CreateServiceInstanceRequest request) {
-    return CreateServiceInstanceResponse.builder().build();
+  public Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
+    return Mono.just(CreateServiceInstanceResponse.builder().build());
   }
 
   @Override
-  public GetServiceInstanceResponse getServiceInstance(
-          GetServiceInstanceRequest request) {
-    return GetServiceInstanceResponse.builder().parameters(redisConfig.toMap())
-                                     .build();
+  public Mono<GetServiceInstanceResponse> getServiceInstance(GetServiceInstanceRequest request) {
+    return Mono.just(GetServiceInstanceResponse.builder().parameters(redisConfig.toMap()).build());
   }
 
   @Override
-  public DeleteServiceInstanceResponse deleteServiceInstance(
-          DeleteServiceInstanceRequest request) {
-    return DeleteServiceInstanceResponse.builder().build();
+  public Mono<DeleteServiceInstanceResponse> deleteServiceInstance(DeleteServiceInstanceRequest request) {
+    return Mono.just(DeleteServiceInstanceResponse.builder().build());
   }
 }

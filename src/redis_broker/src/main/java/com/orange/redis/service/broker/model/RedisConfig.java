@@ -119,8 +119,7 @@ public class RedisConfig {
     credentials.put(key, getPassword());
     logger.info(key.concat(" ").concat(getPassword()));
     key = "Redis Sentinel:";
-    logger.info(
-            key.concat(" ").concat(getSentinel().isEmpty() ? "false" : "true"));
+    logger.info(key.concat(" ").concat(getSentinel().isEmpty() ? "false" : "true"));
     if (!getSentinel().isEmpty()) {
       key = "Redis Sentinel master name:";
       credentials.put(key, getSentinel().getMasterName());

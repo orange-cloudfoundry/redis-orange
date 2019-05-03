@@ -29,9 +29,7 @@ public class RedisSentinelConfigTest {
     Assert.assertEquals("redis_secret", redisConfig.getPassword());
     Assert.assertFalse(redisConfig.getSentinel().isEmpty());
     Assert.assertEquals("master", redisConfig.getSentinel().getMasterName());
-    Assert.assertEquals("26379",
-                        redisConfig.getSentinel().getPort().toString());
-    Assert.assertEquals("redis_sentinel_secret",
-                        redisConfig.getSentinel().getPassword());
+    Assert.assertEquals("26379", redisConfig.getSentinel().getPort().toString());
+    Assert.assertEquals("redis_sentinel_secret", redisConfig.getSentinel().getPassword());
   }
 }
