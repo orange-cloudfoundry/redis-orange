@@ -11,7 +11,7 @@ orange:
 spring:
   cloud:
     openservicebroker:
-      apiVersion: 3.0.0
+      apiVersion: 2.14
       catalog:
         services:
         - description: Redis Service
@@ -47,7 +47,7 @@ spring:
                   eur: 10.0
                 unit: MONTHLY
               displayName: Dedicated Single Redis Server
-          - description: High Avaibility with Redis Sentinel
+          - description: Highly Available with Redis Sentinel
             id: redis-sentinel
             name: Redis Sentinel
             free: true
@@ -59,7 +59,7 @@ spring:
                 amount:
                   eur: 10.0
                 unit: MONTHLY
-              displayName: Dedicated High Available Redis Server
+              displayName: Dedicated Highly Available Redis Server with Redis Sentinel
           - description: Redis Cluster
             id: redis-cluster
             name: Redis Cluster
@@ -73,7 +73,7 @@ spring:
                   eur: 10.0
                 unit: MONTHLY
               displayName: Dedicated Redis Cluster
-          - description: High Available Redis Cluster
+          - description: Highly Available Redis Cluster
             id: redis-cluster-ha
             name: High Available Redis Cluster
             free: true
@@ -85,4 +85,4 @@ spring:
                 amount:
                   eur: 10.0
                 unit: MONTHLY
-              displayName: Dedicated High Available Redis Cluster
+              displayName: Dedicated Highly Available Redis Cluster

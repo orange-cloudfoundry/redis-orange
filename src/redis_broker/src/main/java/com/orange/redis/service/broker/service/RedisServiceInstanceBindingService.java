@@ -9,8 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import org.springframework.stereotype.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceAppBindingResponse;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.binding.CreateServiceInstanceBindingResponse;
@@ -22,14 +20,11 @@ import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceB
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 
 @Service
-public class RedisBindingService implements ServiceInstanceBindingService {
-
-  private static final Logger logger = LogManager.getLogger(RedisBindingService.class);
-
+public class RedisServiceInstanceBindingService implements ServiceInstanceBindingService {
+  private static final Logger logger = LogManager.getLogger(RedisServiceInstanceBindingService.class);
   private final RedisConfig redisConfig;
 
-  @Autowired
-  public RedisBindingService(final RedisConfig redisConfig) {
+  public RedisServiceInstanceBindingService(final RedisConfig redisConfig) {
     this.redisConfig = redisConfig;
   }
 

@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ActiveProfiles("sentinel")
 public class RedisSentinelConfigTest {
-
   @Autowired
   private RedisConfig redisConfig;
 

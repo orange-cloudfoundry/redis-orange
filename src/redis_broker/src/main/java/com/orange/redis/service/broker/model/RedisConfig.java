@@ -19,18 +19,13 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties(prefix = "orange.redis")
 @Validated
 public class RedisConfig {
-
   private static final Logger logger = LogManager.getLogger(RedisConfig.class);
-
   @NotEmpty
   private List<InetAddress> servers = new ArrayList<>();
-
   @NotNull
   private Integer port;
-
   @NotEmpty
   private String password;
-
   @Valid
   private Sentinel sentinel = new Sentinel();
 

@@ -7,8 +7,6 @@ import reactor.core.publisher.Mono;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse;
@@ -17,13 +15,11 @@ import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInsta
 import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceResponse;
 
-public class RedisInstanceService implements ServiceInstanceService {
-  private static final Logger logger = LogManager.getLogger(RedisInstanceService.class);
-
+public class RedisServiceInstanceService implements ServiceInstanceService {
+  private static final Logger logger = LogManager.getLogger(RedisServiceInstanceService.class);
   private final RedisConfig redisConfig;
 
-  @Autowired
-  public RedisInstanceService(final RedisConfig redisConfig) {
+  public RedisServiceInstanceService(final RedisConfig redisConfig) {
     this.redisConfig = redisConfig;
   }
 

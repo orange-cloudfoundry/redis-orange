@@ -4,7 +4,7 @@ import java.util.Map;
 import java.net.InetAddress;
 
 import com.orange.redis.service.broker.model.RedisConfig;
-import com.orange.redis.service.broker.service.RedisBindingService;
+import com.orange.redis.service.broker.service.RedisServiceInstanceBindingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,15 +23,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ActiveProfiles("sentinel")
 public class RedisBindingServiceTest {
-
   @Autowired
   private RedisConfig redisConfig;
-
-  private RedisBindingService service;
+  private RedisServiceInstanceBindingService service;
 
   @Before
   public void setUp() {
-    service = new RedisBindingService(redisConfig);
+    service = new RedisServiceInstanceBindingService(redisConfig);
   }
 
   @Test
