@@ -36,13 +36,13 @@ public class RedisBindingService implements ServiceInstanceBindingService {
   @Override
   public Mono<CreateServiceInstanceBindingResponse>
       createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
-    return Mono.just(CreateServiceInstanceAppBindingResponse.builder().async(true).build());
+    return Mono.just(CreateServiceInstanceAppBindingResponse.builder().build());
   }
 
   @Override
   public Mono<DeleteServiceInstanceBindingResponse>
       deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
-    return Mono.just(DeleteServiceInstanceBindingResponse.builder().async(true).build());
+    return Mono.just(DeleteServiceInstanceBindingResponse.builder().build());
   }
 
   @Override

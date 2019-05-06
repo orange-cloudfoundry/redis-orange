@@ -15,73 +15,78 @@ orange:
 spring:
   cloud:
     openservicebroker:
+      apiVersion: 3.0.0
       catalog:
         services:
-        - description: Description for Service One
-          id: service-one-id
-          name: Service One
+        - description: Redis Service
+          id: redis-service
+          name: Redis Service
           bindable: true
           bindingsRetrievable: true
           instancesRetrievable: true
-          planUpdateable: true
+          planUpdateable: false
           metadata:
-            key1: value1
-            key2: value2
-          requires:
-            - syslog_drain
-            - route_forwarding
+            displayName: Redis
+            imageUrl: https://redis.io/
+            longDescription: Creating a Redis service. Binding applications provisions unique credentials for each application to access a Redis server/cluster.
+            providerDisplayName: Orange
+            documentationUrl: https://redis.io/documentation
+            supportUrl: https://contact-us/
           tags:
-            - tag1
-            - tag2
-          dashboard-client:
-            id: dashboard-id
-            secret: dashboard-secret
-            redirect-uri: dashboard-redirect-uri
+            - Redis
+            - Redis Sentinel
+            - Redis Cluster
+            - High Avaibility
           plans:
-          - description: Description for Plan One
-            id: plan-one-id
-            name: Plan One
-          - description: Description for Plan Two
-            id: plan-two-id
-            name: Plan Two
-            metadata:
-              displayName: "sample display name"
-              bullets:
-                - "bullet1"
-                - "bullet2"
-              costs:
-                - amount:
-                    usd: 649.0
-                  unit: MONTHLY
-              properties:
-                key1: value1
-                key2: value2
-            bindable: true
+          - description: Redis Single Server
+            id: redis
+            name: Redis
             free: true
-            schemas:
-              serviceinstance:
-                create:
-                  parameters[$schema]: "https://json-schema.org/draft-04/schema#"
-                  parameters:
-                    type: string
-                    enum:
-                      - one
-                      - two
-                      - three
-                update:
-                  parameters[$schema]: "https://json-schema.org/draft-04/schema#"
-                  parameters:
-                    type: object
-              servicebinding:
-                create:
-                  parameters[$schema]: "https://json-schema.org/draft-04/schema#"
-                  parameters:
-                    type: object
-
-        - description: Description for Service Two
-          id: service-two-id
-          name: Service Two
-          plans:
-          - description: "Description for Plan One"
-            id: plan-one-id
-            name: Plan One
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Single Redis Server
+          - description: High Avaibility with Redis Sentinel
+            id: redis-sentinel
+            name: Redis Sentinel
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated High Available Redis Server
+          - description: Redis Cluster
+            id: redis-cluster
+            name: Redis Cluster
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Redis Cluster
+          - description: High Available Redis Cluster
+            id: redis-cluster-ha
+            name: High Available Redis Cluster
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated High Available Redis Cluster
