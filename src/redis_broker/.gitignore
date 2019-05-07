@@ -1,7 +1,6 @@
 HELP.md
 target
-!target/broker*jar
-!.mvn/wrapper/maven-wrapper.jar
+!target/broker-.*jar
 
 ### STS ###
 .apt_generated
