@@ -1,6 +1,4 @@
-HELP.md
 target
-!target/broker-.*jar
 
 ### STS ###
 .apt_generated

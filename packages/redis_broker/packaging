@@ -14,5 +14,6 @@ cd redis_broker
 #. ../common/proxy-env.sh
 #export JAVA_HOME=/var/vcap/packages/openjdk/jdk
 #./mvnw clean package
+# cd target
 #
-cp -a target/broker-*.jar ${BOSH_INSTALL_TARGET}/bin/redis_broker.jar
+cp -a broker-*.jar ${BOSH_INSTALL_TARGET}/bin/redis_broker.jar
