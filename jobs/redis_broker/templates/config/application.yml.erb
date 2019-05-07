@@ -58,3 +58,81 @@ orange:
 %>
       masterName: <%= spec.deployment %>
 <% end %>
+
+spring:
+  cloud:
+    openservicebroker:
+      catalog:
+        services:
+        - description: Redis Service
+          id: redis-service
+          name: Redis Service
+          bindable: true
+          bindingsRetrievable: true
+          instancesRetrievable: true
+          planUpdateable: false
+          metadata:
+            displayName: Redis
+            imageUrl: https://redis.io/
+            longDescription: Creating a Redis service. Binding applications provisions unique credentials for each application to access a Redis server/cluster.
+            providerDisplayName: Orange
+            documentationUrl: https://redis.io/documentation
+            supportUrl: https://contact-us/
+          tags:
+            - Redis
+            - Redis Sentinel
+            - Redis Cluster
+            - High Avaibility
+          plans:
+          - description: Redis Single Server
+            id: redis
+            name: Redis
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Single Redis Server
+          - description: Highly Available with Redis Sentinel
+            id: redis-sentinel
+            name: Redis Sentinel
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Highly Available Redis Server with Redis Sentinel
+          - description: Redis Cluster
+            id: redis-cluster
+            name: Redis Cluster
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Redis Cluster
+          - description: Highly Available Redis Cluster
+            id: redis-cluster-ha
+            name: High Available Redis Cluster
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Highly Available Redis Cluster

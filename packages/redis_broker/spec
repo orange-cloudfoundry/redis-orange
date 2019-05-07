@@ -1,5 +1,11 @@
 ---
 name: redis_broker
 files:
-- redis_broker/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
-- redis_broker/broker-0.0.1-SNAPSHOT.jar
+- common/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
+# To avoid building redis_broker's JAR
+- redis_broker/target/broker-*.jar
+# To build redis_broker's JAR
+#- common/proxy-env.sh
+#- redis_broker/**/*
+#dependencies:
+#- openjdk

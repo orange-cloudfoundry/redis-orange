@@ -19,7 +19,7 @@ chown vcap:vcap \
   ${LOG_DIR}/${PROGNAME}.stdout.log \
   ${LOG_DIR}/${PROGNAME}.stderr.log;
 
-export JAVA_HOME=/var/vcap/packages/openjdk/jdk-12;
+export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
 export PATH=${JAVA_HOME}/bin:${PATH};
 
 case $1 in

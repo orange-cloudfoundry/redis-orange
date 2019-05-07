@@ -2,6 +2,7 @@ package com.orange.redis.service.broker;
 
 import java.net.InetAddress;
 
+import com.orange.redis.service.broker.model.RedisConfig;
 import org.junit.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -14,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 @ActiveProfiles("sentinel")
 public class RedisSentinelConfigTest {
-
   @Autowired
   private RedisConfig redisConfig;
 
@@ -28,9 +28,7 @@ public class RedisSentinelConfigTest {
     Assert.assertEquals("redis_secret", redisConfig.getPassword());
     Assert.assertFalse(redisConfig.getSentinel().isEmpty());
     Assert.assertEquals("master", redisConfig.getSentinel().getMasterName());
-    Assert.assertEquals("26379",
-                        redisConfig.getSentinel().getPort().toString());
-    Assert.assertEquals("redis_sentinel_secret",
-                        redisConfig.getSentinel().getPassword());
+    Assert.assertEquals("26379", redisConfig.getSentinel().getPort().toString());
+    Assert.assertEquals("redis_sentinel_secret", redisConfig.getSentinel().getPassword());
   }
 }
