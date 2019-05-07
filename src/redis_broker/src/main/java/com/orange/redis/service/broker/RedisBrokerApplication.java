@@ -3,7 +3,6 @@ package com.orange.redis.service.broker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.context.annotation.Bean;
@@ -20,11 +19,6 @@ public class RedisBrokerApplication {
   @Autowired
   public RedisBrokerApplication(final RedisConfig redisConfig) {
     this.redisConfig = redisConfig;
-  }
-  
-  @Bean
-  public Catalog catalog() {
-    return Catalog.builder().build();
   }
 
   @Bean

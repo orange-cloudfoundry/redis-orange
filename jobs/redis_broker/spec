@@ -8,7 +8,7 @@ templates:
 
 packages:
 - openjdk
-- redis_broker_no_compile
+- redis_broker
 
 consumes:
 - name: redis_conn
