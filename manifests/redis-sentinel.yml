@@ -55,6 +55,8 @@ instance_groups:
       redis_sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
+  - name: redis_broker_check
+    release: redis-service
 
 variables:
 - name: redis_password

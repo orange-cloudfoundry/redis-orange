@@ -30,6 +30,7 @@ case $1 in
     exec chpst -u vcap:vcap java \
       -Dlog4j.configurationFile=file:/var/vcap/jobs/${PROGNAME}/config/log4j2.xml \
       -Dspring.config.location=file:/var/vcap/jobs/${PROGNAME}/config/application.yml \
+      -Dio.netty.native.workdir=${TMP_DIR} \
       -jar /var/vcap/packages/${PROGNAME}/bin/${PROGNAME}.jar  \
       >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
       2>> ${LOG_DIR}/${PROGNAME}.stderr.log;

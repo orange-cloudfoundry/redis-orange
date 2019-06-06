@@ -2,7 +2,7 @@
 name: redis_check
 
 templates:
-  bin/run.sh: bin/run
+  bin/run.erb: bin/run
 
 packages:
 - redis
