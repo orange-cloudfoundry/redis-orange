@@ -13,10 +13,9 @@ ERR=0;
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
 
+REDIS_IP="127.0.0.1";
 <% if master.p('bind') %>
 REDIS_IP="<%= spec.ip %>";
-<% else %>
-REDIS_IP="127.0.0.1";
 <% end %>
 REDIS_PORT="<%= master.p('port') %>";
 

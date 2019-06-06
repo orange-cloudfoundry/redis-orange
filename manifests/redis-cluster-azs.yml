@@ -95,6 +95,8 @@ instance_groups:
       slave_conn: {from: slave}
     properties:
       bind: ((redis_bind))
+  - name: redis_broker_check
+    release: redis-service
 
 variables:
 - name: redis_password
