@@ -10,15 +10,15 @@ openjdk/openjdk-12.0.1_linux-x64_bin.tar.gz:
   size: 197649562
   object_id: 2c11dfcf-cc17-4031-68c7-87e9ee4efba7
   sha: 05951ea0e11e0d7ed21936b2e5cfb892463e16ee
-redis/redis-5.0.4.tar.gz:
-  size: 1966337
-  object_id: e5e8e364-7fec-4de6-6da8-3d39905e9ff5
-  sha: db4cad466db8fbde7c05131d72f526a2e860078a
+redis/redis-5.0.5.tar.gz:
+  size: 1975750
+  object_id: e7db815e-014a-4124-7dfe-f8599d47f9bc
+  sha: 71e38ae09ac70012b5bc326522b976bcb8e269d6
 redis_broker/broker-0.0.1-SNAPSHOT.jar:
-  size: 20176725
-  object_id: a06338d9-46a1-4f55-6189-e0bfdce0e5f2
-  sha: ecff2ea46d37bd99c1a471fba1cf923ac64115c0
-redis_exporter/redis_exporter-v0.34.0.linux-amd64.tar.gz:
-  size: 3394137
-  object_id: 3941e0ef-857b-410a-4fa9-9c88edf4302d
-  sha: df1bbccb57eea314e6c7a40bb016348b887ac30d
+  size: 20459506
+  object_id: 48d45ab8-1ada-4af8-4234-41ac748c9dea
+  sha: 8df9910d61cd9903b1be8eb61826f3c21c78886f
+redis_exporter/redis_exporter-v1.0.0.linux-amd64.tar.gz:
+  size: 3335939
+  object_id: 50657c4f-dd00-43e7-6aba-570382f0a332
+  sha: fd928363d7b39fa91fe1c0f8b80bfa64ea457277
