@@ -162,6 +162,8 @@ Configuration: quorum = 2
 
 Where `M1` is the Redis master, `R2` and `R3` are Redis slaves, and `S1`, `S2` and `S3` are Redis Sentinel.
 
+This release supports at most two
+
 In our release, Redis quorum's value is:
 - **(node_count/2)+1**, if you plan to use only one instance group (i.e.: Redis master and Redis slaves are in the same instance group), so `node_count` is the number of instance in the group, or
 - **(master_node_count+slave_node_count/2)+1**, if you plan to use an instance group for Redis master and another one for Redis slaves, so `master_node_count` is the number of instance for Redis master's group and `slave_node_count` is the number of instance for Redis slaves group. This configuration is useful if you plan to set Redis master in an distinct AZ than Redis slaves AZ.
@@ -171,8 +173,6 @@ In our release, Redis quorum's value is:
 **Note**: To enable Redis High Availability with Redis Sentinel, `replication` (default: `false`) property must be set to `true`.
 
 **Note**: Take care about the `min_replicas_to_write` (default: `0`) property. See release's specification for details.
-
-**Note**: Bootstrap instance is set as Redis master.
 
 The deployment manifest is:
 ```yaml
