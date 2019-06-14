@@ -41,7 +41,6 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
-    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -71,7 +70,6 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:

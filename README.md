@@ -25,18 +25,25 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Usage
 
-### Clone the repository:
+### Clone the repository
+
 ```shell
 git clone https://github.com/orange-cloudfoundry/redis-orange
 ```
+
 ### Create and upload release
+
 ```shell
 bosh create-release --force
 bosh upload-release
 ```
+
 ### Deploy
+
 #### Single Redis Server
+
 The deployment manifest is:
+
 ```yaml
 ---
 name: ((deployment_name))
@@ -119,7 +126,9 @@ update:
   update_watch_time: 30000-60000
   serial: false
 ```
+
 With the following variables file:
+
 ```yaml
 ---
 deployment_name: redis
@@ -162,19 +171,24 @@ Configuration: quorum = 2
 
 Where `M1` is the Redis master, `R2` and `R3` are Redis slaves, and `S1`, `S2` and `S3` are Redis Sentinel.
 
-This release supports at most two
+This release supports at most two kinds of instance groups:
+- **master group**, this group is mandatory and include at last Redis master, other instances are Redis slaves. In our release, at start-up, the bootstrap instance is associated with the Redis master process. We use the parameter `master_node_count` as the number of instance in this group.
+- **slave group**, this group is optional and is useful if you plan to set Redis process in master group in an distinct AZ than Redis process in slave group. We use the parameter `slave_node_count` as the number of instance in this group.
+
+**Note**: If you use only one instance group, we use the parameter `node_count` as the number of instance in the group.
 
 In our release, Redis quorum's value is:
-- **(node_count/2)+1**, if you plan to use only one instance group (i.e.: Redis master and Redis slaves are in the same instance group), so `node_count` is the number of instance in the group, or
-- **(master_node_count+slave_node_count/2)+1**, if you plan to use an instance group for Redis master and another one for Redis slaves, so `master_node_count` is the number of instance for Redis master's group and `slave_node_count` is the number of instance for Redis slaves group. This configuration is useful if you plan to set Redis master in an distinct AZ than Redis slaves AZ.
+- **(node_count/2)+1**, if you plan to use only one instance group, or
+- **(master_node_count+slave_node_count/2)+1**, if you plan to use an instance group for Redis master and another one for Redis slaves. 
 
 **Note**: `node_count` and `master_node_count+slave_node_count` must be an odd integer and greater or equal to 3.
 
 **Note**: To enable Redis High Availability with Redis Sentinel, `replication` (default: `false`) property must be set to `true`.
 
-**Note**: Take care about the `min_replicas_to_write` (default: `0`) property. See release's specification for details.
+**Note**: Take care about the `min_replicas_to_write` (default: `0`) property. See release specifications for details.
 
 The deployment manifest is:
+
 ```yaml
 ---
 name: ((deployment_name))
@@ -278,7 +292,9 @@ update:
   update_watch_time: 30000-60000
   serial: false
 ```
+
 With the following variables file:
+
 ```yaml
 ---
 deployment_name: redis-sentinel
@@ -295,9 +311,11 @@ redis_replication: true
 redis_sentinel_bind: true
 redis_min_replicas_to_write: 1
 ```
+
 ##### With Distinct AZs
 
 The deployment manifest is:
+
 ```yaml
 ---
 name: ((deployment_name))
@@ -465,7 +483,9 @@ update:
   update_watch_time: 30000-60000
   serial: false
 ```
+
 With the following variables file:
+
 ```yaml
 ---
 deployment_name: redis-sentinel-azs
@@ -484,11 +504,26 @@ redis_sentinel_bind: true
 redis_min_replicas_to_write: 1
 ```
 
-**Note**: In `redis-master` instance group, the bootstrap instance is set as Redis master and other instances are Redis slaves.
-
 #### Redis Cluster with High Availability
 
+In this release, as previously with Redis High Availability with Redis Sentinel, Redis Cluster with High Availability supports at most two kinds of instance groups:
+- **master group**, this group is mandatory and include Redis masters. We use the parameter `master_node_count` as the number of instance in this group.
+- **slave group**, this group is optional and is useful if you plan to set Redis process in master group in an distinct AZ than Redis process in slave group. We use the parameter `slave_node_count` as the number of instance in this group.
+
+To enable Redis Cluster with High Availability feature, the property  `cluster_replicas_per_node` (default: `0`) must be set greater than `0`. This property set the number of slave per node in a Redis Cluster. The number of slave per node is a best effort:
+- If you use only one instance group,
+- If you use two instance groups (i.e.: an master group and an slave group), if 
+
+**Note**: If you use only one instance group, we use the parameter `node_count` as the number of instance in the group and the group includes Redis masters and optionally slaves, if property  `cluster_replicas_per_node` is set greater than `0`.
+
+**Note**: To enable Redis Cluster, property `cluster_enabled` (default: `no`) must be set to `yes`.
+
+**Note**: It is useless to use `replication` property to enable replication between master and slave in Redis Cluster. Redis replication is enable if you set `cluster_replicas_per_node` greater than `0`.
+
+**Note**: If you set a slave group, but let `cluster_replicas_per_node` to `0`, High Availability feature is disable.
+
 The deployment manifest is:
+
 ```yaml
 ---
 name: ((deployment_name))
@@ -523,7 +558,6 @@ instance_groups:
       min_replicas_to_write: ((redis_min_replicas_to_write))
   - name: redis_check
     release: redis-service
-    properties: {}
   - name: redis_exporter
     release: redis-service
     properties:
@@ -584,7 +618,9 @@ update:
   update_watch_time: 30000-60000
   serial: false
 ```
+
 With the following variables file:
+
 ```yaml
 ---
 deployment_name: redis-cluster
@@ -601,9 +637,11 @@ redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
 redis_min_replicas_to_write: 1
 ```
+
 ##### With Distinct AZs
 
 The deployment manifest is:
+
 ```yaml
 ---
 name: ((deployment_name))
@@ -648,7 +686,6 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
-    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -678,7 +715,6 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-    properties: {}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -745,7 +781,9 @@ update:
   update_watch_time: 30000-60000
   serial: false
 ```
+
 With the following variables file:
+
 ```yaml
 ---
 deployment_name: redis-cluster-azs
