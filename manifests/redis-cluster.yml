@@ -31,7 +31,6 @@ instance_groups:
       min_replicas_to_write: ((redis_min_replicas_to_write))
   - name: redis_check
     release: redis-service
-    properties: {}
   - name: redis_exporter
     release: redis-service
     properties:
