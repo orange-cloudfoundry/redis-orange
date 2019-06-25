@@ -6,9 +6,14 @@ REDIS_BROKER_IP="<%= spec.ip %>";
 <% end %>
 REDIS_BROKER_PORT="<%= link('redis_broker_conn').p('port') %>";
 
+REDIS_BROKER_USER="<%= link('redis_broker_conn').p('user') %>";
+REDIS_BROKER_PASSWORD="<%= link('redis_broker_conn').p('password') %>";
+
+BASE_URI="http://${REDIS_BROKER_USER}:${REDIS_BROKER_PASSWORD}@${REDIS_BROKER_IP}:${REDIS_BROKER_PORT}";
+
 ERR_CATALOG=1;
 if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
-  http://${REDIS_BROKER_IP}:${REDIS_BROKER_PORT}/v2/catalog)" == "200" ]];
+  ${BASE_URI}/v2/catalog)" == "200" ]];
 then
   ERR_CATALOG=0;
   echo "Catalog: OK";
@@ -18,7 +23,7 @@ fi
 
 ERR_BINDING=1;
 if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
-  http://${REDIS_BROKER_IP}:${REDIS_BROKER_PORT}/v2/service_instances/redis)" == "200" ]];
+  ${BASE_URI}/v2/service_instances/redis)" == "200" ]];
 then
   ERR_BINDING=0;
   echo "Binding: OK";

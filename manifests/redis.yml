@@ -32,6 +32,7 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
   - name: redis_broker_check
     release: redis-service
   - name: redis_exporter
@@ -61,6 +62,8 @@ variables:
 - name: redis_rename_replicaof_command
   type: password
 - name: redis_rename_sync_command
+  type: password
+- name: redis_broker_password
   type: password
 
 stemcells:

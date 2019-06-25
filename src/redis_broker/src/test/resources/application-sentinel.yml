@@ -1,6 +1,7 @@
 server:
   address: localhost
   port: 8080
+
 orange:
   redis:
     servers:
@@ -12,7 +13,12 @@ orange:
       masterName: master
       port: 26379
       password: redis_sentinel_secret
+
 spring:
+  security:
+    user:
+      name: broker
+      password: broker
   cloud:
     openservicebroker:
       catalog:

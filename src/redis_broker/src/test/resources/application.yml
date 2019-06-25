@@ -1,6 +1,7 @@
 server:
   address: localhost
   port: 8080
+
 orange:
   redis:
     servers:
@@ -8,7 +9,12 @@ orange:
       - 192.168.56.102
     port: 6379
     password: redis_secret
+
 spring:
+  security:
+    user:
+      name: broker
+      password: broker
   cloud:
     openservicebroker:
       catalog:
