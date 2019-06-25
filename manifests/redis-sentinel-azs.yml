@@ -119,6 +119,7 @@ instance_groups:
       redis_sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
   - name: redis_broker_check
     release: redis-service
 
@@ -146,6 +147,8 @@ variables:
 - name: redis_rename_replicaof_command
   type: password
 - name: redis_rename_sync_command
+  type: password
+- name: redis_broker_password
   type: password
 
 stemcells:

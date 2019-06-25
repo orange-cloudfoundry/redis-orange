@@ -14,6 +14,8 @@ provides:
 - name: redis_broker_conn
   type: broker_conn
   properties:
+  - user
+  - password
   - bind
   - port
 
@@ -37,6 +39,11 @@ consumes:
   optional: true
 
 properties:
+  user:
+    description: Redis service broker user
+    default: "broker"
+  password:
+    description: Redis service broker password
   bind:
     default: false
     description: |

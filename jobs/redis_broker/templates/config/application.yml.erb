@@ -16,6 +16,7 @@ server:
   address: 127.0.0.1
 <% end %>
   port: <%= p('port') %>
+
 orange:
   redis:
     servers:
@@ -60,6 +61,10 @@ orange:
 <% end %>
 
 spring:
+  security:
+    user:
+      name: <%= p('user') %>
+      password: <%= p('password') %>
   cloud:
     openservicebroker:
       catalog:
