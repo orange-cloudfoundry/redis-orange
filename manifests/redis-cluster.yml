@@ -49,6 +49,7 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
+      loglevel: ((redis_broker_loglevel))
   - name: redis_broker_check
     release: redis-service
 

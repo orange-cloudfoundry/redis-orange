@@ -1,3 +1,6 @@
+logging:
+  config: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker/src/test/resources/log4j2.xml
+
 server:
   address: localhost
   port: 8080

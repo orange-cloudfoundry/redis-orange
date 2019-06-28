@@ -14,15 +14,15 @@
       filePattern="${logDirectory}/$${date:yyyy-MM}/${applicationName}.%d{yyyy-MM-dd}-%i.log.gz">
       <PatternLayout pattern="${pattern}" />
       <Policies>
-        <OnStartupTriggeringPolicy /> <!-- Rotated every day -->
-        <SizeBasedTriggeringPolicy size="32 MB" /> <!-- Or every 32 MB -->
+        <OnStartupTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="32 MB" />
         <TimeBasedTriggeringPolicy />
       </Policies>
       <DefaultRolloverStrategy max="5" />
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level="info">
+    <Root level="debug">
       <AppenderRef ref="ConsoleAppender" /> <!-- To console -->
       <AppenderRef ref="DailyRollingFileAppender" /> <!-- And to a rotated file -->
     </Root>
