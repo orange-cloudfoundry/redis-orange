@@ -9,6 +9,9 @@
   sentinel_slave=nil
   if_link('redis_sentinel_slave_conn') { |x| sentinel_slave=x }
 %>
+logging:
+  config: file:/var/vcap/jobs/redis_broker/config/log4j2.xml
+
 server:
 <% if p('bind') %>
   address: <%= spec.ip %>

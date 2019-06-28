@@ -4,9 +4,6 @@ import com.orange.redis.service.broker.model.RedisConfig;
 
 import reactor.core.publisher.Mono;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse;
@@ -16,7 +13,6 @@ import org.springframework.cloud.servicebroker.model.instance.GetServiceInstance
 import org.springframework.cloud.servicebroker.model.instance.GetServiceInstanceResponse;
 
 public class RedisServiceInstanceService implements ServiceInstanceService {
-  private static final Logger logger = LogManager.getLogger(RedisServiceInstanceService.class);
   private final RedisConfig redisConfig;
 
   public RedisServiceInstanceService(final RedisConfig redisConfig) {
