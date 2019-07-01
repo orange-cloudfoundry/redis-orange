@@ -4,17 +4,17 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Features
 
-- High availability by [*Redis Sentinel*](https://redis.io/topics/sentinel)
-- [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability
+- High availability by [*Redis Sentinel*](https://redis.io/topics/sentinel),
+- [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability,
 - Multi-zone for high availability by Redis Sentinel and Redis cluster with high availability,
-- Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/)
-- An Open Service Broker
+- Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/),
+- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.1.6 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.0.3.
 
 ## TODO
 
-- Tests for [*persistence*](https://redis.io/topics/persistence)
-- Backup/restore
-- Logging
+- Tests for [*persistence*](https://redis.io/topics/persistence),
+- Backup/restore,
+- Logging.
 
 ## Packages versions summary
 
