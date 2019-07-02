@@ -15,7 +15,7 @@ import com.orange.redis.service.broker.service.RedisServiceInstanceService;
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
 public class RedisBrokerApplication {
   private final RedisConfig redisConfig;
-  
+
   @Autowired
   public RedisBrokerApplication(final RedisConfig redisConfig) {
     this.redisConfig = redisConfig;
@@ -23,14 +23,14 @@ public class RedisBrokerApplication {
 
   @Bean
   public ServiceInstanceService serviceInstanceService() {
-    return new RedisServiceInstanceService(redisConfig);
+    return new RedisServiceInstanceService();
   }
 
   @Bean
   public ServiceInstanceBindingService serviceInstanceBindingService() {
     return new RedisServiceInstanceBindingService(redisConfig);
   }
-  
+
   public static void main(String[] args) {
     SpringApplication.run(RedisBrokerApplication.class, args);
   }

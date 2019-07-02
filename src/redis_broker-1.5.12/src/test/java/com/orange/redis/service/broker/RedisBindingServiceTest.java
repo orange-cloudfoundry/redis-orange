@@ -8,14 +8,14 @@ import com.orange.redis.service.broker.service.RedisServiceInstanceBindingServic
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceAppBindingResponse;
-import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingRequest;
-import org.springframework.cloud.servicebroker.model.binding.GetServiceInstanceBindingResponse;
 import org.junit.runner.RunWith;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.Assert;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -34,12 +34,12 @@ public class RedisBindingServiceTest {
 
   @Test
   public void getServiceInstanceBinding() {
-    GetServiceInstanceBindingResponse x =
-        service.getServiceInstanceBinding(GetServiceInstanceBindingRequest.builder().build());
+    CreateServiceInstanceBindingResponse x =
+        service.createServiceInstanceBinding(new CreateServiceInstanceBindingRequest());
     String servers = new String();
     for (InetAddress address : redisConfig.getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");
-    for (Map.Entry<String, Object> credentials : ((GetServiceInstanceAppBindingResponse) x).getCredentials()
+    for (Map.Entry<String, Object> credentials : ((CreateServiceInstanceAppBindingResponse) x).getCredentials()
         .entrySet()) {
       if (credentials.getKey().compareTo("Redis servers:") == 0)
         Assert.assertEquals(servers, credentials.getValue());
