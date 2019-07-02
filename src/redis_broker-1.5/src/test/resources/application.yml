@@ -1,5 +1,5 @@
 logging:
-  config: /home/attu7372/src/bosh/redis-orange/src/redis_broker-1.5/src/test/resources/log4j2.xml
+  config: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker-1.5/src/test/resources/log4j2.xml
 
 server:
   address: localhost

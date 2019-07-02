@@ -45,7 +45,7 @@ instance_groups:
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
-  - name: redis_check
+  - name: redis_check-1.5
     release: redis-service
     consumes:
       redis_conn: {from: master}
@@ -86,7 +86,7 @@ instance_groups:
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
-  - name: redis_check
+  - name: redis_check-1.5
     release: redis-service
     consumes:
       redis_conn: {from: slave}

@@ -23,7 +23,7 @@ fi
 
 ERR_BINDING=1;
 if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
-  ${BASE_URI}/v2/service_instances/redis)" == "200" ]];
+  ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)" == "200" ]];
 then
   ERR_BINDING=0;
   echo "Binding: OK";

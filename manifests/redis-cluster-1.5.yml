@@ -29,7 +29,7 @@ instance_groups:
       cluster_enabled: ((redis_cluster_enabled))
       cluster_replicas_per_node: ((replicas_per_node_count))
       min_replicas_to_write: ((redis_min_replicas_to_write))
-  - name: redis_check
+  - name: redis_check-1.5
     release: redis-service
   - name: redis_exporter
     release: redis-service
