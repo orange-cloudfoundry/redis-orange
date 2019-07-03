@@ -1,0 +1,5 @@
+check process redis_broker-1.5
+  with pidfile /var/vcap/sys/run/redis_broker-1.5/redis_broker-1.5.pid
+  start program "/var/vcap/jobs/redis_broker-1.5/bin/redis_broker_ctl start"
+  stop program "/var/vcap/jobs/redis_broker-1.5/bin/redis_broker_ctl stop"
+  group vcap

@@ -1,0 +1,16 @@
+---
+deployment_name: redis-cluster-azs
+master_node_count: 3
+slave_node_count: 4
+default_vm_type: small
+default_persistent_disk_type: small
+default_network: redis-network
+default_az: z1
+stemcell_os: ubuntu-xenial
+stemcell_version: 250.29
+redis_bind: true
+redis_exporter_debug: false
+redis_cluster_enabled: 'yes'
+replicas_per_node_count: 1
+redis_min_replicas_to_write: 1
+redis_broker_loglevel: info
