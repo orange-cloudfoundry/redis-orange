@@ -33,7 +33,7 @@ instance_groups:
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
-  - name: redis_check-1.5
+  - name: redis_check
     release: redis-service
   - name: redis_exporter
     release: redis-service
@@ -57,7 +57,7 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check
+  - name: redis_broker_check-1.5
     release: redis-service
 
 variables:

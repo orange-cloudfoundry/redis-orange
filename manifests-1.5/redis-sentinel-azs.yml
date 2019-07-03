@@ -32,15 +32,26 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-      cluster_enabled: ((redis_cluster_enabled))
-      cluster_replicas_per_node: ((replicas_per_node_count))
+      replication: ((redis_replication))
       min_replicas_to_write: ((redis_min_replicas_to_write))
-  - name: redis_check-1.5
+  - name: redis_sentinel
+    release: redis-service
+    provides:
+      redis_sentinel_conn: {as: sentinel_master}
+    consumes:
+      redis_conn: {from: master}
+      master_conn: {from: master}
+      slave_conn: {from: slave}
+    properties:
+      bind: ((redis_sentinel_bind))
+      password: ((redis_sentinel_password))
+  - name: redis_check
     release: redis-service
     consumes:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -64,12 +75,24 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-  - name: redis_check-1.5
+  - name: redis_sentinel
+    release: redis-service
+    provides:
+      redis_sentinel_conn: {as: sentinel_slave}
+    consumes:
+      redis_conn: {from: slave}
+      master_conn: {from: master}
+      slave_conn: {from: slave}
+    properties:
+      bind: ((redis_sentinel_bind))
+      password: ((redis_sentinel_password))
+  - name: redis_check
     release: redis-service
     consumes:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_slave}
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -91,15 +114,20 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_master_conn: {from: sentinel_master}
+      redis_sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check
+  - name: redis_broker_check-1.5
     release: redis-service
 
 variables:
 - name: redis_password
+  type: password
+- name: redis_sentinel_password
   type: password
 - name: redis_rename_config_command
   type: password

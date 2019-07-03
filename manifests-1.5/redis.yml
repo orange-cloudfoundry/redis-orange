@@ -26,7 +26,7 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-  - name: redis_check-1.5
+  - name: redis_check
     release: redis-service
   - name: redis_broker-1.5
     release: redis-service
@@ -34,7 +34,7 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check
+  - name: redis_broker_check-1.5
     release: redis-service
   - name: redis_exporter
     release: redis-service

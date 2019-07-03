@@ -6,9 +6,10 @@ set -u # report the usage of uninitialized variables
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME="/var/vcap"
 
+PROGNAME="redis_broker-1.5"
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
-cd redis_broker-1.5
+cd ${PROGNAME}
 #
 # Build redis_broker's JAR
 #. ../common/proxy-env.sh
@@ -16,4 +17,4 @@ cd redis_broker-1.5
 #./mvnw clean package
 # cd target
 #
-cp -a broker-1.5-*.jar ${BOSH_INSTALL_TARGET}/bin/redis_broker.jar
+cp -a broker-1.5-*.jar ${BOSH_INSTALL_TARGET}/bin/${PROGNAME}.jar
