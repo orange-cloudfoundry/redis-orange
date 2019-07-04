@@ -14,10 +14,14 @@ redis/redis-5.0.5.tar.gz:
   size: 1975750
   object_id: e7db815e-014a-4124-7dfe-f8599d47f9bc
   sha: 71e38ae09ac70012b5bc326522b976bcb8e269d6
+redis_broker-1.5/broker-1.5-0.0.1-SNAPSHOT.jar:
+  size: 21585684
+  object_id: 342cfdca-427f-45f1-5a67-acbaa9a05a09
+  sha: 47f0d850cce3135d31f5a5d5f6bdf3773af5706e
 redis_broker/broker-0.0.1-SNAPSHOT.jar:
-  size: 22215475
-  object_id: d1ab4133-aa9c-4880-485e-77b75a786d80
-  sha: 2dfe3712d6a3e53ac59c53e8d298835b9b8b1436
+  size: 26016300
+  object_id: 6d8e56ad-d99d-4c27-4f18-b76655e765ac
+  sha: 7ce9638c1f1d4e973234d6b7439fa6c244c48584
 redis_exporter/redis_exporter-v1.0.3.linux-amd64.tar.gz:
   size: 3336787
   object_id: 938da48b-5e08-4def-6be9-13719357f9c9
