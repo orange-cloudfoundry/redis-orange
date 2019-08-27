@@ -22,6 +22,12 @@ server:
 
 orange:
   redis:
+    IPKey: <%= p('ip_property_key') %>
+    portKey: <%= p('port_property_key') %>
+    passwordKey: <%= p('password_property_key') %>
+    HAIPKey: <%= p('high_avaibility_ip_property_key') %>
+    HAPortKey: <%= p('high_avaibility_port_property_key') %>
+    HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
     servers:
 <%
   if !sentinel_master.nil?
@@ -29,18 +35,22 @@ orange:
       - <%= x.address %>
 <%  end
     if !sentinel_slave.nil?
-      sentinel_slave.instances.each do |x| %>
+      if !sentinel_slave.instances[0].name.eql?(sentinel_master.instances[0].name)
+        sentinel_slave.instances.each do |x| %>
       - <%= x.address %>
-<%    end
+<%      end
+      end
     end
   else
     master.instances.each do |x| %>
       - <%= x.address %>
 <%  end
     if !slave.nil?
-      slave.instances.each do |x| %>
+      if !slave.instances[0].name.eql?(master.instances[0].name)
+        slave.instances.each do |x| %>
       - <%= x.address %>
-<%    end
+<%      end
+      end
     end
   end %>
     port: <%= master.p('port') %>

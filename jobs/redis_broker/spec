@@ -56,3 +56,27 @@ properties:
     default: "8080"
     description: |
       The port that this Redis broker instance will run on.
+  ip_property_key:
+    default: "hostname"
+    description: |
+      Redis servers IP property's key for client
+  port_property_key:
+    default: "port"
+    description: |
+      Redis servers port property's key for client
+  password_property_key:
+    default: "password"
+    description: |
+      Redis servers password property's key for client
+  high_avaibility_ip_property_key:
+    default: "ha_hostname"
+    description: |
+      Redis Sentinels IP property's key for client
+  high_avaibility_port_property_key:
+    default: "ha_port"
+    description: |
+      Redis Sentinels port property's key for client
+  high_avaibility_password_property_key:
+    default: "ha_password"
+    description: |
+      Redis Sentinels password property's key for client

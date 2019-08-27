@@ -21,7 +21,8 @@ public class RedisConfigTest {
     String servers = new String();
     for (InetAddress address : redisConfig.getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");
-    Assert.assertEquals("192.168.56.101 192.168.56.102 ", servers);
+    servers = servers.trim();
+    Assert.assertEquals("192.168.56.101 192.168.56.102", servers);
     Assert.assertEquals("6379", redisConfig.getPort().toString());
     Assert.assertEquals("redis_secret", redisConfig.getPassword());
     Assert.assertTrue(redisConfig.getSentinel().isEmpty());
