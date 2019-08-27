@@ -20,6 +20,18 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class RedisConfig {
   private static final Logger logger = LogManager.getLogger(RedisConfig.class);
+  @NotNull
+  private String IPKey;
+  @NotNull
+  private String portKey;
+  @NotNull
+  private String passwordKey;
+  @NotNull
+  private String HAIPKey;
+  @NotNull
+  private String HAPortKey;
+  @NotNull
+  private String HAPasswordKey;
   @NotEmpty
   private List<InetAddress> servers = new ArrayList<>();
   @NotNull
@@ -28,6 +40,54 @@ public class RedisConfig {
   private String password;
   @Valid
   private Sentinel sentinel = new Sentinel();
+
+  public String getIPKey() {
+    return IPKey;
+  }
+
+  public void setIPKey(String IPKey) {
+    this.IPKey = IPKey;
+  }
+
+  public String getPortKey() {
+    return portKey;
+  }
+
+  public void setPortKey(String portKey) {
+    this.portKey = portKey;
+  }
+
+  public String getPasswordKey() {
+    return passwordKey;
+  }
+
+  public void setPasswordKey(String passwordKey) {
+    this.passwordKey = passwordKey;
+  }
+
+  public String getHAIPKey() {
+    return HAIPKey;
+  }
+
+  public void setHAIPKey(String HAIPKey) {
+    this.HAIPKey = HAIPKey;
+  }
+
+  public String getHAPortKey() {
+    return HAPortKey;
+  }
+
+  public void setHAPortKey(String HAPortKey) {
+    this.HAPortKey = HAPortKey;
+  }
+
+  public String getHAPasswordKey() {
+    return HAPasswordKey;
+  }
+
+  public void setHAPasswordKey(String HAPasswordKey) {
+    this.HAPasswordKey = HAPasswordKey;
+  }
 
   public List<InetAddress> getServers() {
     return servers;
@@ -104,27 +164,20 @@ public class RedisConfig {
     String key;
     for (InetAddress address : getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");
-    key = "Redis servers:";
-    credentials.put(key, servers);
-    logger.info(key.concat(" ").concat(servers));
-    key = "Redis port:";
-    credentials.put(key, getPort().toString());
-    logger.info(key.concat(" ").concat(getPort().toString()));
-    key = "Redis password:";
-    credentials.put(key, getPassword());
-    logger.info(key.concat(" ").concat(getPassword()));
-    key = "Redis Sentinel:";
-    logger.info(key.concat(" ").concat(getSentinel().isEmpty() ? "false" : "true"));
+    servers = servers.trim();
+    credentials.put(getIPKey(), servers);
+    logger.info(getIPKey().concat(" ").concat(servers));
+    credentials.put(getPortKey(), getPort().toString());
+    logger.info(getPortKey().concat(" ").concat(getPort().toString()));
+    credentials.put(getPasswordKey(), getPassword());
+    logger.info(getPasswordKey().concat(" ").concat(getPassword()));
     if (!getSentinel().isEmpty()) {
-      key = "Redis Sentinel master name:";
-      credentials.put(key, getSentinel().getMasterName());
-      logger.info(key.concat(" ").concat(getSentinel().getMasterName()));
-      key = "Redis Sentinel port:";
-      credentials.put(key, getSentinel().getPort().toString());
-      logger.info(key.concat(" ").concat(getSentinel().getPort().toString()));
-      key = "Redis Sentinel password:";
-      credentials.put(key, getSentinel().getPassword());
-      logger.info(key.concat(" ").concat(getSentinel().getPassword()));
+      credentials.put(getHAIPKey(), getSentinel().getMasterName());
+      logger.info(getHAIPKey().concat(" ").concat(getSentinel().getMasterName()));
+      credentials.put(getHAPortKey(), getSentinel().getPort().toString());
+      logger.info(getHAPortKey().concat(" ").concat(getSentinel().getPort().toString()));
+      credentials.put(getHAPasswordKey(), getSentinel().getPassword());
+      logger.info(getHAPasswordKey().concat(" ").concat(getSentinel().getPassword()));
     }
     return credentials;
   }

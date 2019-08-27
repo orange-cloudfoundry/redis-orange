@@ -7,6 +7,12 @@ server:
 
 orange:
   redis:
+    IPKey: hostname
+    portKey: port
+    passwordKey: password
+    HAIPKey: ha_hostname
+    HAPortKey: ha_port
+    HAPasswordKey: ha_password
     servers:
       - 192.168.56.101
       - 192.168.56.102

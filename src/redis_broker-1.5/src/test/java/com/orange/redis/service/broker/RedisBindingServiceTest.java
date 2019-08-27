@@ -39,21 +39,22 @@ public class RedisBindingServiceTest {
     String servers = new String();
     for (InetAddress address : redisConfig.getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");
+    servers = servers.trim();
     for (Map.Entry<String, Object> credentials : ((CreateServiceInstanceAppBindingResponse) x)
         .getCredentials()
         .entrySet()) {
-      if (credentials.getKey().compareTo("Redis servers:") == 0)
+      if (credentials.getKey().compareTo(redisConfig.getIPKey()) == 0)
         Assert.assertEquals(servers, credentials.getValue());
-      if (credentials.getKey().compareTo("Redis port:") == 0)
+      if (credentials.getKey().compareTo(redisConfig.getPortKey()) == 0)
         Assert.assertEquals(redisConfig.getPort().toString(), credentials.getValue());
-      if (credentials.getKey().compareTo("Redis password:") == 0)
+      if (credentials.getKey().compareTo(redisConfig.getPasswordKey()) == 0)
         Assert.assertEquals(redisConfig.getPassword(), credentials.getValue());
       if (!redisConfig.getSentinel().isEmpty()) {
-        if (credentials.getKey().compareTo("Redis Sentinel master name:") == 0)
+        if (credentials.getKey().compareTo(redisConfig.getHAIPKey()) == 0)
           Assert.assertEquals(redisConfig.getSentinel().getMasterName(), credentials.getValue());
-        if (credentials.getKey().compareTo("Redis Sentinel port:") == 0)
+        if (credentials.getKey().compareTo(redisConfig.getHAPortKey()) == 0)
           Assert.assertEquals(redisConfig.getSentinel().getPort().toString(), credentials.getValue());
-        if (credentials.getKey().compareTo("Redis Sentinel password:") == 0)
+        if (credentials.getKey().compareTo(redisConfig.getHAPasswordKey()) == 0)
           Assert.assertEquals(redisConfig.getSentinel().getPassword(), credentials.getValue());
       }
     }
