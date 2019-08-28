@@ -29,8 +29,15 @@ instance_groups:
       cluster_enabled: ((redis_cluster_enabled))
       cluster_replicas_per_node: ((replicas_per_node_count))
       min_replicas_to_write: ((redis_min_replicas_to_write))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
   - name: redis_check
     release: redis-service
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: nil
   - name: redis_exporter
     release: redis-service
     properties:
@@ -50,6 +57,12 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       loglevel: ((redis_broker_loglevel))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: nil
+      redis_sentinel_master_conn: nil
+      redis_sentinel_slave_conn: nil
   - name: redis_broker_check-1.5
     release: redis-service
 
