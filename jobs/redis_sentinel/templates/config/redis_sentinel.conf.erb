@@ -1,5 +1,9 @@
-# Example sentinel.conf
-
+<%
+  master=link('redis_conn')
+  if_link('master_conn'){ |x| master=x }
+  slave=link('redis_conn')
+  if_link('slave_conn'){ |x| slave=x }
+%>
 # *** IMPORTANT ***
 #
 # By default Sentinel will not be reachable from interfaces different than
@@ -89,7 +93,13 @@ dir <%= p('dir') %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-sentinel monitor <%= spec.deployment %> <%= link('redis_conn').instances.find{ |x| x.bootstrap }.address %> <%= link('redis_conn').p('port') %> <%= (link('redis_conn').instances.length/2)+1 %>
+<%
+  instances_length=master.instances.length
+  if !slave.instances[0].name.eql?(master.instances[0].name)
+    instances_length+=slave.instances.length
+  end
+%>
+sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= (instances_length/2)+1 %>
 
 # sentinel auth-pass <master-name> <password>
 #
@@ -109,7 +119,7 @@ sentinel monitor <%= spec.deployment %> <%= link('redis_conn').instances.find{ |
 # Example:
 #
 # sentinel auth-pass mymaster MySUPER--secret-0123passw0rd
-sentinel auth-pass <%= spec.deployment %> <%= link('redis_conn').p('password') %>
+sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
 
 # sentinel down-after-milliseconds <master-name> <milliseconds>
 #
@@ -255,43 +265,43 @@ sentinel deny-scripts-reconfig yes
 #
 # SENTINEL rename-command mymaster CONFIG CONFIG
 
-<% link('redis_conn').if_p('rename_config_command') do |command| %>
+<% master.if_p('rename_config_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> CONFIG <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_save_command') do |command| %>
+<% master.if_p('rename_save_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> SAVE <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_bgsave_command') do |command| %>
+<% master.if_p('rename_bgsave_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> BGSAVE <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_bgrewriteaof_command') do |command| %>
+<% master.if_p('rename_bgrewriteaof_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> BGREWRITEAOF <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_monitor_command') do |command| %>
+<% master.if_p('rename_monitor_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> MONITOR <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_debug_command') do |command| %>
+<% master.if_p('rename_debug_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> DEBUG <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_shutdown_command') do |command| %>
+<% master.if_p('rename_shutdown_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> SHUTDOWN <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_slaveof_command') do |command| %>
+<% master.if_p('rename_slaveof_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> SLAVEOF <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_replicaof_command') do |command| %>
+<% master.if_p('rename_replicaof_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> REPLICAOF <%= command %>
 <% end %>
 
-<% link('redis_conn').if_p('rename_sync_command') do |command| %>
+<% master.if_p('rename_sync_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> SYNC <%= command %>
 <% end %>
 

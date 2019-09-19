@@ -8,9 +8,23 @@ templates:
 packages:
 - redis
 
+provides:
+- name: redis_sentinel_conn
+  type: sentinel_conn
+  properties:
+  - bind
+  - port
+  - password
+
 consumes:
 - name: redis_conn
   type: conn
+- name: master_conn
+  type: conn
+  optional: true
+- name: slave_conn
+  type: conn
+  optional: true
 
 properties:
   bind:

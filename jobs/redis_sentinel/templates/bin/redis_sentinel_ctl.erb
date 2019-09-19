@@ -10,10 +10,9 @@ REDIS_SENTINEL_STORE_DIR="<%= p('dir') %>";
 REDIS_SENTINEL_PID_FILE="${REDIS_SENTINEL_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_SENTINEL_CONF="/var/vcap/jobs/redis_sentinel/config/redis_sentinel.conf";
 
+REDIS_SENTINEL_IP="127.0.0.1";
 <% if p('bind') %>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
-<% else %>
-REDIS_SENTINEL_IP="127.0.0.1";
 <% end %>
 REDIS_SENTINEL_PORT="<%= p('port') %>";
 

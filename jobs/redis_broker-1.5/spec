@@ -1,0 +1,82 @@
+---
+name: redis_broker-1.5
+
+templates:
+  config/application.yml.erb: config/application.yml
+  config/log4j2.xml.erb: config/log4j2.xml
+  bin/redis_broker_ctl.erb: bin/redis_broker_ctl
+
+packages:
+- openjdk
+- redis_broker-1.5
+
+provides:
+- name: redis_broker_conn
+  type: broker_conn
+  properties:
+  - user
+  - password
+  - bind
+  - port
+
+consumes:
+- name: redis_conn
+  type: conn
+- name: master_conn
+  type: conn
+  optional: true
+- name: slave_conn
+  type: conn
+  optional: true
+- name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
+- name: redis_sentinel_master_conn
+  type: sentinel_conn
+  optional: true
+- name: redis_sentinel_slave_conn
+  type: sentinel_conn
+  optional: true
+
+properties:
+  user:
+    description: Redis service broker user
+    default: "broker"
+  password:
+    description: Redis service broker password
+  bind:
+    default: false
+    description: |
+      Specify this property to "true" if you would like the bind address of a given instance to be automatically set to its assigned static IP. Otherwise, Redis listens only on "localhost".
+  loglevel:
+    default: "info"
+    description: |
+      Redis broker's logs level.
+  port:
+    default: "8080"
+    description: |
+      The port that this Redis broker instance will run on.
+  ip_property_key:
+    default: "hostname"
+    description: |
+      Redis servers IP property's key for client
+  port_property_key:
+    default: "port"
+    description: |
+      Redis servers port property's key for client
+  password_property_key:
+    default: "password"
+    description: |
+      Redis servers password property's key for client
+  high_avaibility_ip_property_key:
+    default: "ha_hostname"
+    description: |
+      Redis Sentinels IP property's key for client
+  high_avaibility_port_property_key:
+    default: "ha_port"
+    description: |
+      Redis Sentinels port property's key for client
+  high_avaibility_password_property_key:
+    default: "ha_password"
+    description: |
+      Redis Sentinels password property's key for client

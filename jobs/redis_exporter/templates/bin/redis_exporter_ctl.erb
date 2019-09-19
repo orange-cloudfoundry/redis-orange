@@ -12,10 +12,9 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
+REDIS_IP="127.0.0.1";
 <% if link('redis_conn').p('bind') %>
 REDIS_IP="<%= spec.ip %>";
-<% else %>
-REDIS_IP="127.0.0.1";
 <% end %>
 REDIS_ADDR="redis://${REDIS_IP}:<%= link('redis_conn').p('port') %>";
 
@@ -31,8 +30,8 @@ REDIS_PASSWORD="<%= password %>";
 REDIS_ALIAS="<%= spec.deployment + '/' + spec.ip %>";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
-exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log
-exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
 chown vcap:vcap \
   ${LOG_DIR}/${PROGNAME}.stdout.log \
   ${LOG_DIR}/${PROGNAME}.stderr.log;
@@ -49,6 +48,8 @@ case $1 in
       <% if p('debug') %> \
       -debug \
       <% end %> \
+      -redis.addr="${REDIS_ADDR}" \
+      -redis.password="${REDIS_PASSWORD}" \
       -log-format="<%= p('log_format') %>" \
       <% if_p('check_keys') do |check_keys| %> \
       -check-keys="<%= check_keys %>" \

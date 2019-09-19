@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -eu
+
+PROGNAME="redis_broker";
+RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
+LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
+TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
+STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+
+PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
+
+source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+chown vcap:vcap \
+  ${LOG_DIR}/${PROGNAME}.stdout.log \
+  ${LOG_DIR}/${PROGNAME}.stderr.log;
+
+export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
+export PATH=${JAVA_HOME}/bin:${PATH};
+
+case $1 in
+  start)
+    pid_guard ${PIDFILE} "${PROGNAME}";
+    echo $$ > ${PIDFILE};
+
+    exec chpst -u vcap:vcap java \
+      -Dspring.config.location=file:/var/vcap/jobs/${PROGNAME}/config/application.yml \
+      -Dio.netty.native.workdir=${TMP_DIR} \
+      -jar /var/vcap/packages/${PROGNAME}/bin/${PROGNAME}.jar  \
+      >> ${LOG_DIR}/${PROGNAME}.stdout.log \
+      2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+    ;;
+
+  stop)
+    kill_and_wait ${PIDFILE};
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop}";
+    exit 1;
+    ;;
+
+esac
+exit 0;

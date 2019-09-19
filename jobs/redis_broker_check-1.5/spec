@@ -1,0 +1,11 @@
+---
+name: redis_broker_check-1.5
+
+templates:
+  bin/run.erb: bin/run
+
+consumes:
+- name: redis_broker_conn
+  type: broker_conn
+
+properties: {}

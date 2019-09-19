@@ -1,0 +1,4 @@
+---
+name: openjdk
+files:
+- openjdk/openjdk-*_linux-x64_bin.tar.gz  # From https://jdk.java.net/

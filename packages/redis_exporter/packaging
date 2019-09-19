@@ -8,5 +8,6 @@ export HOME="/var/vcap"
 
 # Extract redis_exporter package
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
-cp -a redis_exporter/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
+cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
 tar xzf redis_exporter/redis_exporter-*.linux-amd64.tar.gz -C ${BOSH_INSTALL_TARGET}/bin
+ln -sf ${BOSH_INSTALL_TARGET}/bin/redis_exporter-*.linux-amd64/redis_exporter ${BOSH_INSTALL_TARGET}/bin/redis_exporter
