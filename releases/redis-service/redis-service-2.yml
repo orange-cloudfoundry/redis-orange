@@ -1,0 +1,83 @@
+name: redis-service
+version: "2"
+commit_hash: 929600d
+uncommitted_changes: false
+jobs:
+- name: redis
+  version: 1a14d90435391a1bc3a9ccdfc0fbd289035d444a7e1eaa667b4c40bf128e40ef
+  fingerprint: 1a14d90435391a1bc3a9ccdfc0fbd289035d444a7e1eaa667b4c40bf128e40ef
+  sha1: sha256:a13895ff7e3a7f24221e3016b07913d394a23d2e11e64867035c4b499af1b2e7
+  packages:
+  - redis
+- name: redis_broker
+  version: 44642cbedad51bd0a6826bcb46deeae6bb4edd6475a26f1926c46638ee56fa77
+  fingerprint: 44642cbedad51bd0a6826bcb46deeae6bb4edd6475a26f1926c46638ee56fa77
+  sha1: sha256:d7b6b2808e26c26b0220cb06ded0cc8c124b859b2bc7a4af08c1c9c0b33e4a64
+  packages:
+  - openjdk
+  - redis_broker
+- name: redis_broker-1.5
+  version: 1fdc202ee37d6028c3a0973974a32f7e13727607d852f85136b3cc148194e28f
+  fingerprint: 1fdc202ee37d6028c3a0973974a32f7e13727607d852f85136b3cc148194e28f
+  sha1: sha256:f557cebfa95612091d3399cfcdceb21f7864851af73113aa249d21cc55d9330b
+  packages:
+  - openjdk
+  - redis_broker-1.5
+- name: redis_broker_check
+  version: c56b418806bc7263776b3dcbc8066b2928ce161363c16bac6e65bfd063d1fc21
+  fingerprint: c56b418806bc7263776b3dcbc8066b2928ce161363c16bac6e65bfd063d1fc21
+  sha1: sha256:4354fe2f60ed5056ce97b1e5890c5113d64457b2f074fa7a20b2b9c0bdc278f6
+  packages: []
+- name: redis_broker_check-1.5
+  version: 7a8b3e5a1841085f5ee88040ea9fddc899b217e890c0a5213727585627be273d
+  fingerprint: 7a8b3e5a1841085f5ee88040ea9fddc899b217e890c0a5213727585627be273d
+  sha1: sha256:ff24ce125f173ef209be2a90496a38bbb4de91d5bb2d4d4a247d11950f428425
+  packages: []
+- name: redis_check
+  version: 0808970990e7893e22a79c4361fa05ea040ac77eaa05c67360bc29b7212709e1
+  fingerprint: 0808970990e7893e22a79c4361fa05ea040ac77eaa05c67360bc29b7212709e1
+  sha1: sha256:e91edce55fcd165b33f77fe275e3f91f94a842a1fd6d284f0701b184f9b4245d
+  packages:
+  - redis
+- name: redis_exporter
+  version: c4590973be8b9ee9a48bdd1c44461ceb94077f3773820ddc3f011ea965683474
+  fingerprint: c4590973be8b9ee9a48bdd1c44461ceb94077f3773820ddc3f011ea965683474
+  sha1: sha256:c7498989571122154286d067c6d4264a03e04ff48da1cab71f8497e0e5f5bb1e
+  packages:
+  - redis_exporter
+- name: redis_sentinel
+  version: 74b8f7d82c49130de7eb7bbd00f16a72697054a4c72847892b7df9b3dc6ede25
+  fingerprint: 74b8f7d82c49130de7eb7bbd00f16a72697054a4c72847892b7df9b3dc6ede25
+  sha1: sha256:fd6f7ba9715ae42cb7ce41ab655c7d78f3f31c8adb4bf8ab3f28fda6fad47509
+  packages:
+  - redis
+packages:
+- name: openjdk
+  version: 6bd564e5845eed9de4a849157a5f2ea76dcd360c153aa4e58ef73fdfb618a7e9
+  fingerprint: 6bd564e5845eed9de4a849157a5f2ea76dcd360c153aa4e58ef73fdfb618a7e9
+  sha1: sha256:f2c7c22beea0b35a00546a547a1e2fb3b2b27f728d2aef88ac04b03900bb3586
+  dependencies: []
+- name: redis
+  version: 4129680c84e5b66fd214714b8580b19f48d89a7c5dd83da1b4804797a7fdef42
+  fingerprint: 4129680c84e5b66fd214714b8580b19f48d89a7c5dd83da1b4804797a7fdef42
+  sha1: sha256:0b8b151ead3e1a900eea913ded8405f7f61ffe675733b2defbb8787927c6254d
+  dependencies: []
+- name: redis_broker
+  version: bd183aeb771a2ea1b4a48e5ec9a4630113d4640e78c15a900e08124c6f00ffa6
+  fingerprint: bd183aeb771a2ea1b4a48e5ec9a4630113d4640e78c15a900e08124c6f00ffa6
+  sha1: sha256:a1d5f7077f537e166ae82e0d65af26f1abeafa707b788c5043079add8b48767f
+  dependencies: []
+- name: redis_broker-1.5
+  version: f41bef4842031aca0aebca27c0703d0b92475df93af742310d7beee45958eccc
+  fingerprint: f41bef4842031aca0aebca27c0703d0b92475df93af742310d7beee45958eccc
+  sha1: sha256:4f9ceebec5a23caca75607e1aa143c3a6dba4956107c20d2050e86980219fa2a
+  dependencies: []
+- name: redis_exporter
+  version: 915addb9d5802b5fe47e0239e323ff9abe59aecec4aa8678f80938992591a4f0
+  fingerprint: 915addb9d5802b5fe47e0239e323ff9abe59aecec4aa8678f80938992591a4f0
+  sha1: sha256:a1fb777f29da8c4498a5d459067c53b30fdafad30a62193e97630cbed786dc56
+  dependencies: []
+license:
+  version: eefa533b44473426f0d39cb7de4a5de1342863955201ca83ddaefe4a0c96d174
+  fingerprint: eefa533b44473426f0d39cb7de4a5de1342863955201ca83ddaefe4a0c96d174
+  sha1: sha256:7c3ca86bfcc75f910f58f8d38e06ae6fa72544c98f52d6b80d4a18e9dd23bb58
