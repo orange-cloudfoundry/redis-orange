@@ -1,3 +1,5 @@
+# Changelog
+
 ## redis-orange 1.0.1
 
 Components update:
