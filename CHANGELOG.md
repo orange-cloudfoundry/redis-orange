@@ -1,5 +1,3 @@
-# Changelog
-
 ## redis-orange 1.0.1
 
 Components update:
@@ -10,6 +8,6 @@ Components update:
 - [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.0.3 -> 3.1.0
 - [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.3 -> 1.0.4
 
-## redis-orange 1.0
+## redis-orange 1.0
 
 Initial release
