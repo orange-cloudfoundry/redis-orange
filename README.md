@@ -8,7 +8,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 - [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability,
 - Multi-zone for high availability by Redis Sentinel and Redis cluster with high availability,
 - Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/),
-- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.1.6 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.0.3 and another broker with [*Spring Boot*] 1.5.21 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.3.
+- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.1 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.0 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
 
 ## TODO
 
@@ -18,9 +18,9 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Packages versions summary
 
-- Redis [*5.0.5*](http://download.redis.io/releases/redis-5.0.5.tar.gz)
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.0.3*](https://github.com/oliver006/redis_exporter/releases/download/v1.0.3/redis_exporter-v1.0.3.linux-amd64.tar.gz)
-- [*OpenJDK*](https://openjdk.java.net/) [*12.0.1*](https://download.java.net/java/GA/jdk12.0.1/69cfe15208a647278a19ef0990eea691/12/GPL/openjdk-12.0.1_linux-x64_bin.tar.gz)
+- Redis [*5.0.7*](http://download.redis.io/releases/redis-5.0.7.tar.gz)
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.3.4*](https://github.com/oliver006/redis_exporter/releases/download/v1.3.4/redis_exporter-v1.3.4.linux-amd64.tar.gz)
+- [*OpenJDK*](https://openjdk.java.net/) [*13.0.1*](https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
 ## Usage
@@ -143,13 +143,12 @@ redis_bind: true
 redis_exporter_debug: false
 ```
 
-**Note**: For security purposes, we use [*CredHub*](https://docs.cloudfoundry.org/credhub/) for passwords and to obfuscate some Redis admin commands (e.g.: `CONFIG`, `DEBUG`), etc..
-
-**Note**: We provide two errands:
-- `redis_check` to test deployed Redis instance with create, read, write and delete operations,
-- `redis_broker_check` to test deployed Redis broker by accessing Redis's catalog and service instance binding.
-
-**Note**: Redis server and the Prometheus Redis exporter which monitor it must be on the same instance.
+**Notes**:
+  - For security purposes, we use [*CredHub*](https://docs.cloudfoundry.org/credhub/) for passwords and to obfuscate some Redis admin commands (e.g.: `CONFIG`, `DEBUG`), etc..
+  - We provide two errands:
+    - `redis_check` to test deployed Redis instance with create, read, write and delete operations,
+    - `redis_broker_check` to test deployed Redis broker by accessing Redis's catalog and service instance binding.
+  - Redis server and the Prometheus Redis exporter which monitor it must be on the same instance.
 
 #### Redis High Availability with Redis Sentinel
 
@@ -181,11 +180,11 @@ In our release, Redis quorum's value is:
 - **(node_count/2)+1**, if you plan to use only one instance group, or
 - **(master_node_count+slave_node_count/2)+1**, if you plan to use an instance group for Redis master and another one for Redis slaves. 
 
-**Note**: `node_count` and `master_node_count+slave_node_count` must be an odd integer and greater or equal to 3.
+**Notes**:
 
-**Note**: To enable Redis High Availability with Redis Sentinel, `replication` (default: `false`) property must be set to `true`.
-
-**Note**: Take care about the `min_replicas_to_write` (default: `0`) property. See release specifications for details.
+- `node_count` and `master_node_count+slave_node_count` must be an odd integer and greater or equal to 3.
+- To enable Redis High Availability with Redis Sentinel, `replication` (default: `false`) property must be set to `true`.
+- Take care about the `min_replicas_to_write` (default: `0`) property. See release specifications for details.
 
 The deployment manifest is:
 
@@ -510,9 +509,10 @@ In this release, as previously with Redis High Availability with Redis Sentinel,
 - **master group**, this group is mandatory and include Redis masters. We use the parameter `master_node_count` as the number of instance in this group.
 - **slave group**, this group is optional and is useful if you plan to set Redis process in master group in an distinct AZ than Redis process in slave group. We use the parameter `slave_node_count` as the number of instance in this group.
 
-**Note**: Redis Cluster requires at least 3 master nodes.
+**Notes**:
 
-**Note**: If you use only one instance group, we use the parameter `node_count` as the number of instance in the group and the group includes Redis masters and optionally slaves, if property  `cluster_replicas_per_node` is set greater than `0`.
+- Redis Cluster requires at least 3 master nodes.
+- If you use only one instance group, we use the parameter `node_count` as the number of instance in the group and the group includes Redis masters and optionally slaves, if property  `cluster_replicas_per_node` is set greater than `0`.
 
 To enable Redis Cluster with High Availability feature, the property  `cluster_replicas_per_node` (default: `0`) must be set greater than `0`. This property allow to set the number of slave per master in a Redis Cluster. The number of slave per master is a best effort:
 - If you use only one instance group, the number of Redis master in the Redis Cluster is integer part of `node_count/(cluster_replicas_per_node+1)`. If `node_count%(cluster_replicas_per_node+1) != 0` then some Redis masters in Redis Cluster could have more than expected Redis slaves. For example, with `node_count=7` and `cluster_replicas_per_node=1`, you would have `3` Redis masters and `4` Redis slaves where:
@@ -529,15 +529,13 @@ So, take care to set:
 - When you use only one instance group, `node_count/(cluster_replicas_per_node+1) >= 3` with , and
 - When you use two instance groups, `slave_node_count >= master_node_count*cluster_replicas_per_node` with `master_node_count >= 3`.
 
-**Note**: It is recommended to set `node_count/(cluster_replicas_per_node+1) > 3`, or `slave_node_count > master_node_count*cluster_replicas_per_node` with `master_node_count >= 3`, to use the replica migration feature. See the parameter `cluster_migration_barrier` is the Redis job's specification.
+**Notes**:
 
-**Note**: To enable Redis Cluster, property `cluster_enabled` (default: `no`) must be set to `yes`.
-
-**Note**: It is useless to use `replication` property to enable replication between master and slave in Redis Cluster. Redis replication is enable if you set `cluster_replicas_per_node` greater than `0`.
-
-**Note**: If you set a slave group, but let `cluster_replicas_per_node` to `0`, High Availability feature is disable.
-
-**Note**: When you enable Redis Cluster with High Availability feature, take care about the `min_replicas_to_write` (default: `0`) property. See release specifications for details.
+- It is recommended to set `node_count/(cluster_replicas_per_node+1) > 3`, or `slave_node_count > master_node_count*cluster_replicas_per_node` with `master_node_count >= 3`, to use the replica migration feature. See the parameter `cluster_migration_barrier` is the Redis job's specification.
+- To enable Redis Cluster, property `cluster_enabled` (default: `no`) must be set to `yes`.
+- It is useless to use `replication` property to enable replication between master and slave in Redis Cluster. Redis replication is enable if you set `cluster_replicas_per_node` greater than `0`.
+- If you set a slave group, but let `cluster_replicas_per_node` to `0`, High Availability feature is disable.
+- When you enable Redis Cluster with High Availability feature, take care about the `min_replicas_to_write` (default: `0`) property. See release specifications for details.
 
 The deployment manifest is:
 

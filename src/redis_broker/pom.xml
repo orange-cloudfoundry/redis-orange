@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.1.7.RELEASE</version>
+    <version>2.2.1.RELEASE</version>
     <relativePath /> <!-- lookup parent from repository -->
   </parent>
   <groupId>com.orange.redis.service</groupId>
@@ -14,12 +14,12 @@
   <name>broker</name>
   <description>An OSB for Redis</description>
   <properties>
-    <java.version>12</java.version>
+    <java.version>13</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <spring.cloud.open.service.broker.version>3.0.3.RELEASE</spring.cloud.open.service.broker.version>
+    <spring.cloud.open.service.broker.version>3.1.0.RELEASE</spring.cloud.open.service.broker.version>
   </properties>
   <dependencies>
     <dependency>
