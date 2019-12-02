@@ -8,21 +8,21 @@ common/utils.sh:
   sha: fca7fa6aa60b72e1277f2d2185d23303280c5823
 openjdk/openjdk-13.0.1_linux-x64_bin.tar.gz:
   size: 195868060
-  object_id: a37970c1-cf7d-4b9a-71c9-2b4a053566a0
+  object_id: 70a719c0-4151-49d8-7649-3183157f11b8
   sha: sha256:2e01716546395694d3fad54c9b36d1cd46c5894c06f72d156772efbcf4b41335
 redis/redis-5.0.7.tar.gz:
   size: 1984203
-  object_id: a2a6dfb1-9dd3-4e64-7025-3a3cc9010198
+  object_id: d6572f9f-5b13-4314-5d95-62cb5210f26b
   sha: sha256:61db74eabf6801f057fd24b590232f2f337d422280fd19486eca03be87d3a82b
 redis_broker-1.5/broker-1.5-0.0.1-SNAPSHOT.jar:
   size: 21609534
-  object_id: 23e737f7-0e7d-478f-5d36-44bef8e27053
+  object_id: 85afcdca-ae52-44f0-725e-76cc443ffa31
   sha: sha256:9a354780127bb309dda0b6cb3e0f4e5623532c5f705850cf6d92751999da3e7b
 redis_broker/broker-0.0.1-SNAPSHOT.jar:
   size: 27259931
-  object_id: 3270405a-4e4e-4610-5fe6-84bffdac85b7
+  object_id: 983a1946-d170-47c8-7823-44527a0410fa
   sha: sha256:2f23dd8e3a718556d27e5892a18f8cc78f5cf0cc7c36c250f40aa56d25d5499a
 redis_exporter/redis_exporter-v1.3.4.linux-amd64.tar.gz:
   size: 3376474
-  object_id: 6e7dfb63-c406-4811-7ed4-af31ae6b3477
+  object_id: c9600a36-2aa5-4c12-491f-a0b1ee4d0bdc
   sha: sha256:6b045c25a98422c0708ac38a30012284135967ff450b0cf64d2ff14acbd86f7c
