@@ -250,6 +250,66 @@ properties:
     description: |
       Set the max number of connected clients at the same time. By default this limit is set to 10000 clients, however if the Redis server is not able to configure the process file limit to allow for the specified limit the max number of allowed clients is set to the current file limit minus 32 (as Redis reserves a few file descriptors for internal uses).
       Once the limit is reached Redis will close all the new connections sending an error max number of clients reached."
+############################## MEMORY MANAGEMENT ################################
+  maxmemory_for_others:
+    default: "268435456"
+    description: |
+      If MAX_MEMMORY_AVAILABLE, in bytes, is the max memory available after the operating system started.
+      The max memory available for Redis is: MAX_MEMMORY_AVAILABLE - maxmemoryforothers. 
+  maxmemory_policy:
+    default: "allkeys-lru"
+    description: |
+      MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
+      is reached. You can select among five behaviors:
+
+        - volatile-lru -> Evict using approximated LRU among the keys with an expire set.
+        - allkeys-lru -> Evict any key using approximated LRU.
+        - volatile-lfu -> Evict using approximated LFU among the keys with an expire set.
+        - allkeys-lfu -> Evict any key using approximated LFU.
+        - volatile-random -> Remove a random key among the ones with an expire set.
+        - allkeys-random -> Remove a random key, any key.
+        - volatile-ttl -> Remove the key with the nearest expire time (minor TTL)
+        - noeviction -> Don't evict anything, just return an error on write operations.
+
+      LRU means Least Recently Used
+      LFU means Least Frequently Used
+
+      Both LRU, LFU and volatile-ttl are implemented using approximated
+      randomized algorithms.
+
+      Note: with any of the above policies, Redis will return an error on write
+        operations, when there are no suitable keys for eviction.
+  maxmemory_samples:
+    default: "5"
+    description: |
+      LRU, LFU and minimal TTL algorithms are not precise algorithms but approximated
+      algorithms (in order to save memory), so you can tune it for speed or
+      accuracy. For default Redis will check five keys and pick the one that was
+      used less recently, you can change the sample size using the following
+      configuration directive.
+
+      The default of 5 produces good enough results. 10 Approximates very closely
+      true LRU but costs more CPU. 3 is faster but not very accurate.
+  replica_ignore_maxmemory:
+    default: "yes"
+    description: |
+      Starting from Redis 5, by default a replica will ignore its maxmemory setting
+      (unless it is promoted to master after a failover or manually). It means
+      that the eviction of keys will be just handled by the master, sending the
+      DEL commands to the replica as keys evict in the master side.
+
+      This behavior ensures that masters and replicas stay consistent, and is usually
+      what you want, however if your replica is writable, or you want the replica to have
+      a different memory setting, and you are sure all the writes performed to the
+      replica are idempotent, then you may change this default (but be sure to understand
+      what you are doing).
+
+      Note that since the replica by default does not evict, it may end using more
+      memory than the one set via maxmemory (there are certain buffers that may
+      be larger on the replica, or data structures may sometimes take more memory and so
+      forth). So make sure you monitor your replicas and make sure they have enough
+      memory to never hit a real out-of-memory condition before the master hits
+      the configured maxmemory setting.
 ############################## APPEND ONLY MODE ###############################
   appendonly:
     default: "no"
