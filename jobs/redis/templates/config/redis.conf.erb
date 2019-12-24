@@ -101,7 +101,7 @@ bind 127.0.0.1
 # you are sure you want clients from other hosts to connect to Redis
 # even if no authentication is configured, nor a specific set of interfaces
 # are explicitly listed using the "bind" directive.
-# protected-mode yes
+protected-mode <%= p('protected_mode') %>
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
@@ -114,7 +114,7 @@ port <%= master.p('port') %>
 # will silently truncate it to the value of /proc/sys/net/core/somaxconn so
 # make sure to raise both the value of somaxconn and tcp_max_syn_backlog
 # in order to get the desired effect.
-tcp-backlog 511
+tcp-backlog <%= p('tcp_backlog') %>
 
 # Unix socket.
 #
@@ -386,7 +386,7 @@ replica-read-only <%= p('replica_read_only') %>
 #
 # With slow disks and fast (large bandwidth) networks, diskless replication
 # works better.
-repl-diskless-sync no
+repl-diskless-sync <%= p('repl_diskless_sync') %>
 
 # When diskless replication is enabled, it is possible to configure the delay
 # the server waits in order to spawn the child that transfers the RDB via socket
@@ -398,7 +398,7 @@ repl-diskless-sync no
 #
 # The delay is specified in seconds, and by default is 5 seconds. To disable
 # it entirely just set it to 0 seconds and the transfer will start ASAP.
-repl-diskless-sync-delay 5
+repl-diskless-sync-delay <%= p('repl_diskless_sync_delay') %>
 
 # Replicas send PINGs to server in a predefined interval. It's possible to change
 # this interval with the repl_ping_replica_period option. The default value is 10
@@ -445,6 +445,7 @@ repl-disable-tcp-nodelay <%= p('repl_disable_tcp_nodelay') %>
 # The backlog is only allocated once there is at least a replica connected.
 #
 # repl-backlog-size 1mb
+repl-backlog-size <%= p('repl_backlog_size') %>
 
 # After a master has no longer connected replicas for some time, the backlog
 # will be freed. The following option configures the amount of seconds that
@@ -458,6 +459,7 @@ repl-disable-tcp-nodelay <%= p('repl_disable_tcp_nodelay') %>
 # A value of 0 means to never release the backlog.
 #
 # repl-backlog-ttl 3600
+repl-backlog-ttl <%= p('repl_backlog_ttl') %>
 
 # The replica priority is an integer number published by Redis in the INFO output.
 # It is used by Redis Sentinel in order to select a replica to promote into a
@@ -687,7 +689,10 @@ maxclients <%= p('maxclients') %>
 # output buffers (but this is not needed if the policy is 'noeviction').
 #
 # maxmemory <bytes>
-maxmemory <%= %x(free -b).split(" ")[12].to_i - p('maxmemory_for_others').to_i %>
+<% x=p('maxmemory_for_others').to_i
+   if x >= 0 %>
+maxmemory <%= %x(free -b).split(" ")[12].to_i - x %>
+<% end %>
 
 # MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
 # is reached. You can select among five behaviors:
@@ -1443,6 +1448,8 @@ rdb-save-incremental-fsync yes
 #
 # lfu-log-factor 10
 # lfu-decay-time 1
+lfu-log-factor <%= p('lfu_log_factor') %>
+lfu-decay-time <%= p('lfu_decay_time') %>
 
 ########################### ACTIVE DEFRAGMENTATION #######################
 #
