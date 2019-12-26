@@ -26,6 +26,7 @@ provides:
   - rename_slaveof_command
   - rename_replicaof_command
   - rename_sync_command
+  - maxmemory
   - replication
   - min_replicas_to_write
   - min_replicas_max_lag
@@ -48,13 +49,6 @@ properties:
     default: false
     description: |
       Specify this property to "true" if you would like the bind address of a given instance to be automatically set to its assigned static IP. Otherwise, Redis listens only on "localhost".
-  protected_mode:
-    default: "yes"
-    description: |
-      By default protected mode is enabled. You should disable it only if
-      you are sure you want clients from other hosts to connect to Redis
-      even if no authentication is configured, nor a specific set of interfaces
-      are explicitly listed using the "bind" directive.
   port:
     default: "6379"
     description: |
@@ -178,6 +172,23 @@ properties:
   repl_diskless_sync:
     default: "no"
     description: |
+      New replicas and reconnecting replicas that are not able to continue the replication
+      process just receiving differences, need to do what is called a "full
+      synchronization". An RDB file is transmitted from the master to the replicas.
+      The transmission can happen in two different ways:
+
+        1) Disk-backed: The Redis master creates a new process that writes the RDB
+           file on disk. Later the file is transferred by the parent
+           process to the replicas incrementally.
+        2) Diskless: The Redis master creates a new process that directly writes the
+           RDB file to replica sockets, without touching the disk at all.
+
+      With disk-backed replication, while the RDB file is generated, more replicas
+      can be queued and served with the RDB file as soon as the current child producing
+      the RDB file finishes its work. With diskless replication instead once
+      the transfer starts, new replicas arriving will be queued and a new transfer
+      will start when the current one terminates.
+
       When diskless replication is used, the master waits a configurable amount of
       time (in seconds) before starting the transfer in the hope that multiple replicas
       will arrive and the transfer can be parallelized.
@@ -314,15 +325,18 @@ properties:
       Set the max number of connected clients at the same time. By default this limit is set to 10000 clients, however if the Redis server is not able to configure the process file limit to allow for the specified limit the max number of allowed clients is set to the current file limit minus 32 (as Redis reserves a few file descriptors for internal uses).
       Once the limit is reached Redis will close all the new connections sending an error max number of clients reached."
 ############################## MEMORY MANAGEMENT ################################
-  maxmemory_for_others:
-    default: "-1"
+  maxmemory:
+    default: "0"
     description: |
-      Let's say MAX_MEMMORY_AVAILABLE, in bytes, is the max memory available after the operating system started.
-      If maxmemory_for_others is greater or equal to 0, the max memory available for Redis is:
-      MAX_MEMMORY_AVAILABLE - maxmemory_for_others.
-      If maxmemory_for_others is smaller than 0, then maxmemory get its default value (i.e. 0).
-      Note: If you use a dashbord to monitor Redis, to have a relevant memory usage metric, you must
-      set maxmemory_for_others to a value greater or equal to 0 (e.g. 134217728).
+      The maxmemory configuration directive is used in order to configure Redis to use a specified amount of memory for the data set. It is possible to set the configuration directive using the redis.conf file, or later using the CONFIG SET command at runtime.
+
+      For example in order to configure a memory limit of 100 megabytes, the following directive can be used inside the redis.conf file.
+
+        maxmemory 100mb
+
+      Setting maxmemory to zero results into no memory limits. This is the default behavior for 64 bit systems, while 32 bit systems use an implicit memory limit of 3GB. Setting maxmemory to zero, when memory runs out the operating system's virtual memory starts to get used up (i.e. swap), and performance drops tremendously. Note: Since Redis 2.0, Redis has a Virtual Memory feature; Redis Virtual Memory is deprecated since 2.4. Look at "Virtual Memory": https://redis.io/topics/virtual-memory.
+
+      When the specified amount of memory is reached, it is possible to select among different behaviors, called policies. Redis can just return errors for commands that could result in more memory being used, or it can evict some old data in order to return back to the specified limit every time new data is added.
   maxmemory_policy:
     default: "noeviction"
     description: |
@@ -352,8 +366,7 @@ properties:
       LRU, LFU and minimal TTL algorithms are not precise algorithms but approximated
       algorithms (in order to save memory), so you can tune it for speed or
       accuracy. For default Redis will check five keys and pick the one that was
-      used less recently, you can change the sample size using the following
-      configuration directive.
+      used less recently.
 
       The default of 5 produces good enough results. 10 Approximates very closely
       true LRU but costs more CPU. 3 is faster but not very accurate.
@@ -411,6 +424,87 @@ properties:
       More details please check the following article:
         http://antirez.com/post/redis-persistence-demystified.html
       If unsure, use "everysec".
+  no_appendfsync_on_rewrite:
+    default: "no"
+    description: |
+      When the AOF fsync policy is set to always or everysec, and a background
+      saving process (a background save or AOF log background rewriting) is
+      performing a lot of I/O against the disk, in some Linux configurations
+      Redis may block too long on the fsync() call. Note that there is no fix for
+      this currently, as even performing fsync in a different thread will block
+      our synchronous write(2) call.
+
+      In order to mitigate this problem it's possible to use the following option
+      that will prevent fsync() from being called in the main process while a
+      BGSAVE or BGREWRITEAOF is in progress.
+
+      This means that while another child is saving, the durability of Redis is
+      the same as "appendfsync none". In practical terms, this means that it is
+      possible to lose up to 30 seconds of log in the worst scenario (with the
+      default Linux settings).
+
+      If you have latency problems turn this to "yes". Otherwise leave it as
+      "no" that is the safest pick from the point of view of durability.
+  auto_aof_rewrite_percentage:
+    default: "100"
+    description: |
+      Automatic rewrite of the append only file.
+      Redis is able to automatically rewrite the log file implicitly calling
+      BGREWRITEAOF when the AOF log size grows by the specified percentage.
+
+      This is how it works: Redis remembers the size of the AOF file after the
+      latest rewrite (if no rewrite has happened since the restart, the size of
+      the AOF at startup is used).
+
+      This base size is compared to the current size. If the current size is
+      bigger than the specified percentage, the rewrite is triggered. Also
+      you need to specify a minimal size for the AOF file to be rewritten, this
+      is useful to avoid rewriting the AOF file even if the percentage increase
+      is reached but it is still pretty small.
+
+      Specify a percentage of zero in order to disable the automatic AOF
+      rewrite feature.
+  auto_aof_rewrite_min_size:
+    default: "64m"
+    description: |
+      See above auto_aof_rewrite_percentage.
+  aof_load_truncated:
+    default: "yes"
+    description: |
+      An AOF file may be found to be truncated at the end during the Redis
+      startup process, when the AOF data gets loaded back into memory.
+      This may happen when the system where Redis is running
+      crashes, especially when an ext4 filesystem is mounted without the
+      data=ordered option (however this can't happen when Redis itself
+      crashes or aborts but the operating system still works correctly).
+
+      Redis can either exit with an error when this happens, or load as much
+      data as possible (the default now) and start if the AOF file is found
+      to be truncated at the end. The following option controls this behavior.
+
+      If aof_load_truncated is set to yes, a truncated AOF file is loaded and
+      the Redis server starts emitting a log to inform the user of the event.
+      Otherwise if the option is set to no, the server aborts with an error
+      and refuses to start. When the option is set to no, the user requires
+      to fix the AOF file using the "redis-check-aof" utility before to restart
+      the server.
+
+      Note that if the AOF file will be found to be corrupted in the middle
+      the server will still exit with an error. This option only applies when
+      Redis will try to read more data from the AOF file but not enough bytes
+      will be found.
+  aof_use_rdb_preamble:
+    default: "yes"
+    description: |
+      When rewriting the AOF file, Redis is able to use an RDB preamble in the
+      AOF file for faster rewrites and recoveries. When this option is turned
+      on the rewritten AOF file is composed of two different stanzas:
+
+        [RDB file][AOF tail]
+
+      When loading Redis recognizes that the AOF file starts with the "REDIS"
+      string and loads the prefixed RDB file, and continues loading the AOF
+      tail.
 ################################ LUA SCRIPTING  ###############################
   lua_time_limit:
     default: "5000"
@@ -453,6 +547,16 @@ properties:
     default: "yes"
     description: |
       If this is set to "yes", as it is by default, the cluster stops accepting writes if some percentage of the key space is not covered by any node. If the option is set to no, the cluster will still serve queries even if only requests about a subset of keys can be processed.
+  cluster_replica_no_failover:
+    default: "no"
+    description: |
+      This option, when set to yes, prevents replicas from trying to failover its
+      master during master failures. However the master can still perform a
+      manual failover, if forced to do so.
+
+      This is useful in different scenarios, especially in the case of multiple
+      data center operations, where we want one side to never be promoted if not
+      in the case of a total DC failure.
   cluster_announce:
     default: false
     description: |

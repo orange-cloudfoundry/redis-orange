@@ -101,7 +101,7 @@ bind 127.0.0.1
 # you are sure you want clients from other hosts to connect to Redis
 # even if no authentication is configured, nor a specific set of interfaces
 # are explicitly listed using the "bind" directive.
-protected-mode <%= p('protected_mode') %>
+protected-mode yes
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
@@ -689,10 +689,7 @@ maxclients <%= p('maxclients') %>
 # output buffers (but this is not needed if the policy is 'noeviction').
 #
 # maxmemory <bytes>
-<% x=p('maxmemory_for_others').to_i
-   if x >= 0 %>
-maxmemory <%= %x(free -b).split(" ")[12].to_i - x %>
-<% end %>
+maxmemory <%= master.p('maxmemory') %>
 
 # MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
 # is reached. You can select among five behaviors:
@@ -854,6 +851,7 @@ appendfilename "appendonly.aof"
 # http://antirez.com/post/redis-persistence-demystified.html
 #
 # If unsure, use "everysec".
+
 # appendfsync always
 appendfsync <%= p('appendfsync') %>
 # appendfsync no
@@ -877,7 +875,7 @@ appendfsync <%= p('appendfsync') %>
 # If you have latency problems turn this to "yes". Otherwise leave it as
 # "no" that is the safest pick from the point of view of durability.
 
-no-appendfsync-on-rewrite no
+no-appendfsync-on-rewrite <%= p('no_appendfsync_on_rewrite') %>
 
 # Automatic rewrite of the append only file.
 # Redis is able to automatically rewrite the log file implicitly calling
@@ -896,8 +894,8 @@ no-appendfsync-on-rewrite no
 # Specify a percentage of zero in order to disable the automatic AOF
 # rewrite feature.
 
-auto-aof-rewrite-percentage 100
-auto-aof-rewrite-min-size 64mb
+auto-aof-rewrite-percentage <%= p('auto_aof_rewrite_percentage') %>
+auto-aof-rewrite-min-size <%= p('auto_aof_rewrite_min_size') %>
 
 # An AOF file may be found to be truncated at the end during the Redis
 # startup process, when the AOF data gets loaded back into memory.
@@ -921,7 +919,7 @@ auto-aof-rewrite-min-size 64mb
 # the server will still exit with an error. This option only applies when
 # Redis will try to read more data from the AOF file but not enough bytes
 # will be found.
-aof-load-truncated yes
+aof-load-truncated <%= p('aof_load_truncated') %>
 
 # When rewriting the AOF file, Redis is able to use an RDB preamble in the
 # AOF file for faster rewrites and recoveries. When this option is turned
@@ -932,7 +930,7 @@ aof-load-truncated yes
 # When loading Redis recognizes that the AOF file starts with the "REDIS"
 # string and loads the prefixed RDB file, and continues loading the AOF
 # tail.
-aof-use-rdb-preamble yes
+aof-use-rdb-preamble <%= p('aof_use_rdb_preamble') %>
 
 ################################ LUA SCRIPTING  ###############################
 
@@ -1072,6 +1070,7 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # in the case of a total DC failure.
 #
 # cluster-replica-no-failover no
+cluster-replica-no-failover <%= p('cluster_replica_no_failover') %>
 
 # In order to setup your cluster make sure to read the documentation
 # available at http://redis.io web site.
