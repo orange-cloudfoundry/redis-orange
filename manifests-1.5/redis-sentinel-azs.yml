@@ -96,7 +96,7 @@ instance_groups:
   - name: redis_exporter
     release: redis-service
     consumes:
-      redis_conn: {from: slave}
+      redis_conn: {from: master}
     properties:
       debug: ((redis_exporter_debug))
 - name: broker

@@ -23,6 +23,71 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 - [*OpenJDK*](https://openjdk.java.net/) [*13.0.1*](https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
+## Memory Management
+
+In default configuration, Redis has no memory limit. This is the default behavior for 64 bit systems, while 32 bit systems use an implicit memory limit of 3GB. No memory limit means:
+
+- If the operating system has swap, when memory runs out the operating system's virtual memory starts to get used up (i.e. swap), and performance drops tremendously.
+- If operating system does not have swap and your Redis instance accidentally consumes too much memory, either Redis will crash for out of memory or the operating system kernel OOM killer will kill the Redis process.
+
+**Note**: Since Redis 2.0, Redis has a [*Virtual Memory*](https://redis.io/topics/) feature; Redis Virtual Memory is deprecated since 2.4.
+
+When Redis has no memory limit,
+
+> [Make sure to setup some swap in your system (we suggest as much as swap as memory). If Linux does not have swap and your Redis instance accidentally consumes too much memory, either Redis will crash for out of memory or the Linux kernel OOM killer will kill the Redis process. When swapping is enabled Redis will work in a bad way, but you'll likely notice the latency spikes and do something before it's too late.](https://redis.io/topics/admin)
+
+In order to configure Redis to use a specified amount of memory for the data set, use the `maxmemory` property. Setting `maxmemory` to zero results into no memory limits. **It's its default value in this release**.
+
+**Note**: If you plan to use [*Grafana*](https://grafana.com/) and let `maxmemory` to zero, the *Memory Usage* metric is useless.
+
+You should,
+
+> [Set an explicit `maxmemory` option limit in your instance in order to make sure that the instance will report errors instead of failing when the system memory limit is near to be reached. Note that `maxmemory` should be set calculating the overhead that Redis has, other than data, and the fragmentation overhead. So if you think you have 10 GB of free memory, set it to 8 or 9.](https://redis.io/topics/admin)
+
+When you specify an amount of memory for Redis (by setting `maxmemory` property with an integer greater than zero) and there is no more room for data, it is possible to select among different behaviors, called **policies**. Redis can just return errors for commands that could result in more memory being used, or it can evict some old data in order to return back to the specified limit every time new data is added.
+
+**Note**: To simplify Redis synchronizations, all Redis instances have the same `maxmemory` value. So, in yours deployments, insure that all Redis hosts have an amount of memory greater than `maxmemory` value.
+
+### Eviction Policies
+
+The exact behavior Redis follows when the `maxmemory` limit is reached is configured using the `maxmemory_policy` property.
+
+The following policies are available:
+
+> **noeviction**: return errors when the memory limit was reached and the client is trying to execute commands that could result in more memory to be used (most write commands, but DEL and a few more exceptions).
+>
+> **allkeys-lru**: evict keys by trying to remove the less recently used (LRU) keys first, in order to make space for the new data added.
+>
+> **volatile-lru**: evict keys by trying to remove the less recently used (LRU) keys first, but only among keys that have an expire set, in order to make space for the new data added.
+>
+> **allkeys-lfu**: Evict any key using approximated LFU.
+>
+> **volatile-lfu**: Evict using approximated LFU among the keys with an expire set.
+>
+> **allkeys-random**: evict keys randomly in order to make space for the new data added.
+>
+> **volatile-random**: evict keys randomly in order to make space for the new data added, but only evict keys with an expire set.
+>
+> **volatile-ttl**: evict keys with an expire set, and try to evict keys with a shorter time to live (TTL) first, in order to make space for the new data added.
+
+Details about Redis evictions policies, specialy for LRU (Last Recently Used) and LFU (Last Frequently Used), are here [*Using Redis as an LRU cache*](https://redis.io/topics/lru-cache)
+
+In this release, the default `maxmemory_policy` is `noeviction`. So Redis users must manage themself their data when there is no more room for Redis to store data.
+
+**Note**: **volatile-lru**, **volatile-lfu**, **volatile-random** and **volatile-ttl** policies requiert an **expire set** and behave like **noeviction** if there are no keys to evict matching the prerequisites.
+
+**Note**:
+> [It is also worth noting that setting an expire to a key costs memory, so using policies like **allkeys-lru** or **allkeys-lfu** are more memory efficient since there is no need to set an expire for the key to be evicted under memory pressure.](https://redis.io/topics/lru-cache)
+
+**Note**: Redis LRU algorithm is not an exact implementation. This means that Redis is not able to pick the best candidate for eviction, that is, the access that was accessed the most in the past. Instead it will try to run an approximation of the LRU algorithm, by sampling a small number of keys, and evicting the one that is the best (with the oldest access time) among the sampled keys. You can tune the precision of the Redis LRU algorithm by changing the number of samples to check for every eviction. This parameter is controlled by the `maxmemory_samples` (default: 5) property. You can tune `maxmemory_samples` for speed or accuracy. 10 Approximates very closely true LRU but costs more CPU. 3 is faster but not very accurate.
+
+**Note**: Starting with Redis 4.0, a new [*Least Frequently Used eviction mode*](http://antirez.com/news/109) is available. This mode may work better (provide a better hits/misses ratio) in certain cases, since using LFU Redis will try to track the frequency of access of items, so that the ones used rarely are evicted while the one used often have an higher chance of remaining in memory. LFU is approximated like LRU: it uses a probabilistic counter, called a [*Morris counter*](https://en.wikipedia.org/wiki/Approximate_counting_algorithm) in order to estimate the object access frequency using just a few bits per object, combined with a decay period so that the counter is reduced over time: at some point we no longer want to consider keys as frequently accessed, even if they were in the past, so that the algorithm can adapt to a shift in the access pattern. LFU has certain tunable parameters:
+
+- **lfu_log_factor** (default: 10): it changes how many hits are needed in order to saturate the frequency counter, which is just in the range 0-255. The higher the factor, the more accesses are needed in order to reach the maximum. The lower the factor, the better is the resolution of the counter for low accesses.
+- **lfu_decay_time** (default: 1): it is the amount of minutes a counter should be decayed, when sampled and found to be older than that value. A special value of 0 means: always decay the counter every time is scanned, and is rarely useful.
+
+Instructions about how to tune **lfu_log_factor** and **lfu_decay_time** can be found inside the example `redis.conf` file in the source distribution.
+
 ## Usage
 
 ### Clone the repository
