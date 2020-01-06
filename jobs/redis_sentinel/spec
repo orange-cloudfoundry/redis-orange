@@ -15,6 +15,7 @@ provides:
   - bind
   - port
   - password
+  - down_after_milliseconds
 
 consumes:
 - name: redis_conn
