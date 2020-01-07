@@ -19,7 +19,8 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 ## Packages versions summary
 
 - Redis [*5.0.7*](http://download.redis.io/releases/redis-5.0.7.tar.gz)
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.3.4*](https://github.com/oliver006/redis_exporter/releases/download/v1.3.4/redis_exporter-v1.3.4.linux-amd64.tar.gz)
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.3.5*](https://github.com/oliver006/redis_exporter/releases/download/v1.3.5/redis_exporter-v1.3.5.linux-amd64.tar.gz)
+- [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.3.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.3.0/redis_sentinel_exporter-1.3.0.linux-amd64.tar.gz)
 - [*OpenJDK*](https://openjdk.java.net/) [*13.0.1*](https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
@@ -87,6 +88,21 @@ In this release, the default `maxmemory_policy` is `noeviction`. So Redis users 
 - **lfu_decay_time** (default: 1): it is the amount of minutes a counter should be decayed, when sampled and found to be older than that value. A special value of 0 means: always decay the counter every time is scanned, and is rarely useful.
 
 Instructions about how to tune **lfu_log_factor** and **lfu_decay_time** can be found inside the example `redis.conf` file in the source distribution.
+
+## Replication and automatic restart
+
+To address the following issue:
+
+> [If you are using replication, make sure that either your master has persistence enabled, or that it does not automatically restarts on crashes: replicas will try to be an exact copy of the master, so if a master restarts with an empty data set, replicas will be wiped as well.](https://redis.io/topics/admin)
+
+To avoid persistence and to maintain automatic restart, we add a delay before starting Redis instances when high availability is used (i.e. when you use replications in Redis Sentinel or Redis Cluster). The value of the delay is:
+
+- For Redis Sentinel High Availability: `(2*down_after_milliseconds)/1000` seconds,
+- For Redis Cluster with High Availability: `(2*cluster_node_timeout)/1000` seconds.
+
+**Note**: By default, for obvious performance reasons, we don't use persistence, so we use the new diskless replication feature as it was recommended:
+
+> [Even if you have persistence disabled, Redis will need to perform RDB saves if you use replication, unless you use the new diskless replication feature. If you have no disk usage on the master, make sure to enable diskless replication.](https://redis.io/topics/admin)
 
 ## Usage
 

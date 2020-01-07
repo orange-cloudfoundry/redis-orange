@@ -60,9 +60,7 @@ case $1 in
       <% if_p('script') do |script| %> \
       -script="/var/vcap/jobs/redis_exporter/config/script" \
       <% end %> \
-      <% if_p('namespace') do |namespace| %> \
-      -namespace="<%= namespace %>" \
-      <% end %> \
+      -namespace="<%= p('namespace') %>" \
       -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
       -web.telemetry-path="<%= p('web.telemetry_path') %>" \
       -connection-timeout="<%= p('connection_timeout') %>" \

@@ -75,7 +75,7 @@ case "${1}" in
       echo "Starting Redis server...";
 <%
   if master.p('replication') || master.p('cluster_enabled').eql?('yes')
-    if master.p('cluster_enabled').eql?('yes')
+    if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
 %>
       sleep <%= (master.p('cluster_node_timeout').to_i/1000)*2 %>;
 <%

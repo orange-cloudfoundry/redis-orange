@@ -6,8 +6,8 @@ set -u # report the usage of uninitialized variables
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME="/var/vcap"
 
-# Extract redis_exporter package
+# Extract redis_sentinel_exporter package
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
-tar xf redis_exporter/redis_exporter-*.linux-amd64.tar.gz -C ${BOSH_INSTALL_TARGET}/bin
-ln -sf ${BOSH_INSTALL_TARGET}/bin/redis_exporter-*.linux-amd64/redis_exporter ${BOSH_INSTALL_TARGET}/bin/redis_exporter
+tar xf redis_sentinel_exporter/redis_sentinel_exporter-*.linux-amd64.tar.gz -C ${BOSH_INSTALL_TARGET}/bin
+ln -sf ${BOSH_INSTALL_TARGET}/bin/redis_sentinel_exporter-*.linux-amd64/redis_sentinel_exporter ${BOSH_INSTALL_TARGET}/bin/redis_sentinel_exporter

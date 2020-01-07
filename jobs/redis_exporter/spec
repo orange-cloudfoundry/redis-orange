@@ -30,7 +30,7 @@ properties:
   namespace:
     default: "redis"
     description: |
-      Namespace for the metrics, defaults to Redis.
+      Namespace for the metrics, defaults to "redis".
   web.port:
     default: "9121"
     description: |
@@ -38,7 +38,7 @@ properties:
   web.telemetry_path:
     default: "/metrics"
     description: |
-      Path under which to expose metrics, defaults to "metrics".
+      Path under which to expose metrics, defaults to "/metrics".
   check_single_keys:
     description: |
       Comma separated list of keys to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The keys specified with this flag will be looked up directly without any glob pattern matching. Use this option if you don't need glob pattern matching; it is faster than check-keys.

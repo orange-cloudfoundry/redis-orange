@@ -8,6 +8,6 @@ export HOME="/var/vcap"
 
 # Extract jdk package
 mkdir -p ${BOSH_INSTALL_TARGET}
-tar xzf openjdk/openjdk-*_linux-x64_bin.tar.gz -C ${BOSH_INSTALL_TARGET}
+tar xf openjdk/openjdk-*_linux-x64_bin.tar.gz -C ${BOSH_INSTALL_TARGET}
 cd ${BOSH_INSTALL_TARGET}
 ln -sf jdk* jdk

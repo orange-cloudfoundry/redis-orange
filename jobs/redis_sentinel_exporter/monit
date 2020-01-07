@@ -1,0 +1,5 @@
+check process redis_sentinel_exporter
+  with pidfile /var/vcap/sys/run/redis_sentinel_exporter/redis_sentinel_exporter.pid
+  start program "/var/vcap/jobs/redis_sentinel_exporter/bin/redis_sentinel_exporter_ctl start"
+  stop program "/var/vcap/jobs/redis_sentinel_exporter/bin/redis_sentinel_exporter_ctl stop"
+  group vcap
