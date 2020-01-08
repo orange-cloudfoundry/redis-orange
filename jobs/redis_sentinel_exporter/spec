@@ -9,7 +9,7 @@ packages:
 
 consumes:
 - name: redis_sentinel_conn
-  type: conn
+  type: sentinel_conn
 
 properties:
   debug:

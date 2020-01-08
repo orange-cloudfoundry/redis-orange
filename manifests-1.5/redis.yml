@@ -15,6 +15,7 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
+      maxmemory: ((redis_maxmemory))
       password: ((redis_password))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))

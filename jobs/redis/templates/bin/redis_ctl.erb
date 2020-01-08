@@ -81,7 +81,7 @@ case "${1}" in
 <%
     else
 %>
-      sleep <%= (redis_sentinel_conn.p('down_after_milliseconds').to_i/1000)*2 %>;
+      sleep <%= (link('redis_sentinel_conn').p('down_after_milliseconds').to_i/1000)*2 %>;
 <%
     end
   end

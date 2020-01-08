@@ -43,7 +43,7 @@ consumes:
   type: conn
   optional: true
 - name: redis_sentinel_conn
-  type: conn
+  type: sentinel_conn
   optional: true
 
 properties:

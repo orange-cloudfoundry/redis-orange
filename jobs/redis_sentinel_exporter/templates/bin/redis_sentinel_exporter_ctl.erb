@@ -52,7 +52,7 @@ case $1 in
       -sentinel.password="${REDIS_SENTINEL_PASSWORD}" \
       -log-format="<%= p('log_format') %>" \
       -namespace="<%= p('namespace') %>" \
-      -web.port="<%= spec.ip + ':' + p('web.port') %>" \
+      -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
       -web.telemetry-path="<%= p('web.telemetry_path') %>" \
       >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
       2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
