@@ -171,7 +171,7 @@ supervised no
 #
 # Creating a pid file is best effort: if Redis is not able to create it
 # nothing bad happens, the server will start and run normally.
-pidfile <%= p('run_dir') + '/' + p('pidfile') %>
+pidfile <%= p('run_dir')+'/'+p('pidfile') %>
 
 # Specify the server verbosity level.
 # This can be one of:
@@ -184,7 +184,7 @@ loglevel <%= p('loglevel') %>
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('log_dir') + '/' + p('logfile') %>
+logfile <%= p('log_dir')+'/'+p('logfile') %>
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -231,7 +231,7 @@ always-show-logo yes
 #
 #   save ""
 <%
-  if_p('save') do |x|
+  master.if_p('save') do |x|
     x.each do |command| %>
 save <%= command %>
 <%  end
@@ -386,7 +386,21 @@ replica-read-only <%= p('replica_read_only') %>
 #
 # With slow disks and fast (large bandwidth) networks, diskless replication
 # works better.
-repl-diskless-sync <%= p('repl_diskless_sync') %>
+<%
+  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+    redis_persistance_rdb=0
+    master.if_p('save') do |x|
+      redis_persistance_rdb=1
+    end
+    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') %>
+repl-diskless-sync yes
+<%
+    else
+%>
+repl-diskless-sync no
+<%
+    end
+  end %>
 
 # When diskless replication is enabled, it is possible to configure the delay
 # the server waits in order to spawn the child that transfers the RDB via socket
@@ -499,14 +513,14 @@ replica-priority <%= p('replica_priority') %>
 # min-replicas-max-lag is set to 10.
 <%
   min_replicas_to_write=master.p('min_replicas_to_write').to_i;
-  if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write > 0
+  if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write>0
     slave_length=slave.instances.length
     if slave.instances[0].name.eql?(master.instances[0].name)
       slave_length-=1
     else
       slave_length+=(master.instances.length-1)
     end
-    if slave_length >= min_replicas_to_write %>
+    if slave_length>=min_replicas_to_write %>
 min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 <%  end
@@ -514,20 +528,20 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 
 <%
   replicas_per_node=master.p('cluster_replicas_per_node')
-  if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write > 0
+  if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write>0
     master_length=master.instances.length
     slave_length=slave.instances.length
     enough_replicas=false
     if slave.instances[0].name.eql?(master.instances[0].name)
-      if slave_length%(replicas_per_node+1) == 0
+      if slave_length%(replicas_per_node+1)==0
         enough_replicas=true
       end
     else
-      if slave_length >= (master_length*replicas_per_node)
+      if slave_length>=(master_length*replicas_per_node)
         enough_replicas=true
       end
     end
-    if enough_replicas && replicas_per_node >= min_replicas_to_write %>
+    if enough_replicas && replicas_per_node>=min_replicas_to_write %>
 min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 <%  end
@@ -721,7 +735,7 @@ maxmemory <%= master.p('maxmemory') %>
 # The default is:
 #
 # maxmemory-policy noeviction
-maxmemory-policy <%= p('maxmemory_policy') %>
+maxmemory-policy <%= master.p('maxmemory_policy') %>
 
 # LRU, LFU and minimal TTL algorithms are not precise algorithms but approximated
 # algorithms (in order to save memory), so you can tune it for speed or
@@ -733,7 +747,7 @@ maxmemory-policy <%= p('maxmemory_policy') %>
 # true LRU but costs more CPU. 3 is faster but not very accurate.
 #
 # maxmemory-samples 5
-maxmemory-samples <%= p('maxmemory_samples') %>
+maxmemory-samples <%= master.p('maxmemory_samples') %>
 
 # Starting from Redis 5, by default a replica will ignore its maxmemory setting
 # (unless it is promoted to master after a failover or manually). It means
@@ -754,7 +768,7 @@ maxmemory-samples <%= p('maxmemory_samples') %>
 # the configured maxmemory setting.
 #
 # replica-ignore-maxmemory yes
-replica-ignore-maxmemory <%= p('replica_ignore_maxmemory') %>
+replica-ignore-maxmemory <%= master.p('replica_ignore_maxmemory') %>
 
 ############################# LAZY FREEING ####################################
 
@@ -824,7 +838,7 @@ replica-lazy-flush no
 # with the better durability guarantees.
 #
 # Please check http://redis.io/topics/persistence for more information.
-appendonly <%= p('appendonly') %>
+appendonly <%= master.p('appendonly') %>
 
 # The name of the append only file (default: "appendonly.aof")
 appendfilename "appendonly.aof"
@@ -972,7 +986,7 @@ cluster-enabled <%= master.p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-cluster-config-file <%= p('run_dir') + '/nodes-' + master.p('port') + '.conf' %>
+cluster-config-file <%= p('run_dir')+'/nodes-'+master.p('port')+'.conf' %>
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
@@ -1447,8 +1461,8 @@ rdb-save-incremental-fsync yes
 #
 # lfu-log-factor 10
 # lfu-decay-time 1
-lfu-log-factor <%= p('lfu_log_factor') %>
-lfu-decay-time <%= p('lfu_decay_time') %>
+lfu-log-factor <%= master.p('lfu_log_factor') %>
+lfu-decay-time <%= master.p('lfu_decay_time') %>
 
 ########################### ACTIVE DEFRAGMENTATION #######################
 #

@@ -1,3 +1,10 @@
+## redis-orange 1.0.2
+- Refine Redis memory usage by `maxmemory` property and memory eviction policies.
+- Delay automatic restart to avoid persistence on disk to deal with the issue:
+> [If you are using replication, make sure that either your master has persistence enabled, or that it does not automatically restarts on crashes: replicas will try to be an exact copy of the master, so if a master restarts with an empty data set, replicas will be wiped as well.](https://redis.io/topics/admin)
+- Add redis_sentinel_exporter to monitor Redis Sentinel with Prometheus.
+- Update [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.1 -> 2.2.2.
+
 ## redis-orange 1.0.1
 
 Components update:

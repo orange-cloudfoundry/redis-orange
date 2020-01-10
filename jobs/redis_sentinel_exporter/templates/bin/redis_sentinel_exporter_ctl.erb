@@ -27,7 +27,7 @@ REDIS_SENTINEL_PASSWORD="<%= password %>";
   end
 %>
 
-REDIS_SENTINEL_ALIAS="<%= spec.deployment + '/' + spec.ip %>";
+REDIS_SENTINEL_ALIAS="<%= spec.deployment+'/'+spec.ip %>";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
 exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;

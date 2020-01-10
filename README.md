@@ -97,12 +97,18 @@ To address the following issue:
 
 To avoid persistence and to maintain automatic restart, we add a delay before starting Redis instances when high availability is used (i.e. when you use replications in Redis Sentinel or Redis Cluster). The value of the delay is:
 
-- For Redis Sentinel High Availability: `(2*down_after_milliseconds)/1000` seconds,
-- For Redis Cluster with High Availability: `(2*cluster_node_timeout)/1000` seconds.
+- For Redis Sentinel High Availability: `(3*down_after_milliseconds)/2` milliseconds,
+- For Redis Cluster with High Availability: `(3*cluster_node_timeout)/2` milliseconds.
 
 **Note**: By default, for obvious performance reasons, we don't use persistence, so we use the new diskless replication feature as it was recommended:
 
 > [Even if you have persistence disabled, Redis will need to perform RDB saves if you use replication, unless you use the new diskless replication feature. If you have no disk usage on the master, make sure to enable diskless replication.](https://redis.io/topics/admin)
+
+**Note**: If you use persistence, the start delay is avoided.
+
+## Collocation
+
+In our release, each Redis instance has its collocated Redis exporter instance, and each Redis Sentinel instance has its collocated Redis Sentinel exporter instance.
 
 ## Usage
 

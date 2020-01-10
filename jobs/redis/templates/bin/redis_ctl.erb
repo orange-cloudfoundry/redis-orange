@@ -24,8 +24,7 @@ REDIS_PASSWORD="";
     unless password.to_s.empty? %>
 REDIS_PASSWORD="-a <%= password %>";
 <%  end
-  end
-%>
+  end %>
 
 REDIS_SHUTDOWN="SHUTDOWN";
 <% master.if_p('rename_shutdown_command') do |command| %>
@@ -75,17 +74,21 @@ case "${1}" in
       echo "Starting Redis server...";
 <%
   if master.p('replication') || master.p('cluster_enabled').eql?('yes')
-    if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
-%>
-      sleep <%= (master.p('cluster_node_timeout').to_i/1000)*2 %>;
-<%
-    else
-%>
-      sleep <%= (link('redis_sentinel_conn').p('down_after_milliseconds').to_i/1000)*2 %>;
-<%
+    redis_persistance_rdb=0
+    master.if_p('save') do |x|
+      redis_persistance_rdb=1
     end
-  end
+    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no')
+      if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
 %>
+      sleep <%= (master.p('cluster_node_timeout').to_i*3)/2000 %>;
+<%    end
+      if master.p('replication')
+%>
+      sleep <%= (link('redis_sentinel_conn').p('down_after_milliseconds').to_i*3)/2000 %>;
+<%    end
+    end
+  end %>
       exec chpst -u vcap:vcap "${REDIS_SERVER}" "${REDIS_CONF}" \
         >> "${REDIS_LOG_FILE}" 2>&1;
     fi

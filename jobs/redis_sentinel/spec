@@ -16,6 +16,8 @@ provides:
   - port
   - password
   - down_after_milliseconds
+  - parallel_syncs
+  - failover_timeout
 
 consumes:
 - name: redis_conn
@@ -25,6 +27,9 @@ consumes:
   optional: true
 - name: slave_conn
   type: conn
+  optional: true
+- name: redis_sentinel_master_conn
+  type: sentinel_conn
   optional: true
 
 properties:

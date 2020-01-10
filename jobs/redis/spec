@@ -16,6 +16,8 @@ provides:
   - bind
   - port
   - password
+  - save
+  - appendonly
   - rename_config_command
   - rename_save_command
   - rename_bgsave_command
@@ -27,6 +29,11 @@ provides:
   - rename_replicaof_command
   - rename_sync_command
   - maxmemory
+  - maxmemory_policy
+  - maxmemory_samples
+  - replica_ignore_maxmemory
+  - lfu_log_factor
+  - lfu_decay_time
   - replication
   - min_replicas_to_write
   - min_replicas_max_lag
@@ -172,32 +179,6 @@ properties:
       You can configure a replica instance to accept writes or not. Writing against a replica instance may be useful to store some ephemeral data (because data written on a replica will be easily deleted after resync with the master) but may also cause problems if clients are writing to it because of a misconfiguration.
       Since Redis 2.6 by default replicas are read-only.
       Note: read only replicas are not designed to be exposed to untrusted clients on the internet. It's just a protection layer against misuse of the instance. Still a read only replica exports by default all the administrative commands such as CONFIG, DEBUG, and so forth. To a limited extent you can improve security of read only replicas using 'rename-command' to shadow all the administrative / dangerous commands.
-  repl_diskless_sync:
-    default: "yes"
-    description: |
-      New replicas and reconnecting replicas that are not able to continue the replication
-      process just receiving differences, need to do what is called a "full
-      synchronization". An RDB file is transmitted from the master to the replicas.
-      The transmission can happen in two different ways:
-
-        1) Disk-backed: The Redis master creates a new process that writes the RDB
-           file on disk. Later the file is transferred by the parent
-           process to the replicas incrementally.
-        2) Diskless: The Redis master creates a new process that directly writes the
-           RDB file to replica sockets, without touching the disk at all.
-
-      With disk-backed replication, while the RDB file is generated, more replicas
-      can be queued and served with the RDB file as soon as the current child producing
-      the RDB file finishes its work. With diskless replication instead once
-      the transfer starts, new replicas arriving will be queued and a new transfer
-      will start when the current one terminates.
-
-      When diskless replication is used, the master waits a configurable amount of
-      time (in seconds) before starting the transfer in the hope that multiple replicas
-      will arrive and the transfer can be parallelized.
-
-      With slow disks and fast (large bandwidth) networks, diskless replication
-      works better.
   repl_diskless_sync_delay:
     default: "5"
     description: |
