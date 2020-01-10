@@ -22,8 +22,9 @@ instance_groups:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       bind: ((redis_bind))
-      maxmemory: ((redis_maxmemory))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -77,7 +78,7 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-      redis_sentinel_conn: {from: sentinel_slave}
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_sentinel
     release: redis-service
     provides:
@@ -86,16 +87,14 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-    properties:
-      bind: ((redis_sentinel_bind))
-      password: ((redis_sentinel_password))
+      redis_sentinel_master_conn: {from: sentinel_master}
   - name: redis_check
     release: redis-service
     consumes:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-      redis_sentinel_conn: {from: sentinel_slave}
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_exporter
     release: redis-service
     consumes:
