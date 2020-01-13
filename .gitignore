@@ -1,4 +1,3 @@
-src/common
 src/openjdk
 src/redis
 src/redis_broker/*.jar
