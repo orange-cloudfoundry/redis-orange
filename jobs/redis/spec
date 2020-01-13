@@ -125,15 +125,15 @@ properties:
       Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and <databases>-1.
 ################################ SNAPSHOTTING  ################################
   save:
-    default:
-      - "900 1"
-      - "300 10"
-      - "60 10000"
     description: |
       Save the DB on disk:
         save <seconds> <changes>
       Will save the DB if both the given number of seconds and the given number of write operations against the DB occurred.
-      In the example below the behaviour will be to save:
+      In the following example:
+        save 900 1
+        save 300 10
+        save 60 10000
+      the behaviour will be to save:
         - after 900 sec (15 min) if at least 1 key changed
         - after 300 sec (5 min) if at least 10 keys changed
         - after 60 sec if at least 10000 keys changed
