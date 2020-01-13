@@ -1,7 +1,7 @@
 #!/bin/bash
 <%
   sentinel_master=link('redis_sentinel_conn')
-  if_link('redis_sentinel_master_conn'){ |x| sentinel_master=x }
+  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
 %>
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";

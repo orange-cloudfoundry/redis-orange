@@ -41,6 +41,7 @@ instance_groups:
     consumes:
       master_conn: nil
       slave_conn: nil
+      sentinel_master_conn: nil
   - name: redis_check
     release: redis-service
     consumes:
@@ -68,8 +69,8 @@ instance_groups:
     consumes:
       master_conn: nil
       slave_conn: nil
-      redis_sentinel_master_conn: nil
-      redis_sentinel_slave_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))

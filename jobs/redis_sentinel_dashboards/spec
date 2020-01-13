@@ -1,0 +1,9 @@
+---
+name: redis_sentinel_dashboards
+
+templates:
+  redis-sentinel_rev1.json: redis-sentinel_rev1.json
+
+packages: []
+
+properties: {}

@@ -329,8 +329,8 @@ instance_groups:
   - name: redis_broker
     release: redis-service
     consumes:
-      redis_sentinel_master_conn: nil
-      redis_sentinel_slave_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
   - name: redis_broker_check
@@ -520,8 +520,8 @@ instance_groups:
       master_conn: {from: master}
       slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
-      redis_sentinel_master_conn: {from: sentinel_master}
-      redis_sentinel_slave_conn: {from: sentinel_slave}
+      sentinel_master_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
   - name: redis_broker_check

@@ -4,7 +4,7 @@
   slave=link('redis_conn')
   if_link('slave_conn'){ |x| slave=x }
   sentinel_master=link('redis_sentinel_conn')
-  if_link('redis_sentinel_master_conn'){ |x| sentinel_master=x }
+  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
 %>
 # *** IMPORTANT ***
 #

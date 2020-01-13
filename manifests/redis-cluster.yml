@@ -63,8 +63,8 @@ instance_groups:
       master_conn: nil
       slave_conn: nil
       redis_sentinel_conn: nil
-      redis_sentinel_master_conn: nil
-      redis_sentinel_slave_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
   - name: redis_broker_check
     release: redis-service
 

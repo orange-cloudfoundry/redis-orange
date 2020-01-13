@@ -77,14 +77,20 @@ case "${1}" in
     redis_persistance_rdb=0
     master.if_p('save') do |x|
       redis_persistance_rdb=1
-    end
-    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no')
+    end %>
+    echo "toto"
+<%
+    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') %>
+      echo "titi"
+<%
       if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
 %>
+      echo "tata"
       sleep <%= (master.p('cluster_node_timeout').to_i*3)/2000 %>;
 <%    end
       if master.p('replication')
 %>
+      echo "tete"
       sleep <%= (link('redis_sentinel_conn').p('down_after_milliseconds').to_i*3)/2000 %>;
 <%    end
     end
