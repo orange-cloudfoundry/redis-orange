@@ -232,9 +232,13 @@ always-show-logo yes
 #   save ""
 <%
   master.if_p('save') do |x|
-    x.each do |command| %>
+    if x.to_s.empty? %>
+save ""
+<%  else
+      x.each do |command| %>
 save <%= command %>
-<%  end
+<%    end
+    end
   end %>
 
 # By default Redis will stop accepting writes if RDB snapshots are enabled
@@ -390,7 +394,9 @@ replica-read-only <%= p('replica_read_only') %>
   if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     redis_persistance_rdb=0
     master.if_p('save') do |x|
-      redis_persistance_rdb=1
+      if !x.to_s.empty?
+        redis_persistance_rdb=1
+      end
     end
     if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') %>
 repl-diskless-sync yes

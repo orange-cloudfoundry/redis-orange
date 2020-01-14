@@ -39,6 +39,7 @@ provides:
   - min_replicas_max_lag
   - cluster_enabled
   - cluster_replicas_per_node
+  - cluster_node_timeout
 
 consumes:
 - name: redis_conn
@@ -125,6 +126,7 @@ properties:
       Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and <databases>-1.
 ################################ SNAPSHOTTING  ################################
   save:
+    default: ""
     description: |
       Save the DB on disk:
         save <seconds> <changes>
