@@ -19,6 +19,7 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
@@ -67,6 +68,7 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: nil
   - name: redis_check
     release: redis-service
     consumes:
