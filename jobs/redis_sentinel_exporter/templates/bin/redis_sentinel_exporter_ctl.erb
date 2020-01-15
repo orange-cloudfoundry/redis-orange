@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+set -eu
+
+PROGNAME="redis_sentinel_exporter";
+RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
+LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
+TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
+STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+
+PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
+
+REDIS_SENTINEL_IP="127.0.0.1";
+<% if link('redis_sentinel_conn').p('bind') %>
+REDIS_SENTINEL_IP="<%= spec.ip %>";
+<% end %>
+REDIS_SENTINEL_ADDR="redis://${REDIS_SENTINEL_IP}:<%= link('redis_sentinel_conn').p('port') %>";
+
+REDIS_SENTINEL_PASSWORD="";
+<%
+  link('redis_sentinel_conn').if_p('password') do |password|
+    unless password.to_s.empty? %>
+REDIS_SENTINEL_PASSWORD="<%= password %>";
+<%  end
+  end
+%>
+
+REDIS_SENTINEL_ALIAS="<%= spec.deployment+'/'+spec.ip %>";
+
+source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+chown vcap:vcap \
+  ${LOG_DIR}/${PROGNAME}.stdout.log \
+  ${LOG_DIR}/${PROGNAME}.stderr.log;
+
+export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH};
+export REDIS_SENTINEL_ADDR REDIS_SENTINEL_PASSWORD REDIS_SENTINEL_ALIAS;
+
+case $1 in
+  start)
+    pid_guard ${PIDFILE} "${PROGNAME}";
+    echo $$ > ${PIDFILE};
+
+    exec chpst -u vcap:vcap ${PROGNAME} \
+      <% if p('debug') %> \
+      -debug \
+      <% end %> \
+      -sentinel.addr="${REDIS_SENTINEL_ADDR}" \
+      -sentinel.password="${REDIS_SENTINEL_PASSWORD}" \
+      -log-format="<%= p('log_format') %>" \
+      -namespace="<%= p('namespace') %>" \
+      -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
+      -web.telemetry-path="<%= p('web.telemetry_path') %>" \
+      >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
+      2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+    ;;
+
+  stop)
+    kill_and_wait ${PIDFILE};
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop}";
+    exit 1;
+    ;;
+
+esac
+exit 0;

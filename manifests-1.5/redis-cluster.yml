@@ -16,6 +16,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -61,8 +63,8 @@ instance_groups:
       master_conn: nil
       slave_conn: nil
       redis_sentinel_conn: nil
-      redis_sentinel_master_conn: nil
-      redis_sentinel_slave_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
   - name: redis_broker_check-1.5
     release: redis-service
 
@@ -103,7 +105,7 @@ releases:
 
 update:
   canaries: 2
-  canary_watch_time: 30000-60000
+  canary_watch_time: 60000-120000
   max_in_flight: 2
-  update_watch_time: 30000-60000
+  update_watch_time: 60000-120000
   serial: false

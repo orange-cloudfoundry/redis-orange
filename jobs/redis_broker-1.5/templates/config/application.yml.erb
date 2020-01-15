@@ -5,9 +5,9 @@
   if_link('slave_conn'){ |x| slave=x }
   sentinel_master=nil
   if_link('redis_sentinel_conn'){ |x| sentinel_master=x }
-  if_link('redis_sentinel_master_conn'){ |x| sentinel_master=x }
+  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
   sentinel_slave=nil
-  if_link('redis_sentinel_slave_conn'){ |x| sentinel_slave=x }
+  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x }
 %>
 logging:
   config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml

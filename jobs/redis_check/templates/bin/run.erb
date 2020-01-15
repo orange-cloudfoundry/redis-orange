@@ -41,11 +41,14 @@ fi
 #
 # Look up Redis Sentinel instance
 #
-<% if master.p('replication') && !sentinel.nil? %>
+<%
+  if master.p('replication') && !sentinel.nil? %>
 REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel.p('bind') %>
+<%
+    if sentinel.p('bind') %>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
-<% end %>
+<%
+    end %>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 
 REDIS_SENTINEL_PASSWORD="";
@@ -193,7 +196,7 @@ fi
 #
 if [[ ${ERR} -eq 0 ]];
 then
-  KV="<%= spec.deployment + '_' + link('redis_conn').instances[spec.index].name + '_' + spec.index.to_s %>";
+  KV="<%= spec.deployment+'_'+link('redis_conn').instances[spec.index].name+'_'+spec.index.to_s %>";
   RESULT="";
 <% if master.p('replication') && !sentinel.nil? %>
   REDIS_CLI_SENTINEL_OPTS="${REDIS_SENTINEL_PASSWORD} -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} SENTINEL";

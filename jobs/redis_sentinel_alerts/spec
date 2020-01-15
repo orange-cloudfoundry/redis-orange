@@ -1,0 +1,8 @@
+---
+name: redis_sentinel_alerts
+
+templates: {}
+
+packages: []
+
+properties: {}
