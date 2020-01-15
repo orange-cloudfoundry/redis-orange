@@ -150,6 +150,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -160,12 +162,27 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
   - name: redis_check
     release: redis-service
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: nil
   - name: redis_broker
     release: redis-service
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
+      loglevel: ((redis_broker_loglevel))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
   - name: redis_broker_check
     release: redis-service
   - name: redis_exporter
@@ -196,6 +213,8 @@ variables:
   type: password
 - name: redis_rename_sync_command
   type: password
+- name: redis_broker_password
+  type: password
 
 stemcells:
 - alias: default
@@ -222,12 +241,15 @@ deployment_name: redis
 node_count: 1
 default_vm_type: small
 default_persistent_disk_type: small
-default_network: redis-network
+default_network: mongo-net
 default_az: z1
 stemcell_os: ubuntu-xenial
-stemcell_version: 250.29
+stemcell_version: 456.51
 redis_bind: true
+redis_maxmemory: 536870912
+redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
+redis_broker_loglevel: info
 ```
 
 **Notes**:
@@ -294,6 +316,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -306,17 +330,31 @@ instance_groups:
       rename_sync_command: ((redis_rename_sync_command))
       replication: ((redis_replication))
       min_replicas_to_write: ((redis_min_replicas_to_write))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
   - name: redis_sentinel
     release: redis-service
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      sentinel_master_conn: nil
   - name: redis_check
     release: redis-service
+    consumes:
+      master_conn: nil
+      slave_conn: nil
   - name: redis_exporter
     release: redis-service
     properties:
       debug: ((redis_exporter_debug))
+  - name: redis_sentinel_exporter
+    release: redis-service
+    properties:
+      debug: ((redis_sentinel_exporter_debug))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -329,10 +367,14 @@ instance_groups:
   - name: redis_broker
     release: redis-service
     consumes:
+      master_conn: nil
+      slave_conn: nil
       sentinel_master_conn: nil
       sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
+      loglevel: ((redis_broker_loglevel))
   - name: redis_broker_check
     release: redis-service
 
@@ -361,6 +403,8 @@ variables:
   type: password
 - name: redis_rename_sync_command
   type: password
+- name: redis_broker_password
+  type: password
 
 stemcells:
 - alias: default
@@ -373,9 +417,9 @@ releases:
 
 update:
   canaries: 2
-  canary_watch_time: 30000-60000
+  canary_watch_time: 60000-120000
   max_in_flight: 2
-  update_watch_time: 30000-60000
+  update_watch_time: 60000-120000
   serial: false
 ```
 
@@ -383,19 +427,23 @@ With the following variables file:
 
 ```yaml
 ---
-deployment_name: redis-sentinel
+deployment_name: redis-sentinel-exporter
 node_count: 3
 default_vm_type: small
 default_persistent_disk_type: small
-default_network: redis-network
+default_network: mongo-net
 default_az: z1
 stemcell_os: ubuntu-xenial
-stemcell_version: 250.29
+stemcell_version: 456.51
 redis_bind: true
+redis_maxmemory: 536870912
+redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
+redis_sentinel_exporter_debug: false
 redis_replication: true
 redis_sentinel_bind: true
 redis_min_replicas_to_write: 1
+redis_broker_loglevel: info
 ```
 
 ##### With Distinct AZs
@@ -424,9 +472,12 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -463,6 +514,12 @@ instance_groups:
       redis_conn: {from: master}
     properties:
       debug: ((redis_exporter_debug))
+  - name: redis_sentinel_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      debug: ((redis_sentinel_exporter_debug))
 - name: redis-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -480,6 +537,7 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_sentinel
     release: redis-service
     provides:
@@ -488,22 +546,26 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-    properties:
-      bind: ((redis_sentinel_bind))
-      password: ((redis_sentinel_password))
+      sentinel_master_conn: {from: sentinel_master}
   - name: redis_check
     release: redis-service
     consumes:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
-      redis_sentinel_conn: {from: sentinel_slave}
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_exporter
     release: redis-service
     consumes:
-      redis_conn: {from: slave}
+      redis_conn: {from: master}
     properties:
       debug: ((redis_exporter_debug))
+  - name: redis_sentinel_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      debug: ((redis_sentinel_exporter_debug))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -524,6 +586,8 @@ instance_groups:
       sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
+      loglevel: ((redis_broker_loglevel))
   - name: redis_broker_check
     release: redis-service
 
@@ -552,6 +616,8 @@ variables:
   type: password
 - name: redis_rename_sync_command
   type: password
+- name: redis_broker_password
+  type: password
 
 stemcells:
 - alias: default
@@ -564,9 +630,9 @@ releases:
 
 update:
   canaries: 2
-  canary_watch_time: 30000-60000
+  canary_watch_time: 60000-120000
   max_in_flight: 2
-  update_watch_time: 30000-60000
+  update_watch_time: 60000-120000
   serial: false
 ```
 
@@ -574,20 +640,24 @@ With the following variables file:
 
 ```yaml
 ---
-deployment_name: redis-sentinel-azs
+deployment_name: redis-sentinel-exporter-azs
 master_node_count: 1
 slave_node_count: 2
 default_vm_type: small
 default_persistent_disk_type: small
-default_network: redis-network
+default_network: mongo-net
 default_az: z1
 stemcell_os: ubuntu-xenial
-stemcell_version: 250.29
+stemcell_version: 456.51
 redis_bind: true
+redis_maxmemory: 536870912
+redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
+redis_sentinel_exporter_debug: false
 redis_replication: true
 redis_sentinel_bind: true
 redis_min_replicas_to_write: 1
+redis_broker_loglevel: info
 ```
 
 #### Redis Cluster with High Availability
@@ -645,6 +715,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -658,8 +730,15 @@ instance_groups:
       cluster_enabled: ((redis_cluster_enabled))
       cluster_replicas_per_node: ((replicas_per_node_count))
       min_replicas_to_write: ((redis_min_replicas_to_write))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
   - name: redis_check
     release: redis-service
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: nil
   - name: redis_exporter
     release: redis-service
     properties:
@@ -677,6 +756,14 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
+      loglevel: ((redis_broker_loglevel))
+    consumes:
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
   - name: redis_broker_check
     release: redis-service
 
@@ -703,6 +790,8 @@ variables:
   type: password
 - name: redis_rename_sync_command
   type: password
+- name: redis_broker_password
+  type: password
 
 stemcells:
 - alias: default
@@ -715,9 +804,9 @@ releases:
 
 update:
   canaries: 2
-  canary_watch_time: 30000-60000
+  canary_watch_time: 60000-120000
   max_in_flight: 2
-  update_watch_time: 30000-60000
+  update_watch_time: 60000-120000
   serial: false
 ```
 
@@ -726,18 +815,21 @@ With the following variables file:
 ```yaml
 ---
 deployment_name: redis-cluster
-node_count: 6
+node_count: 7
 default_vm_type: small
 default_persistent_disk_type: small
-default_network: redis-network
+default_network: mongo-net
 default_az: z1
 stemcell_os: ubuntu-xenial
-stemcell_version: 250.29
+stemcell_version: 456.51
 redis_bind: true
+redis_maxmemory: 536870912
+redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
 redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
 redis_min_replicas_to_write: 1
+redis_broker_loglevel: info
 ```
 
 ##### With Distinct AZs
@@ -769,6 +861,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -788,6 +882,7 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: nil
   - name: redis_exporter
     release: redis-service
     consumes:
@@ -817,10 +912,11 @@ instance_groups:
       redis_conn: {from: slave}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: nil
   - name: redis_exporter
     release: redis-service
     consumes:
-      redis_conn: {from: slave}
+      redis_conn: {from: master}
     properties:
       debug: ((redis_exporter_debug))
 - name: broker
@@ -838,8 +934,13 @@ instance_groups:
       redis_conn: {from: master}
       master_conn: {from: master}
       slave_conn: {from: slave}
+      redis_sentinel_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
+      password: ((redis_broker_password))
+      loglevel: ((redis_broker_loglevel))
   - name: redis_broker_check
     release: redis-service
 
@@ -866,6 +967,8 @@ variables:
   type: password
 - name: redis_rename_sync_command
   type: password
+- name: redis_broker_password
+  type: password
 
 stemcells:
 - alias: default
@@ -878,9 +981,9 @@ releases:
 
 update:
   canaries: 2
-  canary_watch_time: 30000-60000
+  canary_watch_time: 60000-120000
   max_in_flight: 2
-  update_watch_time: 30000-60000
+  update_watch_time: 60000-120000
   serial: false
 ```
 
@@ -890,16 +993,19 @@ With the following variables file:
 ---
 deployment_name: redis-cluster-azs
 master_node_count: 3
-slave_node_count: 3
+slave_node_count: 4
 default_vm_type: small
 default_persistent_disk_type: small
-default_network: redis-network
+default_network: mongo-net
 default_az: z1
 stemcell_os: ubuntu-xenial
-stemcell_version: 250.29
+stemcell_version: 456.51
 redis_bind: true
+redis_maxmemory: 536870912
+redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
 redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
 redis_min_replicas_to_write: 1
+redis_broker_loglevel: info
 ```
