@@ -2,6 +2,8 @@
 <%
   master=link('redis_conn')
   if_link('master_conn'){ |x| master=x }
+  sentinel=nil
+  if_link('redis_sentinel_conn'){ |x| sentinel=x }
 %>
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
@@ -85,9 +87,9 @@ case "${1}" in
 %>
       sleep <%= (master.p('cluster_node_timeout').to_i*3)/2000 %>;
 <%    end
-      if master.p('replication')
+      if master.p('replication') && !sentinel.nil?
 %>
-      sleep <%= (link('redis_sentinel_conn').p('down_after_milliseconds').to_i*3)/2000 %>;
+      sleep <%= (sentinel.p('down_after_milliseconds').to_i*3)/2000 %>;
 <%    end
     end
   end %>

@@ -1,0 +1,15 @@
+groups:
+- name: redis_sentinel
+  rules:
+  - alert: MasterDown
+    labels:
+      severity: error
+  - alert: MasterDisconnected
+    labels:
+      severity: error
+  - alert: MasterLinkDown
+    labels:
+      severity: error
+  - alert: SlaveDisconnected
+    labels:
+      severity: error

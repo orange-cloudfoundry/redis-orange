@@ -1,0 +1,9 @@
+---
+name: redis_dashboards
+
+templates:
+  redis-dashboard-for-prometheus-redis-exporter-1-x_rev3.json: redis-dashboard-for-prometheus-redis-exporter-1-x_rev3.json
+
+packages: []
+
+properties: {}
