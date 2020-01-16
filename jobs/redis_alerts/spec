@@ -1,0 +1,9 @@
+---
+name: redis_alerts
+
+templates:
+  redis_alerts.yml: redis_alerts.yml
+
+packages: []
+
+properties: {}

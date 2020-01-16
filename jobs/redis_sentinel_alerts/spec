@@ -1,7 +1,8 @@
 ---
 name: redis_sentinel_alerts
 
-templates: {}
+templates:
+  redis_sentinel_alerts.yml: redis_sentinel_alerts.yml
 
 packages: []
 
