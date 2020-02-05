@@ -4,6 +4,7 @@
 > [If you are using replication, make sure that either your master has persistence enabled, or that it does not automatically restarts on crashes: replicas will try to be an exact copy of the master, so if a master restarts with an empty data set, replicas will be wiped as well.](https://redis.io/topics/admin)
 - Add redis_sentinel_exporter to monitor Redis Sentinel with Prometheus.
 - Update [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.1 -> 2.2.2.
+- Update [*Open JDK*](https://jdk.java.net/) 13.0.1 -> 13.0.2
 
 ## redis-orange 1.0.1
 
