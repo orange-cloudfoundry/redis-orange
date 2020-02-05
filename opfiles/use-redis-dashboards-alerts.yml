@@ -1,0 +1,27 @@
+- type: replace
+  path: /releases/name=prometheus-addons?
+  value:
+    name: prometheus-addons
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=redis_dashboards?
+  value:
+    name: redis_dashboards
+    release: prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=redis_alerts?
+  value:
+    name: redis_alerts
+    release: prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files/-
+  value: /var/vcap/jobs/redis_alerts/*.alerts.yml
+
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/properties/grafana/prometheus/dashboard_folders/name=redis?
+  value:
+    name: Redis
+    files: [ /var/vcap/jobs/redis_dashboards/Redis*.json ]
