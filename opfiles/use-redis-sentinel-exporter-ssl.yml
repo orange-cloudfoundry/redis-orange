@@ -1,0 +1,6 @@
+---
+- type: replace
+  path: /releases/name=prometheus-addons?
+  value:
+    name: prometheus-addons
+    version: latest
