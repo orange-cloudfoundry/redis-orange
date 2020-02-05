@@ -48,6 +48,7 @@ case "${1}" in
     chmod 750 "${REDIS_STORE_DIR}";
     touch "${REDIS_LOG_FILE}";
     chown vcap:vcap "${REDIS_LOG_FILE}";
+    chmod 660 "${REDIS_CONF}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted BGSAVE, just to save space
