@@ -156,7 +156,7 @@ then
       echo "All requested Redis master nodes [${REDIS_MASTER_INSTANCES}] are available";
       ERR=0;
     else
-      echo "ERROR: The requested Redis master nodes [${REDIS_MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
+      echo "WARNING: The requested Redis master nodes [${REDIS_MASTER_INSTANCES}] is not equal to the initial available master nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
     REDIS_CLUSTER_NODES_SLAVE="$(echo "${REDIS_CLUSTER_NODES_COMMAND}" | \
@@ -177,7 +177,7 @@ then
       echo "All requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] are available";
       ERR=0;
     else
-      echo "ERROR: The requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
+      echo "WARNING: The requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] is not equal to the initial available slave nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
 <% end %>
