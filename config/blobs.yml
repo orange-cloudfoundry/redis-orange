@@ -6,23 +6,19 @@ common/utils.sh:
   size: 2821
   object_id: ae9e9024-63a5-4247-5f52-91a0647041d8
   sha: fca7fa6aa60b72e1277f2d2185d23303280c5823
-openjdk/openjdk-13.0.1_linux-x64_bin.tar.gz:
-  size: 195868060
-  object_id: 70a719c0-4151-49d8-7649-3183157f11b8
-  sha: sha256:2e01716546395694d3fad54c9b36d1cd46c5894c06f72d156772efbcf4b41335
+openjdk/openjdk-13.0.2_linux-x64_bin.tar.gz:
+  size: 195812001
+  object_id: 31e2c0b8-812e-4f22-6c0a-a5c0f56e2698
+  sha: sha256:acc7a6aabced44e62ec3b83e3b5959df2b1aa6b3d610d58ee45f0c21a7821a71
 redis/redis-5.0.7.tar.gz:
   size: 1984203
   object_id: d6572f9f-5b13-4314-5d95-62cb5210f26b
   sha: sha256:61db74eabf6801f057fd24b590232f2f337d422280fd19486eca03be87d3a82b
 redis_broker-1.5/broker-1.5-0.0.1-SNAPSHOT.jar:
-  size: 21609534
-  object_id: 85afcdca-ae52-44f0-725e-76cc443ffa31
-  sha: sha256:9a354780127bb309dda0b6cb3e0f4e5623532c5f705850cf6d92751999da3e7b
-redis_broker/broker-0.0.1-SNAPSHOT.jar:
-  size: 27259931
-  object_id: 983a1946-d170-47c8-7823-44527a0410fa
-  sha: sha256:2f23dd8e3a718556d27e5892a18f8cc78f5cf0cc7c36c250f40aa56d25d5499a
-redis_exporter/redis_exporter-v1.3.4.linux-amd64.tar.gz:
-  size: 3376474
-  object_id: c9600a36-2aa5-4c12-491f-a0b1ee4d0bdc
-  sha: sha256:6b045c25a98422c0708ac38a30012284135967ff450b0cf64d2ff14acbd86f7c
+  size: 21609535
+  object_id: df6710fa-5ef3-48e8-5ccc-cd8216fa66d5
+  sha: sha256:3a72d50e8548ba8d704085bb2d4d48720adc40eebf0dc03ae0f37af074f43304
+redis_exporter/redis_exporter-v1.3.5.linux-amd64.tar.gz:
+  size: 3376514
+  object_id: c6f9f3b1-a863-4793-52f5-55d133c721c9
+  sha: sha256:bb408128cb4c3024c8532dae3539080349687cc96cbab51a1e06e9a15519b874
