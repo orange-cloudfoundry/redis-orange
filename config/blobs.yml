@@ -18,6 +18,10 @@ redis_broker-1.5/broker-1.5-0.0.1-SNAPSHOT.jar:
   size: 21609535
   object_id: df6710fa-5ef3-48e8-5ccc-cd8216fa66d5
   sha: sha256:3a72d50e8548ba8d704085bb2d4d48720adc40eebf0dc03ae0f37af074f43304
+redis_broker/broker-0.0.1-SNAPSHOT.jar:
+  size: 27296565
+  object_id: a99ffa01-cf81-4415-79ba-24739ede6314
+  sha: sha256:5204793f56d8da4c4d498ed83a38d440eeccfe351b5362afb976355770b7e064
 redis_exporter/redis_exporter-v1.3.5.linux-amd64.tar.gz:
   size: 3376514
   object_id: c6f9f3b1-a863-4793-52f5-55d133c721c9
