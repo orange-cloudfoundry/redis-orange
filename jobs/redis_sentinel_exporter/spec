@@ -1,0 +1,34 @@
+---
+name: redis_sentinel_exporter
+
+templates:
+  bin/redis_sentinel_exporter_ctl.erb: bin/redis_sentinel_exporter_ctl
+
+packages:
+  - redis_sentinel_exporter
+
+consumes:
+- name: redis_sentinel_conn
+  type: sentinel_conn
+
+properties:
+  debug:
+    default: false
+    description: |
+      Verbose debug output.
+  log_format:
+    default: "txt"
+    description: |
+      Log format, valid options are "txt" (default) and "json".
+  namespace:
+    default: "redis_sentinel"
+    description: |
+      Namespace for the metrics, defaults to "redis_sentinel".
+  web.port:
+    default: "9355"
+    description: |
+      Port listen on for web interface and telemetry, defaults to "9355".
+  web.telemetry_path:
+    default: "/metrics"
+    description: |
+      Path under which to expose metrics, defaults to "/metrics".

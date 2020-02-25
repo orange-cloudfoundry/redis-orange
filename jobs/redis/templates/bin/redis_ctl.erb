@@ -2,6 +2,8 @@
 <%
   master=link('redis_conn')
   if_link('master_conn'){ |x| master=x }
+  sentinel=nil
+  if_link('redis_sentinel_conn'){ |x| sentinel=x }
 %>
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
@@ -24,8 +26,7 @@ REDIS_PASSWORD="";
     unless password.to_s.empty? %>
 REDIS_PASSWORD="-a <%= password %>";
 <%  end
-  end
-%>
+  end %>
 
 REDIS_SHUTDOWN="SHUTDOWN";
 <% master.if_p('rename_shutdown_command') do |command| %>
@@ -47,6 +48,7 @@ case "${1}" in
     chmod 750 "${REDIS_STORE_DIR}";
     touch "${REDIS_LOG_FILE}";
     chown vcap:vcap "${REDIS_LOG_FILE}";
+    chmod 660 "${REDIS_CONF}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted BGSAVE, just to save space
@@ -73,6 +75,25 @@ case "${1}" in
       echo "${REDIS_PID_FILE} exists, process is already running or crashed";
     else
       echo "Starting Redis server...";
+<%
+  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+    redis_persistance_rdb=0
+    master.if_p('save') do |x|
+      if !x.to_s.empty?
+        redis_persistance_rdb=1
+      end
+    end
+    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no')
+      if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
+%>
+      sleep <%= (master.p('cluster_node_timeout').to_i*3)/2000 %>;
+<%    end
+      if master.p('replication') && !sentinel.nil?
+%>
+      sleep <%= (sentinel.p('down_after_milliseconds').to_i*3)/2000 %>;
+<%    end
+    end
+  end %>
       exec chpst -u vcap:vcap "${REDIS_SERVER}" "${REDIS_CONF}" \
         >> "${REDIS_LOG_FILE}" 2>&1;
     fi

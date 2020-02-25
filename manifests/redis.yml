@@ -16,6 +16,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -45,8 +47,8 @@ instance_groups:
       master_conn: nil
       slave_conn: nil
       redis_sentinel_conn: nil
-      redis_sentinel_master_conn: nil
-      redis_sentinel_slave_conn: nil
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
   - name: redis_broker_check
     release: redis-service
   - name: redis_exporter

@@ -27,7 +27,7 @@ REDIS_PASSWORD="<%= password %>";
   end
 %>
 
-REDIS_ALIAS="<%= spec.deployment + '/' + spec.ip %>";
+REDIS_ALIAS="<%= spec.deployment+'/'+spec.ip %>";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
 exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
@@ -60,11 +60,24 @@ case $1 in
       <% if_p('script') do |script| %> \
       -script="/var/vcap/jobs/redis_exporter/config/script" \
       <% end %> \
-      <% if_p('namespace') do |namespace| %> \
-      -namespace="<%= namespace %>" \
-      <% end %> \
+      -namespace="<%= p('namespace') %>" \
       -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
       -web.telemetry-path="<%= p('web.telemetry_path') %>" \
+      -connection-timeout="<%= p('connection_timeout') %>" \
+      -redis-only-metrics="<%= p('redis_only_metrics') %>" \
+      -include-system-metrics="<%= p('include_system_metrics') %>" \
+      -is-tile38="<%= p('is_tile38') %>" \
+      -export-client-list="<%= p('export_client_list') %>" \
+      <% if_p('skip_tls_verification') do |skip_tls_verification| %> \
+      -skip-tls-verification="<%= skip_tls_verification %>" \
+      <% end %> \
+      <% if_p('tls_client_key_file') do |tls_client_key_file| %> \
+      -tls-client-key-file="<%= tls_client_key_file %>" \
+      <% end %> \
+      <% if_p('tls_client_cert_file') do |tls_client_cert_file| %> \
+      -tls-client-cert-file="<%= tls_client_cert_file %>" \
+      <% end %> \
+      -set-client-name="<%= p('set_client_name') %>" \
       >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
       2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
     ;;

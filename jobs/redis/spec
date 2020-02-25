@@ -16,6 +16,8 @@ provides:
   - bind
   - port
   - password
+  - save
+  - appendonly
   - rename_config_command
   - rename_save_command
   - rename_bgsave_command
@@ -26,11 +28,18 @@ provides:
   - rename_slaveof_command
   - rename_replicaof_command
   - rename_sync_command
+  - maxmemory
+  - maxmemory_policy
+  - maxmemory_samples
+  - replica_ignore_maxmemory
+  - lfu_log_factor
+  - lfu_decay_time
   - replication
   - min_replicas_to_write
   - min_replicas_max_lag
   - cluster_enabled
   - cluster_replicas_per_node
+  - cluster_node_timeout
 
 consumes:
 - name: redis_conn
@@ -40,6 +49,9 @@ consumes:
   optional: true
 - name: slave_conn
   type: conn
+  optional: true
+- name: redis_sentinel_conn
+  type: sentinel_conn
   optional: true
 
 properties:
@@ -52,6 +64,14 @@ properties:
     default: "6379"
     description: |
       Accept connections on the specified port, default is 6379 (IANA #815344). If port 0 is specified Redis will not listen on a TCP socket.
+  tcp_backlog:
+    default: "511"
+    description: |
+      In high requests-per-second environments you need an high backlog in order
+      to avoid slow clients connections issues. Note that the Linux kernel
+      will silently truncate it to the value of /proc/sys/net/core/somaxconn so
+      make sure to raise both the value of somaxconn and tcp_max_syn_backlog
+      in order to get the desired effect.
   timeout:
     default: "0"
     description: |
@@ -106,15 +126,16 @@ properties:
       Set the number of databases. The default database is DB 0, you can select a different one on a per-connection basis using SELECT <dbid> where dbid is a number between 0 and <databases>-1.
 ################################ SNAPSHOTTING  ################################
   save:
-    default:
-      - "900 1"
-      - "300 10"
-      - "60 10000"
+    default: ""
     description: |
       Save the DB on disk:
         save <seconds> <changes>
       Will save the DB if both the given number of seconds and the given number of write operations against the DB occurred.
-      In the example below the behaviour will be to save:
+      In the following example:
+        save 900 1
+        save 300 10
+        save 60 10000
+      the behaviour will be to save:
         - after 900 sec (15 min) if at least 1 key changed
         - after 300 sec (5 min) if at least 10 keys changed
         - after 60 sec if at least 10000 keys changed
@@ -160,6 +181,19 @@ properties:
       You can configure a replica instance to accept writes or not. Writing against a replica instance may be useful to store some ephemeral data (because data written on a replica will be easily deleted after resync with the master) but may also cause problems if clients are writing to it because of a misconfiguration.
       Since Redis 2.6 by default replicas are read-only.
       Note: read only replicas are not designed to be exposed to untrusted clients on the internet. It's just a protection layer against misuse of the instance. Still a read only replica exports by default all the administrative commands such as CONFIG, DEBUG, and so forth. To a limited extent you can improve security of read only replicas using 'rename-command' to shadow all the administrative / dangerous commands.
+  repl_diskless_sync_delay:
+    default: "5"
+    description: |
+      When diskless replication is enabled, it is possible to configure the delay
+      the server waits in order to spawn the child that transfers the RDB via socket
+      to the replicas.
+
+      This is important since once the transfer starts, it is not possible to serve
+      new replicas arriving, that will be queued for the next RDB transfer, so the server
+      aits a delay in order to let more replicas arrive.
+
+      The delay is specified in seconds, and by default is 5 seconds. To disable
+      it entirely just set it to 0 seconds and the transfer will start ASAP.
   repl_ping_replica_period:
     default: "10"
     description: |
@@ -179,6 +213,32 @@ properties:
       If you select "yes" Redis will use a smaller number of TCP packets and less bandwidth to send data to replicas. But this can add a delay for the data to appear on the replica side, up to 40 milliseconds with Linux kernels using a default configuration.
       If you select "no" the delay for data to appear on the replica side will be reduced but more bandwidth will be used for replication.
       By default we optimize for low latency, but in very high traffic conditions or when the master and replicas are many hops away, turning this to "yes" may be a good idea.
+  repl_backlog_size:
+    default: "1mb"
+    description: |
+      Set the replication backlog size. The backlog is a buffer that accumulates
+      replica data when replicas are disconnected for some time, so that when a replica
+      wants to reconnect again, often a full resync is not needed, but a partial
+      resync is enough, just passing the portion of data the replica missed while
+      disconnected.
+
+      The bigger the replication backlog, the longer the time the replica can be
+      disconnected and later be able to perform a partial resynchronization.
+
+      The backlog is only allocated once there is at least a replica connected.
+  repl_backlog_ttl:
+    default: "3600"
+    description: |
+      After a master has no longer connected replicas for some time, the backlog
+      will be freed. The following option configures the amount of seconds that
+      need to elapse, starting from the time the last replica disconnected, for
+      the backlog buffer to be freed.
+
+      Note that replicas never free the backlog for timeout, since they may be
+      promoted to masters later, and should be able to correctly "partially
+      resynchronize" with the replicas: hence they should always accumulate backlog.
+
+      A value of 0 means to never release the backlog.
   replica_priority:
     default: "100"
     description: |
@@ -250,6 +310,85 @@ properties:
     description: |
       Set the max number of connected clients at the same time. By default this limit is set to 10000 clients, however if the Redis server is not able to configure the process file limit to allow for the specified limit the max number of allowed clients is set to the current file limit minus 32 (as Redis reserves a few file descriptors for internal uses).
       Once the limit is reached Redis will close all the new connections sending an error max number of clients reached."
+############################## MEMORY MANAGEMENT ################################
+  maxmemory:
+    default: "0"
+    description: |
+      The maxmemory configuration directive is used in order to configure Redis to use a specified amount of memory for the data set. It is possible to set the configuration directive using the redis.conf file, or later using the CONFIG SET command at runtime.
+
+      For example in order to configure a memory limit of 100 megabytes, the following directive can be used inside the redis.conf file.
+
+        maxmemory 100mb
+
+      Setting maxmemory to zero results into no memory limits. This is the default behavior for 64 bit systems, while 32 bit systems use an implicit memory limit of 3GB. Setting maxmemory to zero, when memory runs out the operating system's virtual memory starts to get used up (i.e. swap), and performance drops tremendously. Note: Since Redis 2.0, Redis has a Virtual Memory feature; Redis Virtual Memory is deprecated since 2.4. Look at "Virtual Memory": https://redis.io/topics/virtual-memory.
+
+      When the specified amount of memory is reached, it is possible to select among different behaviors, called policies. Redis can just return errors for commands that could result in more memory being used, or it can evict some old data in order to return back to the specified limit every time new data is added.
+  maxmemory_policy:
+    default: "noeviction"
+    description: |
+      maxmemory_policy: how Redis will select what to remove when maxmemory
+      is reached. You can select among five behaviors:
+
+        - volatile-lru -> Evict using approximated LRU among the keys with an expire set.
+        - allkeys-lru -> Evict any key using approximated LRU.
+        - volatile-lfu -> Evict using approximated LFU among the keys with an expire set.
+        - allkeys-lfu -> Evict any key using approximated LFU.
+        - volatile-random -> Remove a random key among the ones with an expire set.
+        - allkeys-random -> Remove a random key, any key.
+        - volatile-ttl -> Remove the key with the nearest expire time (minor TTL)
+        - noeviction -> Don't evict anything, just return an error on write operations.
+
+      LRU means Least Recently Used
+      LFU means Least Frequently Used
+
+      Both LRU, LFU and volatile-ttl are implemented using approximated
+      randomized algorithms.
+
+      Note: with any of the above policies, Redis will return an error on write
+      operations, when there are no suitable keys for eviction.
+  maxmemory_samples:
+    default: "5"
+    description: |
+      LRU, LFU and minimal TTL algorithms are not precise algorithms but approximated
+      algorithms (in order to save memory), so you can tune it for speed or
+      accuracy. For default Redis will check five keys and pick the one that was
+      used less recently.
+
+      The default of 5 produces good enough results. 10 Approximates very closely
+      true LRU but costs more CPU. 3 is faster but not very accurate.
+  replica_ignore_maxmemory:
+    default: "yes"
+    description: |
+      Starting from Redis 5, by default a replica will ignore its maxmemory setting
+      (unless it is promoted to master after a failover or manually). It means
+      that the eviction of keys will be just handled by the master, sending the
+      DEL commands to the replica as keys evict in the master side.
+
+      This behavior ensures that masters and replicas stay consistent, and is usually
+      what you want, however if your replica is writable, or you want the replica to have
+      a different memory setting, and you are sure all the writes performed to the
+      replica are idempotent, then you may change this default (but be sure to understand
+      what you are doing).
+
+      Note that since the replica by default does not evict, it may end using more
+      memory than the one set via maxmemory (there are certain buffers that may
+      be larger on the replica, or data structures may sometimes take more memory and so
+      forth). So make sure you monitor your replicas and make sure they have enough
+      memory to never hit a real out-of-memory condition before the master hits
+      the configured maxmemory setting.
+  lfu_log_factor:
+    default: "10"
+    description: |
+      If LFU eviction is used, lfu_log_factor changes how many hits are needed in order to saturate
+      the frequency counter, which is just in the range 0-255. The higher the factor,
+      the more accesses are needed in order to reach the maximum. The lower the factor,
+      the better is the resolution of the counter for low accesses.
+  lfu_decay_time:
+    default: "1"
+    description: |
+      If LFU eviction is used, lfu_decay_time is the amount of minutes a counter should be decayed,
+      when sampled and found to be older than that value. A special value of 0 means: always
+      decay the counter every time is scanned, and is rarely useful.
 ############################## APPEND ONLY MODE ###############################
   appendonly:
     default: "no"
@@ -271,6 +410,87 @@ properties:
       More details please check the following article:
         http://antirez.com/post/redis-persistence-demystified.html
       If unsure, use "everysec".
+  no_appendfsync_on_rewrite:
+    default: "no"
+    description: |
+      When the AOF fsync policy is set to always or everysec, and a background
+      saving process (a background save or AOF log background rewriting) is
+      performing a lot of I/O against the disk, in some Linux configurations
+      Redis may block too long on the fsync() call. Note that there is no fix for
+      this currently, as even performing fsync in a different thread will block
+      our synchronous write(2) call.
+
+      In order to mitigate this problem it's possible to use the following option
+      that will prevent fsync() from being called in the main process while a
+      BGSAVE or BGREWRITEAOF is in progress.
+
+      This means that while another child is saving, the durability of Redis is
+      the same as "appendfsync none". In practical terms, this means that it is
+      possible to lose up to 30 seconds of log in the worst scenario (with the
+      default Linux settings).
+
+      If you have latency problems turn this to "yes". Otherwise leave it as
+      "no" that is the safest pick from the point of view of durability.
+  auto_aof_rewrite_percentage:
+    default: "100"
+    description: |
+      Automatic rewrite of the append only file.
+      Redis is able to automatically rewrite the log file implicitly calling
+      BGREWRITEAOF when the AOF log size grows by the specified percentage.
+
+      This is how it works: Redis remembers the size of the AOF file after the
+      latest rewrite (if no rewrite has happened since the restart, the size of
+      the AOF at startup is used).
+
+      This base size is compared to the current size. If the current size is
+      bigger than the specified percentage, the rewrite is triggered. Also
+      you need to specify a minimal size for the AOF file to be rewritten, this
+      is useful to avoid rewriting the AOF file even if the percentage increase
+      is reached but it is still pretty small.
+
+      Specify a percentage of zero in order to disable the automatic AOF
+      rewrite feature.
+  auto_aof_rewrite_min_size:
+    default: "64m"
+    description: |
+      See above auto_aof_rewrite_percentage.
+  aof_load_truncated:
+    default: "yes"
+    description: |
+      An AOF file may be found to be truncated at the end during the Redis
+      startup process, when the AOF data gets loaded back into memory.
+      This may happen when the system where Redis is running
+      crashes, especially when an ext4 filesystem is mounted without the
+      data=ordered option (however this can't happen when Redis itself
+      crashes or aborts but the operating system still works correctly).
+
+      Redis can either exit with an error when this happens, or load as much
+      data as possible (the default now) and start if the AOF file is found
+      to be truncated at the end. The following option controls this behavior.
+
+      If aof_load_truncated is set to yes, a truncated AOF file is loaded and
+      the Redis server starts emitting a log to inform the user of the event.
+      Otherwise if the option is set to no, the server aborts with an error
+      and refuses to start. When the option is set to no, the user requires
+      to fix the AOF file using the "redis-check-aof" utility before to restart
+      the server.
+
+      Note that if the AOF file will be found to be corrupted in the middle
+      the server will still exit with an error. This option only applies when
+      Redis will try to read more data from the AOF file but not enough bytes
+      will be found.
+  aof_use_rdb_preamble:
+    default: "yes"
+    description: |
+      When rewriting the AOF file, Redis is able to use an RDB preamble in the
+      AOF file for faster rewrites and recoveries. When this option is turned
+      on the rewritten AOF file is composed of two different stanzas:
+
+        [RDB file][AOF tail]
+
+      When loading Redis recognizes that the AOF file starts with the "REDIS"
+      string and loads the prefixed RDB file, and continues loading the AOF
+      tail.
 ################################ LUA SCRIPTING  ###############################
   lua_time_limit:
     default: "5000"
@@ -313,6 +533,16 @@ properties:
     default: "yes"
     description: |
       If this is set to "yes", as it is by default, the cluster stops accepting writes if some percentage of the key space is not covered by any node. If the option is set to no, the cluster will still serve queries even if only requests about a subset of keys can be processed.
+  cluster_replica_no_failover:
+    default: "no"
+    description: |
+      This option, when set to yes, prevents replicas from trying to failover its
+      master during master failures. However the master can still perform a
+      manual failover, if forced to do so.
+
+      This is useful in different scenarios, especially in the case of multiple
+      data center operations, where we want one side to never be promoted if not
+      in the case of a total DC failure.
   cluster_announce:
     default: false
     description: |

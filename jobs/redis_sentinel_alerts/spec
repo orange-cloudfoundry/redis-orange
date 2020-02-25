@@ -1,0 +1,9 @@
+---
+name: redis_sentinel_alerts
+
+templates:
+  redis_sentinel_alerts.yml: redis_sentinel_alerts.yml
+
+packages: []
+
+properties: {}

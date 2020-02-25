@@ -41,11 +41,14 @@ fi
 #
 # Look up Redis Sentinel instance
 #
-<% if master.p('replication') && !sentinel.nil? %>
+<%
+  if master.p('replication') && !sentinel.nil? %>
 REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel.p('bind') %>
+<%
+    if sentinel.p('bind') %>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
-<% end %>
+<%
+    end %>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 
 REDIS_SENTINEL_PASSWORD="";
@@ -153,7 +156,7 @@ then
       echo "All requested Redis master nodes [${REDIS_MASTER_INSTANCES}] are available";
       ERR=0;
     else
-      echo "ERROR: The requested Redis master nodes [${REDIS_MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
+      echo "WARNING: The requested Redis master nodes [${REDIS_MASTER_INSTANCES}] is not equal to the initial available master nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
     REDIS_CLUSTER_NODES_SLAVE="$(echo "${REDIS_CLUSTER_NODES_COMMAND}" | \
@@ -174,7 +177,7 @@ then
       echo "All requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] are available";
       ERR=0;
     else
-      echo "ERROR: The requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
+      echo "WARNING: The requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] is not equal to the initial available slave nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
 <% end %>
@@ -193,7 +196,7 @@ fi
 #
 if [[ ${ERR} -eq 0 ]];
 then
-  KV="<%= spec.deployment + '_' + link('redis_conn').instances[spec.index].name + '_' + spec.index.to_s %>";
+  KV="<%= spec.deployment+'_'+link('redis_conn').instances[spec.index].name+'_'+spec.index.to_s %>";
   RESULT="";
 <% if master.p('replication') && !sentinel.nil? %>
   REDIS_CLI_SENTINEL_OPTS="${REDIS_SENTINEL_PASSWORD} -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} SENTINEL";

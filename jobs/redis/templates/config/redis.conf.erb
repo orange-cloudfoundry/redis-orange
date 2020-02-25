@@ -101,7 +101,7 @@ bind 127.0.0.1
 # you are sure you want clients from other hosts to connect to Redis
 # even if no authentication is configured, nor a specific set of interfaces
 # are explicitly listed using the "bind" directive.
-# protected-mode yes
+protected-mode yes
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
@@ -114,7 +114,7 @@ port <%= master.p('port') %>
 # will silently truncate it to the value of /proc/sys/net/core/somaxconn so
 # make sure to raise both the value of somaxconn and tcp_max_syn_backlog
 # in order to get the desired effect.
-tcp-backlog 511
+tcp-backlog <%= p('tcp_backlog') %>
 
 # Unix socket.
 #
@@ -171,7 +171,7 @@ supervised no
 #
 # Creating a pid file is best effort: if Redis is not able to create it
 # nothing bad happens, the server will start and run normally.
-pidfile <%= p('run_dir') + '/' + p('pidfile') %>
+pidfile <%= p('run_dir')+'/'+p('pidfile') %>
 
 # Specify the server verbosity level.
 # This can be one of:
@@ -184,7 +184,7 @@ loglevel <%= p('loglevel') %>
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('log_dir') + '/' + p('logfile') %>
+logfile <%= p('log_dir')+'/'+p('logfile') %>
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -231,10 +231,14 @@ always-show-logo yes
 #
 #   save ""
 <%
-  if_p('save') do |x|
-    x.each do |command| %>
+  master.if_p('save') do |x|
+    if x.to_s.empty? %>
+save ""
+<%  else
+      x.each do |command| %>
 save <%= command %>
-<%  end
+<%    end
+    end
   end %>
 
 # By default Redis will stop accepting writes if RDB snapshots are enabled
@@ -386,7 +390,23 @@ replica-read-only <%= p('replica_read_only') %>
 #
 # With slow disks and fast (large bandwidth) networks, diskless replication
 # works better.
+<%
+  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+    redis_persistance_rdb=0
+    master.if_p('save') do |x|
+      if !x.to_s.empty?
+        redis_persistance_rdb=1
+      end
+    end
+    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') %>
+repl-diskless-sync yes
+<%
+    else
+%>
 repl-diskless-sync no
+<%
+    end
+  end %>
 
 # When diskless replication is enabled, it is possible to configure the delay
 # the server waits in order to spawn the child that transfers the RDB via socket
@@ -398,7 +418,7 @@ repl-diskless-sync no
 #
 # The delay is specified in seconds, and by default is 5 seconds. To disable
 # it entirely just set it to 0 seconds and the transfer will start ASAP.
-repl-diskless-sync-delay 5
+repl-diskless-sync-delay <%= p('repl_diskless_sync_delay') %>
 
 # Replicas send PINGs to server in a predefined interval. It's possible to change
 # this interval with the repl_ping_replica_period option. The default value is 10
@@ -445,6 +465,7 @@ repl-disable-tcp-nodelay <%= p('repl_disable_tcp_nodelay') %>
 # The backlog is only allocated once there is at least a replica connected.
 #
 # repl-backlog-size 1mb
+repl-backlog-size <%= p('repl_backlog_size') %>
 
 # After a master has no longer connected replicas for some time, the backlog
 # will be freed. The following option configures the amount of seconds that
@@ -458,6 +479,7 @@ repl-disable-tcp-nodelay <%= p('repl_disable_tcp_nodelay') %>
 # A value of 0 means to never release the backlog.
 #
 # repl-backlog-ttl 3600
+repl-backlog-ttl <%= p('repl_backlog_ttl') %>
 
 # The replica priority is an integer number published by Redis in the INFO output.
 # It is used by Redis Sentinel in order to select a replica to promote into a
@@ -497,14 +519,14 @@ replica-priority <%= p('replica_priority') %>
 # min-replicas-max-lag is set to 10.
 <%
   min_replicas_to_write=master.p('min_replicas_to_write').to_i;
-  if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write > 0
+  if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write>0
     slave_length=slave.instances.length
     if slave.instances[0].name.eql?(master.instances[0].name)
       slave_length-=1
     else
       slave_length+=(master.instances.length-1)
     end
-    if slave_length >= min_replicas_to_write %>
+    if slave_length>=min_replicas_to_write %>
 min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 <%  end
@@ -512,20 +534,20 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 
 <%
   replicas_per_node=master.p('cluster_replicas_per_node')
-  if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write > 0
+  if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write>0
     master_length=master.instances.length
     slave_length=slave.instances.length
     enough_replicas=false
     if slave.instances[0].name.eql?(master.instances[0].name)
-      if slave_length%(replicas_per_node+1) == 0
+      if slave_length%(replicas_per_node+1)==0
         enough_replicas=true
       end
     else
-      if slave_length >= (master_length*replicas_per_node)
+      if slave_length>=(master_length*replicas_per_node)
         enough_replicas=true
       end
     end
-    if enough_replicas && replicas_per_node >= min_replicas_to_write %>
+    if enough_replicas && replicas_per_node>=min_replicas_to_write %>
 min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 <%  end
@@ -687,6 +709,7 @@ maxclients <%= p('maxclients') %>
 # output buffers (but this is not needed if the policy is 'noeviction').
 #
 # maxmemory <bytes>
+maxmemory <%= master.p('maxmemory') %>
 
 # MAXMEMORY POLICY: how Redis will select what to remove when maxmemory
 # is reached. You can select among five behaviors:
@@ -718,6 +741,7 @@ maxclients <%= p('maxclients') %>
 # The default is:
 #
 # maxmemory-policy noeviction
+maxmemory-policy <%= master.p('maxmemory_policy') %>
 
 # LRU, LFU and minimal TTL algorithms are not precise algorithms but approximated
 # algorithms (in order to save memory), so you can tune it for speed or
@@ -729,6 +753,7 @@ maxclients <%= p('maxclients') %>
 # true LRU but costs more CPU. 3 is faster but not very accurate.
 #
 # maxmemory-samples 5
+maxmemory-samples <%= master.p('maxmemory_samples') %>
 
 # Starting from Redis 5, by default a replica will ignore its maxmemory setting
 # (unless it is promoted to master after a failover or manually). It means
@@ -749,6 +774,7 @@ maxclients <%= p('maxclients') %>
 # the configured maxmemory setting.
 #
 # replica-ignore-maxmemory yes
+replica-ignore-maxmemory <%= master.p('replica_ignore_maxmemory') %>
 
 ############################# LAZY FREEING ####################################
 
@@ -818,7 +844,7 @@ replica-lazy-flush no
 # with the better durability guarantees.
 #
 # Please check http://redis.io/topics/persistence for more information.
-appendonly <%= p('appendonly') %>
+appendonly <%= master.p('appendonly') %>
 
 # The name of the append only file (default: "appendonly.aof")
 appendfilename "appendonly.aof"
@@ -845,6 +871,7 @@ appendfilename "appendonly.aof"
 # http://antirez.com/post/redis-persistence-demystified.html
 #
 # If unsure, use "everysec".
+
 # appendfsync always
 appendfsync <%= p('appendfsync') %>
 # appendfsync no
@@ -868,7 +895,7 @@ appendfsync <%= p('appendfsync') %>
 # If you have latency problems turn this to "yes". Otherwise leave it as
 # "no" that is the safest pick from the point of view of durability.
 
-no-appendfsync-on-rewrite no
+no-appendfsync-on-rewrite <%= p('no_appendfsync_on_rewrite') %>
 
 # Automatic rewrite of the append only file.
 # Redis is able to automatically rewrite the log file implicitly calling
@@ -887,8 +914,8 @@ no-appendfsync-on-rewrite no
 # Specify a percentage of zero in order to disable the automatic AOF
 # rewrite feature.
 
-auto-aof-rewrite-percentage 100
-auto-aof-rewrite-min-size 64mb
+auto-aof-rewrite-percentage <%= p('auto_aof_rewrite_percentage') %>
+auto-aof-rewrite-min-size <%= p('auto_aof_rewrite_min_size') %>
 
 # An AOF file may be found to be truncated at the end during the Redis
 # startup process, when the AOF data gets loaded back into memory.
@@ -912,7 +939,7 @@ auto-aof-rewrite-min-size 64mb
 # the server will still exit with an error. This option only applies when
 # Redis will try to read more data from the AOF file but not enough bytes
 # will be found.
-aof-load-truncated yes
+aof-load-truncated <%= p('aof_load_truncated') %>
 
 # When rewriting the AOF file, Redis is able to use an RDB preamble in the
 # AOF file for faster rewrites and recoveries. When this option is turned
@@ -923,7 +950,7 @@ aof-load-truncated yes
 # When loading Redis recognizes that the AOF file starts with the "REDIS"
 # string and loads the prefixed RDB file, and continues loading the AOF
 # tail.
-aof-use-rdb-preamble yes
+aof-use-rdb-preamble <%= p('aof_use_rdb_preamble') %>
 
 ################################ LUA SCRIPTING  ###############################
 
@@ -965,7 +992,7 @@ cluster-enabled <%= master.p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-cluster-config-file <%= p('run_dir') + '/nodes-' + master.p('port') + '.conf' %>
+cluster-config-file <%= p('run_dir')+'/nodes-'+master.p('port')+'.conf' %>
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
@@ -1063,6 +1090,7 @@ cluster-require-full-coverage <%= p('cluster_require_full_coverage') %>
 # in the case of a total DC failure.
 #
 # cluster-replica-no-failover no
+cluster-replica-no-failover <%= p('cluster_replica_no_failover') %>
 
 # In order to setup your cluster make sure to read the documentation
 # available at http://redis.io web site.
@@ -1439,6 +1467,8 @@ rdb-save-incremental-fsync yes
 #
 # lfu-log-factor 10
 # lfu-decay-time 1
+lfu-log-factor <%= master.p('lfu_log_factor') %>
+lfu-decay-time <%= master.p('lfu_decay_time') %>
 
 ########################### ACTIVE DEFRAGMENTATION #######################
 #
