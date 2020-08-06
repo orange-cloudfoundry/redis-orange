@@ -1,6 +1,6 @@
 ## redis-orange 1.0.3
 
-- Correction for misunderstanding about Sentinel's quorum by adding 'failure_quorum' property in Sentinel's specifications.
+- Correction for misunderstanding about Sentinel's quorum by adding `failure_quorum` property in Sentinel's specifications.
 
 ## redis-orange 1.0.2
 
