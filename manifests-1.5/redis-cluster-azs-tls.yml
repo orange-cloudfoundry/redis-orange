@@ -1,0 +1,141 @@
+---
+name: ((deployment_name))
+
+instance_groups:
+- name: redis-master
+  azs: [((default_az))]
+  instances: ((master_node_count))
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: haveged
+    release: redis-service
+  - name: redis
+    release: redis-service
+    provides:
+      redis_conn: {as: master}
+    consumes:
+      redis_conn: {from: master}
+      slave_conn: {from: slave}
+    properties:
+      bind: ((redis_bind))
+      port: '0'
+      password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
+      cluster_enabled: ((redis_cluster_enabled))
+      replica_password: ((redis_replica_password))
+      cluster_replicas_per_node: ((replicas_per_node_count))
+      tls: true
+      tls_ca_certificate: ((redis_ca_certificate))
+      tls_ca_private_key: ((redis_ca_private_key))
+      tls_dh_length: ((redis_dh_length))
+      tls_replication: true
+      tls_cluster: true
+  - name: redis_check
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+      slave_conn: {from: slave}
+  - name: redis_exporter
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+    properties:
+      skip_tls_verification: true
+- name: redis-slave
+  azs: [((default_az))]
+  instances: ((slave_node_count))
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: haveged
+    release: redis-service
+  - name: redis
+    release: redis-service
+    provides:
+      redis_conn: {as: slave}
+    consumes:
+      redis_conn: {from: master}
+      slave_conn: {from: slave}
+    properties:
+      tls_dh_length: ((redis_dh_length))
+  - name: redis_check
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+      slave_conn: {from: slave}
+  - name: redis_exporter
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+    properties:
+      skip_tls_verification: true
+- name: broker
+  azs: [((default_az))]
+  instances: 1
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: haveged
+    release: redis-service
+  - name: redis_broker-1.5
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}
+      slave_conn: {from: slave}
+    properties:
+      bind: ((redis_bind))
+      password: ((redis_broker_password))
+      tls: true
+  - name: redis_broker_check-1.5
+    release: redis-service
+
+variables:
+- name: redis_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_replica_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_broker_password
+  type: password
+  parameters:
+    length: ((password_length))
+
+stemcells:
+- alias: default
+  os: ((stemcell_os))
+  version: "((stemcell_version))"
+
+releases:
+- name: redis-service
+  version: latest
+
+update:
+  canaries: 2
+  canary_watch_time: 60000-120000
+  max_in_flight: 2
+  update_watch_time: 60000-120000
+  serial: false

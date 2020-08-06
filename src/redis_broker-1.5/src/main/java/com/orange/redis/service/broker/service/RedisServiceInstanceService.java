@@ -13,22 +13,27 @@ import org.springframework.cloud.servicebroker.model.UpdateServiceInstanceRespon
 
 public class RedisServiceInstanceService implements ServiceInstanceService {
   @Override
-  public CreateServiceInstanceResponse createServiceInstance(CreateServiceInstanceRequest request) {
+  public CreateServiceInstanceResponse createServiceInstance(
+      CreateServiceInstanceRequest request) {
     return new CreateServiceInstanceResponse();
   }
 
   @Override
-  public GetLastServiceOperationResponse getLastOperation(GetLastServiceOperationRequest request) {
-    return new GetLastServiceOperationResponse().withOperationState(OperationState.SUCCEEDED);
+  public GetLastServiceOperationResponse getLastOperation(
+      GetLastServiceOperationRequest request) {
+    return new GetLastServiceOperationResponse()
+        .withOperationState(OperationState.SUCCEEDED);
   }
 
   @Override
-  public DeleteServiceInstanceResponse deleteServiceInstance(DeleteServiceInstanceRequest request) {
+  public DeleteServiceInstanceResponse deleteServiceInstance(
+      DeleteServiceInstanceRequest request) {
     return new DeleteServiceInstanceResponse();
   }
 
   @Override
-  public UpdateServiceInstanceResponse updateServiceInstance(UpdateServiceInstanceRequest request) {
+  public UpdateServiceInstanceResponse updateServiceInstance(
+      UpdateServiceInstanceRequest request) {
     return new UpdateServiceInstanceResponse();
   }
 }

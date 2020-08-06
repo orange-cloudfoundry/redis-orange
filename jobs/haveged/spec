@@ -1,0 +1,18 @@
+---
+name: haveged
+
+templates:
+  bin/haveged_ctl.erb: bin/haveged_ctl
+
+packages:
+- haveged
+
+properties:
+  write_wakeup_threshold:
+    default: "4096"
+    description: |
+      Set write_wakeup_threshold of daemon interface to nnn bits.
+  loglevel:
+    default: "1"
+    description: |
+      Verbose mask 0=none,1=summary,2=retries,4=timing,8=loop,16=code,32=test.

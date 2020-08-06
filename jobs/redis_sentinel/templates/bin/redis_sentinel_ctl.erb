@@ -1,89 +1,89 @@
 #!/bin/bash
-<%
-  sentinel_master=link('redis_sentinel_conn')
-  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
-%>
+<%- sentinel=link('redis_sentinel_conn') -%>
+
 REDIS_HOME="/var/vcap/packages/redis";
-REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
-REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
-REDIS_SENTINEL_RUN_DIR="<%= p('run_dir') %>";
-REDIS_SENTINEL_LOG_DIR="<%= p('log_dir') %>";
-REDIS_SENTINEL_LOG_FILE="${REDIS_SENTINEL_LOG_DIR}/<%= p('logfile') %>";
-REDIS_SENTINEL_STORE_DIR="<%= p('dir') %>";
-REDIS_SENTINEL_PID_FILE="${REDIS_SENTINEL_RUN_DIR}/<%= p('pidfile') %>";
-REDIS_SENTINEL_CONF="/var/vcap/jobs/redis_sentinel/config/redis_sentinel.conf";
+SERVER="${REDIS_HOME}/bin/redis-server";
+CLI="${REDIS_HOME}/bin/redis-cli";
+RUN_DIR="<%= p('run_dir') %>";
+LOG_DIR="<%= p('log_dir') %>";
+LOG_FILE="${LOG_DIR}/<%= p('logfile') %>";
+STORE_DIR="<%= p('dir') %>";
+PID_FILE="${RUN_DIR}/<%= p('pidfile') %>";
+CONF_FILE="/var/vcap/jobs/redis_sentinel/config/redis_sentinel.conf";
 
-REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel_master.p('bind') %>
-REDIS_SENTINEL_IP="<%= spec.ip %>";
-<% end %>
-REDIS_SENTINEL_PORT="<%= sentinel_master.p('port') %>";
-
-REDIS_SENTINEL_PASSWORD="";
-<%
-  sentinel_master.if_p('password') do |password|
-    unless password.to_s.empty? %>
-REDIS_SENTINEL_PASSWORD="-a <%= password %>";
-<%  end
+IP="127.0.0.1";
+<%- if sentinel.p('bind') -%>
+IP="<%= spec.ip %>";
+<%- end -%>
+PORT="<%= sentinel.p('port') %>";
+CRED="";
+<%- sentinel.if_p('password') do |x|
+    unless x.to_s.empty? -%>
+CRED="-a <%= x %>";
+<%- end
   end
-%>
-
-REDIS_SENTINEL_SHUTDOWN="SHUTDOWN";
+  if sentinel.p('tls') -%>
+PORT="<%= sentinel.p('tls_port') %>";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+CRED+=" --tls --cert ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+CRED+=" --key ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+CRED+=" --cacert ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+<%- end -%>
 
 case "${1}" in
   start)
     mkdir -p \
-      "${REDIS_SENTINEL_RUN_DIR}" \
-      "${REDIS_SENTINEL_LOG_DIR}" \
-      "${REDIS_SENTINEL_STORE_DIR}";
+      "${RUN_DIR}" \
+      "${LOG_DIR}" \
+      "${STORE_DIR}";
 
     chown vcap:vcap \
-      "${REDIS_SENTINEL_RUN_DIR}" \
-      "${REDIS_SENTINEL_LOG_DIR}" \
-      "${REDIS_SENTINEL_STORE_DIR}";
+      "${RUN_DIR}" \
+      "${LOG_DIR}" \
+      "${STORE_DIR}";
 
-    chmod 750 "${REDIS_SENTINEL_STORE_DIR}";
-    touch "${REDIS_SENTINEL_LOG_FILE}";
-    chown vcap:vcap "${REDIS_SENTINEL_LOG_FILE}";
-    chmod 660 "${REDIS_SENTINEL_CONF}";
+    chmod 750 "${STORE_DIR}";
+    touch "${LOG_FILE}";
+    chown vcap:vcap "${LOG_FILE}";
+    chmod 660 "${CONF_FILE}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted
-    rm -f "${REDIS_SENTINEL_STORE_DIR}"/*
+    rm -f "${STORE_DIR}"/*
 
     ulimit -n 10032
 
-    if [[ -f "${REDIS_SENTINEL_PID_FILE}" ]];
+    if [[ -f "${PID_FILE}" ]];
     then
-      echo "${REDIS_SENTINEL_PID_FILE} exists, process is already running or crashed";
+      echo "${PID_FILE} exists, process is already running or crashed";
     else
       echo "Starting Redis Sentinel...";
-      exec chpst -u vcap:vcap "${REDIS_SERVER}" \
-        "${REDIS_SENTINEL_CONF}" \
+      exec chpst -u vcap:vcap "${SERVER}" \
+        "${CONF_FILE}" \
         --sentinel \
-        >> "${REDIS_SENTINEL_LOG_FILE}" 2>&1;
+        >> "${LOG_FILE}" 2>&1;
     fi
     ;;
   stop)
-    if [[ -f "${REDIS_SENTINEL_PID_FILE}" ]];
+    if [[ -f "${PID_FILE}" ]];
     then
-      redis_sentinel_pid="$(cat ${REDIS_SENTINEL_PID_FILE})";
+      redis_sentinel_pid="$(cat ${PID_FILE})";
       echo "Stopping ...";
       exec chpst -u vcap:vcap \
-        "${REDIS_CLI}" \
-          -h "${REDIS_SENTINEL_IP}" \
-          -p "${REDIS_SENTINEL_PORT}" \
-          ${REDIS_SENTINEL_PASSWORD} \
-          ${REDIS_SENTINEL_SHUTDOWN};
+        "${CLI}" \
+          -h "${IP}" \
+          -p "${PORT}" \
+          ${CRED} \
+          SHUTDOWN;
       while [[ -x "/proc/${redis_sentinel_pid}" ]];
       do
         echo "Waiting for Redis Sentinel to shutdown ...";
         sleep 1;
       done
-      rm -f "${REDIS_SENTINEL_PID_FILE}"
+      rm -f "${PID_FILE}"
       echo "Redis Sentinel stopped";
     else
-      echo "${REDIS_SENTINEL_PID_FILE} does not exist, process is not running";
+      echo "${PID_FILE} does not exist, process is not running";
     fi
     ;;
   *)

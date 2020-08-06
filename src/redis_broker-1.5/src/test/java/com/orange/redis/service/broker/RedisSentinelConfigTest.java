@@ -27,9 +27,14 @@ public class RedisSentinelConfigTest {
     Assert.assertEquals("192.168.56.101 192.168.56.102", servers);
     Assert.assertEquals("6379", redisConfig.getPort().toString());
     Assert.assertEquals("redis_secret", redisConfig.getPassword());
+    Assert.assertEquals("admin", redisConfig.getAdmin_user());
+    Assert.assertEquals("admin_secret", redisConfig.getAdmin_password());
     Assert.assertFalse(redisConfig.getSentinel().isEmpty());
-    Assert.assertEquals("master", redisConfig.getSentinel().getMasterName());
-    Assert.assertEquals("26379", redisConfig.getSentinel().getPort().toString());
-    Assert.assertEquals("redis_sentinel_secret", redisConfig.getSentinel().getPassword());
+    Assert.assertEquals("master", redisConfig.getSentinel().getMaster_name());
+    Assert.assertEquals("26379",
+        redisConfig.getSentinel().getPort().toString());
+    Assert.assertEquals("redis_sentinel_secret",
+        redisConfig.getSentinel().getPassword());
+    Assert.assertTrue(redisConfig.getTls().isEmpty());
   }
 }

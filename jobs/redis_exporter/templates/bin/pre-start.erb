@@ -1,0 +1,20 @@
+#!/bin/bash
+ERR=0;
+<%- if link('redis_conn').p('tls') -%>
+source "/var/vcap/packages/redis_exporter/bin/gen-certs.sh";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+gen_signed_cert \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>" \
+  "${TLS_KEYS_DIR}/ca.txt" \
+  "${TLS_KEYS_DIR}/<%= p('tls_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>" \
+  "<%= p('tls_key_length') %>" \
+  "<%= p('tls_cert_duration') %>" \
+  "<%= spec.deployment %>" \
+  "Redis Exporter" && \
+chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
+ERR=${?};
+<%- end -%>
+exit ${ERR};

@@ -1,0 +1,14 @@
+set -eu
+
+# Available variables
+# $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
+# $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
+
+tar xf haveged/haveged-*.tar.gz
+cd haveged-*
+./configure --prefix=${BOSH_INSTALL_TARGET}
+make install
+strip -s ${BOSH_INSTALL_TARGET}/sbin/haveged
+cd -
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.

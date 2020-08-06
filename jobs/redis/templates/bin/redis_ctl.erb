@@ -1,58 +1,56 @@
 #!/bin/bash
-<%
-  master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
-  sentinel=nil
-  if_link('redis_sentinel_conn'){ |x| sentinel=x }
-%>
+<%- master=link('redis_conn') -%>
+
 REDIS_HOME="/var/vcap/packages/redis";
-REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
-REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
-REDIS_RUN_DIR="<%= p('run_dir') %>";
-REDIS_LOG_DIR="<%= p('log_dir') %>";
-REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p('logfile') %>";
-REDIS_STORE_DIR="<%= p('dir') %>";
-REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
-REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
-REDIS_IP="127.0.0.1";
-<% if master.p('bind') %>
-REDIS_IP="<%= spec.ip %>";
-<% end %>
-REDIS_PORT="<%= master.p('port') %>";
+SERVER="${REDIS_HOME}/bin/redis-server";
+CLI="${REDIS_HOME}/bin/redis-cli";
+RUN_DIR="<%= p('run_dir') %>";
+LOG_DIR="<%= p('log_dir') %>";
+LOG_FILE="${LOG_DIR}/<%= p('logfile') %>";
+STORE_DIR="<%= p('dir') %>";
+PID_FILE="${RUN_DIR}/<%= p('pidfile') %>";
+CONF_FILE="/var/vcap/jobs/redis/config/redis.conf";
 
-REDIS_PASSWORD="";
-<%
-  master.if_p('password') do |password|
-    unless password.to_s.empty? %>
-REDIS_PASSWORD="-a <%= password %>";
-<%  end
-  end %>
+IP="127.0.0.1";
+<%- if master.p('bind') -%>
+IP="<%= spec.ip %>";
+<%- end -%>
 
-REDIS_SHUTDOWN="SHUTDOWN";
-<% master.if_p('rename_shutdown_command') do |command| %>
-REDIS_SHUTDOWN="<%= command %>";
-<% end %>
+PORT="<%= master.p('port') %>";
+CRED="--user <%= master.p('admin_user') %>";
+<%- master.if_p('admin_password') do |x|
+    unless x.to_s.empty? -%>
+CRED+=" --pass <%= x %>";
+<%- end
+  end
+  if master.p('tls') -%>
+PORT="<%= master.p('tls_port') %>";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+CRED+=" --tls --cert ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+CRED+=" --key ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+CRED+=" --cacert ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+<%- end -%>
 
 case "${1}" in
   start)
     mkdir -p \
-      "${REDIS_RUN_DIR}" \
-      "${REDIS_LOG_DIR}" \
-      "${REDIS_STORE_DIR}";
+      "${RUN_DIR}" \
+      "${LOG_DIR}" \
+      "${STORE_DIR}";
 
     chown vcap:vcap \
-      "${REDIS_RUN_DIR}" \
-      "${REDIS_LOG_DIR}" \
-      "${REDIS_STORE_DIR}";
+      "${RUN_DIR}" \
+      "${LOG_DIR}" \
+      "${STORE_DIR}";
 
-    chmod 750 "${REDIS_STORE_DIR}";
-    touch "${REDIS_LOG_FILE}";
-    chown vcap:vcap "${REDIS_LOG_FILE}";
-    chmod 660 "${REDIS_CONF}";
+    chmod 750 "${STORE_DIR}";
+    touch "${LOG_FILE}";
+    chown vcap:vcap "${LOG_FILE}";
+    chmod 660 "${CONF_FILE}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted BGSAVE, just to save space
-    rm -f "${REDIS_STORE_DIR}"/temp-*.rdb
+    rm -f "${STORE_DIR}"/temp-*.rdb
 
     ulimit -n 10032
 
@@ -60,7 +58,7 @@ case "${1}" in
     then
       # fail silently as bosh-lite is a read-only file system
       set +e;
-      echo never > /sys/kernel/mm/transparent_hugepage/enabled;
+      echo "never" > /sys/kernel/mm/transparent_hugepage/enabled;
       set -e;
     fi
 
@@ -70,13 +68,12 @@ case "${1}" in
     # (https://www.pivotaltracker.com/story/show/74949514)
     sysctl vm.overcommit_memory=1;
 
-    if [[ -f "${REDIS_PID_FILE}" ]];
+    if [[ -f "${PID_FILE}" ]];
     then
-      echo "${REDIS_PID_FILE} exists, process is already running or crashed";
+      echo "${PID_FILE} exists, process is already running or crashed";
     else
       echo "Starting Redis server...";
-<%
-  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+<%- if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     redis_persistance_rdb=0
     master.if_p('save') do |x|
       if !x.to_s.empty?
@@ -84,40 +81,41 @@ case "${1}" in
       end
     end
     if redis_persistance_rdb==0 && master.p('appendonly').eql?('no')
-      if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
-%>
+      if master.p('cluster_enabled').eql?('yes') 
+        if master.p('cluster_replicas_per_node').to_i>0 -%>
       sleep <%= (master.p('cluster_node_timeout').to_i*3)/2000 %>;
-<%    end
-      if master.p('replication') && !sentinel.nil?
-%>
-      sleep <%= (sentinel.p('down_after_milliseconds').to_i*3)/2000 %>;
-<%    end
+<%-     end
+      else
+        if master.p('replication') -%>
+      sleep <%= (master.p('down_after_milliseconds').to_i*3)/2000 %>;
+<%-     end
+      end
     end
-  end %>
-      exec chpst -u vcap:vcap "${REDIS_SERVER}" "${REDIS_CONF}" \
-        >> "${REDIS_LOG_FILE}" 2>&1;
+  end -%>
+      exec chpst -u vcap:vcap "${SERVER}" "${CONF_FILE}" \
+        >> "${LOG_FILE}" 2>&1;
     fi
     ;;
   stop)
-    if [[ -f "${REDIS_PID_FILE}" ]];
+    if [[ -f "${PID_FILE}" ]];
     then
-      redis_pid="$(cat ${REDIS_PID_FILE})";
+      PID="$(cat "${PID_FILE}")";
       echo "Stopping ...";
       exec chpst -u vcap:vcap \
-        "${REDIS_CLI}" \
-          -h "${REDIS_IP}" \
-          -p "${REDIS_PORT}" \
-          ${REDIS_PASSWORD} \
-          ${REDIS_SHUTDOWN};
-      while [[ -x "/proc/${redis_pid}" ]];
+        "${CLI}" \
+          -h ${IP} \
+          -p ${PORT} \
+          ${CRED} \
+          SHUTDOWN;
+      while [[ -x "/proc/${PID}" ]];
       do
         echo "Waiting for Redis to shutdown ...";
         sleep 1;
       done
-      rm -f "${REDIS_PID_FILE}"
+      rm -f "${PID_FILE}"
       echo "Redis stopped";
     else
-      echo "${REDIS_PID_FILE} does not exist, process is not running";
+      echo "${PID_FILE} does not exist, process is not running";
     fi
     ;;
   *)

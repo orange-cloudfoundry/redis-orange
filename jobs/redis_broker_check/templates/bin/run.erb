@@ -1,31 +1,38 @@
 #!/bin/bash
+<% broker=link('redis_broker_conn') %>
 
-REDIS_BROKER_IP="127.0.0.1";
-<% if link('redis_broker_conn').p('bind') %>
-REDIS_BROKER_IP="<%= spec.ip %>";
-<% end %>
-REDIS_BROKER_PORT="<%= link('redis_broker_conn').p('port') %>";
+IP="127.0.0.1";
+<%- if broker.p('bind') -%>
+IP="<%= spec.ip %>";
+<%- end
+  if broker.p('tls') -%>
+PROTOCOLE="https";
+PORT="<%= broker.p('tls_port') %>";
+<%- else -%>
+PROTOCOLE="http";
+PORT="<%= broker.p('port') %>";
+<%- end -%>
 
-REDIS_BROKER_USER="<%= link('redis_broker_conn').p('user') %>";
-REDIS_BROKER_PASSWORD="<%= link('redis_broker_conn').p('password') %>";
-
-BASE_URI="http://${REDIS_BROKER_USER}:${REDIS_BROKER_PASSWORD}@${REDIS_BROKER_IP}:${REDIS_BROKER_PORT}";
+BASE_URI="${PROTOCOLE}://<%= broker.p('user') %>:<%= broker.p('password') %>@${IP}:${PORT}";
 
 ERR_CATALOG=1;
-if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
+if [[ "$(curl -k -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/catalog)" == "200" ]];
 then
   ERR_CATALOG=0;
+  echo "$(curl -k -s ${BASE_URI}/v2/catalog)";
   echo "Catalog: OK";
 else
   echo "Catalog: KO";
 fi
 
 ERR_BINDING=1;
-if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
+if [[ "$(curl -k -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)" == "200" ]];
 then
   ERR_BINDING=0;
+  echo "$(curl -k -s \
+  ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)";
   echo "Binding: OK";
 else
   echo "Binding: KO";

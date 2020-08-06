@@ -2,8 +2,11 @@
 name: redis_exporter
 
 templates:
-  bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
   config/script.erb: config/script
+  keys/ca.crt.erb: keys/ca.crt
+  keys/ca.key.erb: keys/ca.key
+  bin/pre-start.erb: bin/pre-start
+  bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
 
 packages:
   - redis_exporter
@@ -11,68 +14,109 @@ packages:
 consumes:
 - name: redis_conn
   type: conn
+- name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
 
 properties:
-  debug:
-    default: false
-    description: |
-      Verbose debug output.
-  log_format:
-    default: "txt"
-    description: |
-      Log format, valid options are "txt" (default) and "json".
   check_keys:
     description: |
       Comma separated list of key patterns to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The key patterns specified with this flag will be found using SCAN. Use this option if you need glob pattern matching; check-single-keys is faster for non-pattern keys.
-  script:
-    description: |
-      Path to Redis Lua script for gathering extra metrics.
-  namespace:
-    default: "redis"
-    description: |
-      Namespace for the metrics, defaults to "redis".
-  web.port:
-    default: "9121"
-    description: |
-      Port listen on for web interface and telemetry, defaults to "9121".
-  web.telemetry_path:
-    default: "/metrics"
-    description: |
-      Path under which to expose metrics, defaults to "/metrics".
   check_single_keys:
     description: |
       Comma separated list of keys to export value and length/size, eg: db3=user_count will export key user_count from db 3. db defaults to 0 if omitted. The keys specified with this flag will be looked up directly without any glob pattern matching. Use this option if you don't need glob pattern matching; it is faster than check-keys.
+  check_streams:
+    description: |
+      Comma separated list of stream-patterns to export info about streams, groups and consumers. Syntax is the same as check_keys.
+  check_single_streams:
+    description: |
+      Comma separated list of streams to export info about streams, groups and consumers. The streams specified with this flag will be looked up directly without any glob pattern matching. Use this option if you don't need glob pattern matching; it is faster than check_streams.
+  config_command:
+    description: |
+      What to use for the CONFIG command (default "CONFIG")
   connection_timeout:
     default: "15s"
     description: |
       Timeout for connection to Redis instance, defaults to "15s" (in Golang duration format)
-  redis_only_metrics:
-    default: "false"
+  debug:
+    default: false
     description: |
-      Whether to also export go runtime metrics, defaults to false.
+      Verbose debug output.
+  export_client_list:
+    default: false
+    description: |
+      Whether to scrape Client List specific metrics, defaults to false.
   include_system_metrics:
-    default: "false"
+    default: false
     description: |
       Whether to include system metrics like total_system_memory_bytes, defaults to false.
   is_tile38:
-    default: "false"
+    default: false
     description: |
       Whether to scrape Tile38 specific metrics, defaults to false.
-  export_client_list:
-    default: "false"
+  log_format:
+    default: "txt"
     description: |
-      Whether to scrape Client List specific metrics, defaults to false.
-  skip_tls_verification:
+      Log format, valid options are "txt" (default) and "json".
+  namespace:
+    default: "redis"
     description: |
-      Whether to to skip TLS verification
-  tls_client_key_file:
+      Namespace for the metrics, defaults to "redis".
+  ping_on_connect:
+    default: false
     description: |
-      Name of the client key file (including full path) if the server requires TLS client authentication
-  tls_client_cert_file:
+      Whether to ping the redis instance after connecting and record the duration as a metric, defaults to false.
+  redis_only_metrics:
+    default: false
     description: |
-      Name the client cert file (including full path) if the server requires TLS client authentication
+      Whether to also export go runtime metrics, defaults to false.
+  script:
+    default: false
+    description: |
+      Enable/disable Redis Lua script for gathering extra metrics.
   set_client_name:
-    default: "true"
+    default: true
     description: |
       Whether to set client name to redis_exporter, defaults to true.
+  skip_tls_verification:
+    default: false
+    description: |
+      Whether to to skip TLS verification.
+  web_port:
+    default: "9121"
+    description: |
+      Port listen on for web interface and telemetry, defaults to "9121".
+  web_telemetry_path:
+    default: "/metrics"
+    description: |
+      Path under which to expose metrics, defaults to "/metrics".
+################################# TLS/SSL #####################################
+  tls_keys_dir:
+    default: "/var/vcap/jobs/redis_exporter/keys"
+    description: |
+      The directory where TLS keys are stored.
+  tls_ca_cert_file:
+    default: "ca.crt"
+    description: |
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_key_length:
+    default: "2048"
+    description: |
+      Private key length for TLS connection.
+  tls_cert_duration:
+    default: "365"
+    description: |
+      Certificate duration for TLS connection.
+  tls_cert_file:
+    default: "exporter.crt"
+    description: |
+      Configure a X.509 certificate and private key to use for authenticating the server to connected clients, masters or cluster peers. These files should be PEM formatted.
+  tls_key_file:
+    default: "exporter.key"
+    description: |
+      See tls_cert_file.
       

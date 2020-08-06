@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -eu
+
+PROGNAME="haveged";
+RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
+LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
+TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
+STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+chown root:root "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+
+PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
+
+source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
+exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
+exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+chown root:root \
+  "${LOG_DIR}/${PROGNAME}.stdout.log" \
+  "${LOG_DIR}/${PROGNAME}.stderr.log";
+
+case $1 in
+  start)
+    pid_guard "${PID_FILE}" "${PROGNAME}";
+    echo $$ > "${PID_FILE}";
+
+    exec "/var/vcap/packages/${PROGNAME}/sbin/${PROGNAME}"  \
+      -F \
+      -p "${PID_FILE}" \
+      -w <%= p('write_wakeup_threshold') %> \
+      -v <%= p('loglevel') %> \
+      >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
+      2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+    ;;
+
+  stop)
+    kill_and_wait "${PID_FILE}";
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop}";
+    exit 1;
+    ;;
+
+esac
+exit 0;

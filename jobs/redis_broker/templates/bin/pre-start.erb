@@ -1,0 +1,40 @@
+#!/bin/bash
+ERR=0;
+<%- if link('redis_conn').p('tls') || p('tls') -%>
+export JAVA_HOME="/var/vcap/packages/openjdk/jdk";
+export PATH="${JAVA_HOME}/bin:${PATH}";
+source "/var/vcap/packages/redis_broker/bin/gen-certs.sh";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+<%- if !link('redis_conn').p('tls') -%>
+gen_ca \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>" \
+  "<%= p('tls_ca_key_length') %>" \
+  "<%= p('tls_ca_cert_duration') %>" \
+  "<%= spec.deployment %>" && \
+<%- end -%>
+gen_signed_cert \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>" \
+  "${TLS_KEYS_DIR}/ca.txt" \
+  "${TLS_KEYS_DIR}/<%= p('tls_server_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_server_cert_file') %>" \
+  "<%= p('tls_server_key_length') %>" \
+  "<%= p('tls_server_cert_duration') %>" \
+  "<%= spec.deployment %>" \
+  "Redis Broker Server" && \
+<%- if p('tls') -%>
+rm -f \
+  "${TLS_KEYS_DIR}/<%= p('tls_server_pkcs12_file') %>" && \
+openssl pkcs12 -export \
+  -name <%= p('tls_server_key_alias') %> \
+  -inkey "${TLS_KEYS_DIR}/<%= p('tls_server_key_file') %>" \
+  -in "${TLS_KEYS_DIR}/<%= p('tls_server_cert_file') %>" \
+  -passout pass:<%= p('tls_server_pkcs12_password') %> \
+  -out "${TLS_KEYS_DIR}/<%= p('tls_server_pkcs12_file') %>" && \
+<%- end -%>
+chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
+ERR=${?};
+<%- end -%>
+exit ${ERR};

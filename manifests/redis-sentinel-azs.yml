@@ -1,0 +1,137 @@
+---
+name: ((deployment_name))
+
+instance_groups:
+- name: redis-master
+  azs: [((default_az))]
+  instances: ((master_node_count))
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: redis
+    release: redis-service
+    consumes:
+      slave_conn: nil
+      redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
+    properties:
+      bind: ((redis_bind))
+      password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
+      replication: true
+      replica_password: ((redis_replica_password))
+      sentinel_password: ((redis_sentinel_user_password))
+  - name: redis_check
+    release: redis-service
+    consumes:
+      slave_conn: nil
+      redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
+  - name: redis_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+  - name: redis_sentinel
+    release: redis-service
+    provides:
+      redis_sentinel_conn: {as: sentinel_master}
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      bind: ((redis_bind))
+      password: ((redis_sentinel_password))
+  - name: redis_sentinel_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+- name: sentinel-slave
+  azs: [((default_az))]
+  instances: ((slave_node_count))
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: redis_sentinel
+    release: redis-service
+    provides:
+      redis_sentinel_conn: {as: sentinel_slave}
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+  - name: redis_sentinel_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+- name: broker
+  azs: [((default_az))]
+  instances: 1
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: redis_broker
+    release: redis-service
+    consumes:
+      slave_conn: nil
+      redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: nil
+    properties:
+      bind: ((redis_bind))
+      password: ((redis_broker_password))
+  - name: redis_broker_check
+    release: redis-service
+
+variables:
+- name: redis_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_replica_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_sentinel_user_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_sentinel_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_broker_password
+  type: password
+  parameters:
+    length: ((password_length))
+
+stemcells:
+- alias: default
+  os: ((stemcell_os))
+  version: "((stemcell_version))"
+
+releases:
+- name: redis-service
+  version: latest
+
+update:
+  canaries: 2
+  canary_watch_time: 60000-120000
+  max_in_flight: 2
+  update_watch_time: 60000-120000
+  serial: false

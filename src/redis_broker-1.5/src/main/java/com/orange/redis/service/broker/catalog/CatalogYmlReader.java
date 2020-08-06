@@ -23,7 +23,8 @@ public class CatalogYmlReader {
     List<ServiceDefinition> serviceDefinitions = null;
     try {
       Catalog catalog = getMapper().readValue(catalogYml, Catalog.class);
-      serviceDefinitions = ServiceMapper.toServiceDefinitions(catalog.getServices());
+      serviceDefinitions = ServiceMapper
+          .toServiceDefinitions(catalog.getServices());
     } catch (IOException e) {
       logger.error("Catalog reader fails : " + catalogYml);
     }
