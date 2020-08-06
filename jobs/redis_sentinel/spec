@@ -15,6 +15,7 @@ provides:
   - bind
   - port
   - password
+  - failure_quorum
   - down_after_milliseconds
   - parallel_syncs
   - failover_timeout
@@ -67,6 +68,11 @@ properties:
     default: "/var/vcap/store/redis_sentinel"
     description: |
       Every long running process should have a well-defined working directory. For Redis Sentinel to chdir to /tmp at startup is the simplest thing for the process to do not interfere with administrative tasks such as unmounting filesystems.
+  failure_quorum:
+    default: "2"
+    description: |      
+      The failure_quorum is the number of Sentinels that need to agree about the fact the master is not reachable, in order to really mark the master as failing, and eventually start a failover procedure if possible.
+      However the failure_quorum is only used to detect the failure. In order to actually perform a failover, one of the Sentinels need to be elected leader for the failover and be authorized to proceed. This only happens with the vote of the majority of the Sentinel processes.
   down_after_milliseconds:
     default: "30000"
     description: |
