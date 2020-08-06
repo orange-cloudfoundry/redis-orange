@@ -21,18 +21,16 @@ provides:
   - failover_timeout
 
 consumes:
-- name: redis_conn
-  type: conn
 - name: redis_sentinel_conn
   type: sentinel_conn
-- name: master_conn
-  type: conn
-  optional: true
-- name: slave_conn
-  type: conn
-  optional: true
 - name: sentinel_master_conn
   type: sentinel_conn
+  optional: true
+- name: redis_conn
+  type: conn
+  optional: true
+- name: master_conn
+  type: conn
   optional: true
 
 properties:

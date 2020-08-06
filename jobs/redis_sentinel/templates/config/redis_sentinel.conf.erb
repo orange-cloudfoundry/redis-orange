@@ -1,10 +1,9 @@
 <%
-  master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
-  slave=link('redis_conn')
-  if_link('slave_conn'){ |x| slave=x }
   sentinel_master=link('redis_sentinel_conn')
   if_link('sentinel_master_conn'){ |x| sentinel_master=x }
+  master=nil
+  if_link('redis_conn'){ |x| master=x }
+  if_link('master_conn'){ |x| master=x }
 %>
 # *** IMPORTANT ***
 #
@@ -95,7 +94,9 @@ dir <%= p('dir') %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
+<% if !master.nil? %>
 sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel_master.p('detected_failures') %>
+<% end %>
 
 # sentinel auth-pass <master-name> <password>
 #
@@ -115,7 +116,13 @@ sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstr
 # Example:
 #
 # sentinel auth-pass mymaster MySUPER--secret-0123passw0rd
+<% if !master.nil?
+    master.if_p('password') do |password|
+      unless password.to_s.empty? %>
 sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
+<%    end
+    end
+  end %>
 
 # sentinel down-after-milliseconds <master-name> <milliseconds>
 #
@@ -126,7 +133,9 @@ sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
 #
 # Default is 30 seconds.
 # sentinel down-after-milliseconds mymaster 30000
+<% if !master.nil? %>
 sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel_master.p('down_after_milliseconds') %>
+<% end %>
 
 # sentinel parallel-syncs <master-name> <numreplicas>
 #
@@ -135,7 +144,9 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel_master.p('d
 # to avoid that all the replicas will be unreachable at about the same
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
+<% if !master.nil? %>
 sentinel parallel-syncs <%= spec.deployment %> <%= sentinel_master.p('parallel_syncs') %>
+<% end %>
 
 # sentinel failover-timeout <master-name> <milliseconds>
 #
@@ -161,7 +172,9 @@ sentinel parallel-syncs <%= spec.deployment %> <%= sentinel_master.p('parallel_s
 #
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
+<% if !master.nil? %>
 sentinel failover-timeout <%= spec.deployment %> <%= sentinel_master.p('failover_timeout') %>
+<% end %>
 
 # SCRIPTS EXECUTION
 #
@@ -261,7 +274,8 @@ sentinel deny-scripts-reconfig yes
 #
 # SENTINEL rename-command mymaster CONFIG CONFIG
 
-<% master.if_p('rename_config_command') do |command| %>
+<% if !master.nil?
+   master.if_p('rename_config_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> CONFIG <%= command %>
 <% end %>
 
@@ -299,7 +313,8 @@ sentinel rename-command <%= spec.deployment %> REPLICAOF <%= command %>
 
 <% master.if_p('rename_sync_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> SYNC <%= command %>
-<% end %>
+<% end
+  end %>
 
 # You can also configure the Sentinel instance itself in order to require client
 # authentication via the AUTH command, however this feature is only available starting with

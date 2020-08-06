@@ -1,6 +1,7 @@
 ## redis-orange 1.0.3
 
-- Correction for misunderstanding about Sentinel's quorum by adding `detected_failures` property in Sentinel's specifications.
+- Correction for misunderstanding about Sentinel's quorum by adding `detected_failures` property in Sentinel's specifications. It's default value is 2.
+- Added support for reconfiguring Sentinel at runtime.
 
 ## redis-orange 1.0.2
 
