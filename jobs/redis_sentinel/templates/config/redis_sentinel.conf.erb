@@ -95,7 +95,7 @@ dir <%= p('dir') %>
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
 <% if !master.nil? %>
-sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel_master.p('detected_failures') %>
+sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel_master.p('max_detected_failures') %>
 <% end %>
 
 # sentinel auth-pass <master-name> <password>
