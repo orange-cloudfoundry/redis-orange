@@ -2,6 +2,7 @@
 
 - Correction for misunderstanding about Sentinel's quorum by adding `max_detected_failures` property in Sentinel's specifications. It's default value is 2.
 - Added support for reconfiguring Sentinel at runtime.
+- Added support for TLS and ACL introduced in Redis 6.x. 
 - Components update:
   - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.6,
   - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.9.0,
