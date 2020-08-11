@@ -18,10 +18,10 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Packages versions summary
 
-- Redis [*5.0.7*](http://download.redis.io/releases/redis-5.0.7.tar.gz)
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.3.5*](https://github.com/oliver006/redis_exporter/releases/download/v1.3.5/redis_exporter-v1.3.5.linux-amd64.tar.gz)
-- [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.3.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.3.0/redis_sentinel_exporter-1.3.0.linux-amd64.tar.gz)
-- [*OpenJDK*](https://openjdk.java.net/) [*13.0.1*](https://download.java.net/java/GA/jdk13.0.1/cec27d702aa74d5a8630c65ae61e4305/9/GPL/openjdk-13.0.1_linux-x64_bin.tar.gz)
+- Redis [*6.0.6*](http://download.redis.io/releases/redis-6.0.6.tar.gz)
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.9.0*](https://github.com/oliver006/redis_exporter/releases/download/v1.9.0/redis_exporter-v1.9.0.linux-amd64.tar.gz)
+- [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.6.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.6.0/redis_sentinel_exporter-1.6.0.linux-amd64.tar.gz)
+- [*OpenJDK*](https://openjdk.java.net/) [*14.0.2*](https://download.java.net/java/GA/jdk14.0.2/205943a0976c4ed48cb16f1043c5c647/12/GPL/openjdk-14.0.2_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
 ## Memory Management
