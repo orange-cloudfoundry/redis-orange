@@ -442,7 +442,7 @@ redis_exporter_debug: false
 redis_sentinel_exporter_debug: false
 redis_replication: true
 redis_sentinel_bind: true
-redis_min_replicas_to_write: 1
+redis_min_replicas_to_write: 0
 redis_broker_loglevel: info
 ```
 
@@ -656,7 +656,7 @@ redis_exporter_debug: false
 redis_sentinel_exporter_debug: false
 redis_replication: true
 redis_sentinel_bind: true
-redis_min_replicas_to_write: 1
+redis_min_replicas_to_write: 0
 redis_broker_loglevel: info
 ```
 
@@ -828,7 +828,7 @@ redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
 redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
-redis_min_replicas_to_write: 1
+redis_min_replicas_to_write: 0
 redis_broker_loglevel: info
 ```
 
@@ -1006,6 +1006,6 @@ redis_maxmemory_policy: 'allkeys-lru'
 redis_exporter_debug: false
 redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
-redis_min_replicas_to_write: 1
+redis_min_replicas_to_write: 0
 redis_broker_loglevel: info
 ```
