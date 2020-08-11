@@ -517,8 +517,41 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
-min-replicas-to-write <%= master.p('min_replicas_to_write') %>
+<%
+  min_replicas_to_write=master.p('min_replicas_to_write').to_i;
+  if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write>0
+    slave_length=slave.instances.length
+    if slave.instances[0].name.eql?(master.instances[0].name)
+      slave_length-=1
+    else
+      slave_length+=(master.instances.length-1)
+    end
+    if slave_length>=min_replicas_to_write %>
+min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
+<%  end
+  end %>
+
+<%
+  replicas_per_node=master.p('cluster_replicas_per_node')
+  if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write>0
+    master_length=master.instances.length
+    slave_length=slave.instances.length
+    enough_replicas=false
+    if slave.instances[0].name.eql?(master.instances[0].name)
+      if slave_length%(replicas_per_node+1)==0
+        enough_replicas=true
+      end
+    else
+      if slave_length>=(master_length*replicas_per_node)
+        enough_replicas=true
+      end
+    end
+    if enough_replicas && replicas_per_node>=min_replicas_to_write %>
+min-replicas-to-write <%= min_replicas_to_write %>
+min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
+<%  end
+  end %>
 
 # A Redis master is able to list the address and port of the attached
 # replicas in different ways. For example the "INFO replication" section
