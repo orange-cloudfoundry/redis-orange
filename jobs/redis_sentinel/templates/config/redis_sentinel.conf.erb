@@ -1,9 +1,7 @@
 <%
-  sentinel_master=link('redis_sentinel_conn')
-  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
+  sentinel=link('redis_sentinel_conn')
   master=nil
   if_link('redis_conn'){ |x| master=x }
-  if_link('master_conn'){ |x| master=x }
 %>
 # *** IMPORTANT ***
 #
@@ -20,7 +18,7 @@
 # bind 127.0.0.1 192.168.1.1
 #
 # protected-mode no
-<% if sentinel_master.p('bind') %>
+<% if sentinel.p('bind') %>
 bind <%= spec.ip %>
 <% else %>
 bind 127.0.0.1
@@ -28,7 +26,7 @@ bind 127.0.0.1
 
 # port <sentinel-port>
 # The port that this sentinel instance will run on
-port <%= sentinel_master.p('port') %>
+port <%= sentinel.p('port') %>
 
 # By default Redis Sentinel does not run as a daemon. Use 'yes' if you need it.
 # Note that Redis will write a pid file in /var/run/redis-sentinel.pid when
@@ -66,7 +64,7 @@ logfile <%= p('log_dir')+'/'+p('logfile') %>
 # Example:
 #
 # sentinel announce-ip 1.2.3.4
-<% if p('announce') && sentinel_master.p('bind') %>
+<% if p('announce') && sentinel.p('bind') %>
 sentinel announce-ip <%= spec.ip %>
 <% end %>
 
@@ -95,7 +93,7 @@ dir <%= p('dir') %>
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
 <% if !master.nil? %>
-sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel_master.p('max_detected_failures') %>
+sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel.p('max_detected_failures') %>
 <% end %>
 
 # sentinel auth-pass <master-name> <password>
@@ -134,7 +132,7 @@ sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
 # Default is 30 seconds.
 # sentinel down-after-milliseconds mymaster 30000
 <% if !master.nil? %>
-sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel_master.p('down_after_milliseconds') %>
+sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel.p('down_after_milliseconds') %>
 <% end %>
 
 # sentinel parallel-syncs <master-name> <numreplicas>
@@ -145,7 +143,7 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel_master.p('d
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
 <% if !master.nil? %>
-sentinel parallel-syncs <%= spec.deployment %> <%= sentinel_master.p('parallel_syncs') %>
+sentinel parallel-syncs <%= spec.deployment %> <%= sentinel.p('parallel_syncs') %>
 <% end %>
 
 # sentinel failover-timeout <master-name> <milliseconds>
@@ -173,7 +171,7 @@ sentinel parallel-syncs <%= spec.deployment %> <%= sentinel_master.p('parallel_s
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
 <% if !master.nil? %>
-sentinel failover-timeout <%= spec.deployment %> <%= sentinel_master.p('failover_timeout') %>
+sentinel failover-timeout <%= spec.deployment %> <%= sentinel.p('failover_timeout') %>
 <% end %>
 
 # SCRIPTS EXECUTION
@@ -340,7 +338,7 @@ sentinel rename-command <%= spec.deployment %> SYNC <%= command %>
 # Before using this configuration make sure your client library is able to send the AUTH
 # command to Sentinel instances.
 <%
-  sentinel_master.if_p('password') do |password|
+  sentinel.if_p('password') do |password|
     unless password.to_s.empty? %>
 requirepass <%= password %>
 <%  end

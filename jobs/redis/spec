@@ -53,9 +53,6 @@ consumes:
 - name: redis_sentinel_conn
   type: sentinel_conn
   optional: true
-- name: sentinel_master_conn
-  type: sentinel_conn
-  optional: true
 - name: sentinel_slave_conn
   type: sentinel_conn
   optional: true

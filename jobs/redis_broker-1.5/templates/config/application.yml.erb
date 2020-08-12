@@ -3,9 +3,8 @@
   if_link('master_conn'){ |x| master=x }
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
-  sentinel_master=nil
-  if_link('redis_sentinel_conn'){ |x| sentinel_master=x }
-  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
+  sentinel=nil
+  if_link('redis_sentinel_conn'){ |x| sentinel=x }
   sentinel_slave=nil
   if_link('sentinel_slave_conn'){ |x| sentinel_slave=x }
 %>
@@ -31,12 +30,12 @@ orange:
     HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
     servers:
 <%
-  if !sentinel_master.nil?
-    sentinel_master.instances.each do |x| %>
+  if !sentinel.nil?
+    sentinel.instances.each do |x| %>
       - <%= x.address %>
 <%  end
     if !sentinel_slave.nil?
-      if !sentinel_slave.instances[0].name.eql?(sentinel_master.instances[0].name)
+      if !sentinel_slave.instances[0].name.eql?(sentinel.instances[0].name)
         sentinel_slave.instances.each do |x| %>
       - <%= x.address %>
 <%      end
@@ -61,11 +60,11 @@ orange:
     password: <%= password %>
 <%  end
   end %>
-<% if !sentinel_master.nil? %>
+<% if !sentinel.nil? %>
     sentinel:
-      port: <%= sentinel_master.p('port') %>
+      port: <%= sentinel.p('port') %>
 <%
-    sentinel_master.if_p('password') do |password|
+    sentinel.if_p('password') do |password|
       unless password.to_s.empty? %>
       password: <%= password %>
 <%    end

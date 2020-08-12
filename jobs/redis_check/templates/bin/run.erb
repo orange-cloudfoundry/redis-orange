@@ -6,6 +6,8 @@
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn'){ |x| sentinel=x }
+  sentinel_slave=nil
+  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x }
 %>
 
 ERR=0;
@@ -42,10 +44,17 @@ fi
 # Look up Redis Sentinel instance
 #
 <% if master.p('replication') && !sentinel.nil? %>
-REDIS_SENTINEL_IP="127.0.0.1";
-<%  if sentinel.p('bind') %>
-REDIS_SENTINEL_IP="<%= spec.ip %>";
-<%  end %>
+
+REDIS_SENTINEL_ADDRESS="";
+<%
+  sentinel_addresses=''
+  sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
+  if !sentinel_slave.nil?
+    sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
+  end
+%>
+REDIS_SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
+
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 
 REDIS_SENTINEL_PASSWORD="";
@@ -54,31 +63,35 @@ REDIS_SENTINEL_PASSWORD="";
 REDIS_SENTINEL_PASSWORD="-a <%= password %>";
 <%  end
   end %>
-PING="$(${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
-  -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} PING)";
-ERR=${?}
-if [[ ${ERR} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
-then
-  echo "Redis Sentinel at address [${REDIS_SENTINEL_IP}] and port [${REDIS_SENTINEL_PORT}] is available.";
-fi
-echo "Available master:"
-${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
-  -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} SENTINEL master <%= spec.deployment %>;
-ERR=${?};
-if [[ ${ERR} -eq 0 ]];
-then
-  echo "Available slaves:"
+
+for x in ${REDIS_SENTINEL_ADDRESSES};
+do
+  PING="$(${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
+    -h ${x} -p ${REDIS_SENTINEL_PORT} PING)";
+  ERR=${?}
+  if [[ ${ERR} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
+  then
+    echo "Redis Sentinel at address [${x}] and port [${REDIS_SENTINEL_PORT}] is available.";
+  fi
+  echo "Available master:"
   ${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
-    -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} SENTINEL slaves <%= spec.deployment %>;
+    -h ${x} -p ${REDIS_SENTINEL_PORT} SENTINEL master <%= spec.deployment %>;
   ERR=${?};
-fi
-if [[ ${ERR} -eq 0 ]];
-then
-  echo "Available sentinels:"
-  ${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
-    -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} SENTINEL sentinels <%= spec.deployment %>;
-  ERR=${?};
-fi
+  if [[ ${ERR} -eq 0 ]];
+  then
+    echo "Available slaves:"
+    ${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
+      -h ${x} -p ${REDIS_SENTINEL_PORT} SENTINEL slaves <%= spec.deployment %>;
+    ERR=${?};
+  fi
+  if [[ ${ERR} -eq 0 ]];
+  then
+    echo "Available sentinels:"
+    ${REDIS_CLI} ${REDIS_SENTINEL_PASSWORD} \
+      -h ${x} -p ${REDIS_SENTINEL_PORT} SENTINEL sentinels <%= spec.deployment %>;
+    ERR=${?};
+  fi
+done
 <% end %>
 
 #
@@ -194,52 +207,57 @@ then
   KV="<%= spec.deployment+'_'+link('redis_conn').instances[spec.index].name+'_'+spec.index.to_s %>";
   RESULT="";
 <% if master.p('replication') && !sentinel.nil? %>
-  REDIS_CLI_SENTINEL_OPTS="${REDIS_SENTINEL_PASSWORD} -h ${REDIS_SENTINEL_IP} -p ${REDIS_SENTINEL_PORT} SENTINEL";
-  REDIS_SENTINEL_MASTER="$(${REDIS_CLI} ${REDIS_CLI_SENTINEL_OPTS} get-master-addr-by-name <%= spec.deployment %>)";
-  REDIS_IP="${REDIS_SENTINEL_MASTER%%[[:space:]]*}";
-  REDIS_PORT="${REDIS_SENTINEL_MASTER#*[[:space:]]}";
+  for x in ${REDIS_SENTINEL_ADDRESSES};
+  do
+    REDIS_CLI_SENTINEL_OPTS="${REDIS_SENTINEL_PASSWORD} -h ${x} -p ${REDIS_SENTINEL_PORT} SENTINEL";
+    REDIS_MASTER="$(${REDIS_CLI} ${REDIS_CLI_SENTINEL_OPTS} get-master-addr-by-name <%= spec.deployment %>)";
+    REDIS_IP="${REDIS_MASTER%%[[:space:]]*}";
+    REDIS_PORT="${REDIS_MASTER#*[[:space:]]}";
 <% end %>
-  REDIS_CLI_OPTS="${REDIS_PASSWORD} ${REDIS_CLI_CLUSTER_OPTS} -h ${REDIS_IP} -p ${REDIS_PORT}";
-  ${REDIS_CLI} ${REDIS_CLI_OPTS} SET ${KV} ${KV};
-  ERR=${?};
-  if [[ ${ERR} -eq 0 ]];
-  then
-    echo "Create operation: succeed";
-    RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} GET ${KV})";
-    ERR=${?};
-    if [[ ${ERR} -eq 0 ]] && [[ "${KV}" == "${RESULT}" ]];
-    then
-      echo "Read operation: succeed";
-      ${REDIS_CLI} ${REDIS_CLI_OPTS} APPEND ${KV} ${KV};
-      ERR=${?};
-      if [[ ${ERR} -eq 0 ]];
-      then
-        echo "Append operation: succeed";
-        RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} GET ${KV})";
-        ERR=${?};
-        if [[ ${ERR} -eq 0 ]] && [[ "${KV}${KV}" == "${RESULT}" ]];
-        then
-          echo "Update operation: succeed";
-        else
-          echo "Update operation: failed";
-        fi
-      else
-        echo "Append operation: failed";
-      fi
-    else
-      echo "Read operation: failed";
-    fi
-    ${REDIS_CLI} ${REDIS_CLI_OPTS} DEL ${KV};
+    REDIS_CLI_OPTS="${REDIS_PASSWORD} ${REDIS_CLI_CLUSTER_OPTS} -h ${REDIS_IP} -p ${REDIS_PORT}";
+    ${REDIS_CLI} ${REDIS_CLI_OPTS} SET ${KV} ${KV};
     ERR=${?};
     if [[ ${ERR} -eq 0 ]];
     then
-      echo "Delete operation: succeed";
+      echo "Create operation: succeed";
+      RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} GET ${KV})";
+      ERR=${?};
+      if [[ ${ERR} -eq 0 ]] && [[ "${KV}" == "${RESULT}" ]];
+      then
+        echo "Read operation: succeed";
+        ${REDIS_CLI} ${REDIS_CLI_OPTS} APPEND ${KV} ${KV};
+        ERR=${?};
+        if [[ ${ERR} -eq 0 ]];
+        then
+          echo "Append operation: succeed";
+          RESULT="$(${REDIS_CLI} ${REDIS_CLI_OPTS} GET ${KV})";
+          ERR=${?};
+          if [[ ${ERR} -eq 0 ]] && [[ "${KV}${KV}" == "${RESULT}" ]];
+          then
+            echo "Update operation: succeed";
+          else
+            echo "Update operation: failed";
+          fi
+        else
+          echo "Append operation: failed";
+        fi
+      else
+        echo "Read operation: failed";
+      fi
+      ${REDIS_CLI} ${REDIS_CLI_OPTS} DEL ${KV};
+      ERR=${?};
+      if [[ ${ERR} -eq 0 ]];
+      then
+        echo "Delete operation: succeed";
+      else
+        echo "Delete operation: failed";
+      fi
     else
-      echo "Delete operation: failed";
+      echo "Create operation: failed";
     fi
-  else
-    echo "Create operation: failed";
-  fi
+<% if master.p('replication') && !sentinel.nil? %>
+  done
+<% end %>
 fi
 
 exit ${ERR};

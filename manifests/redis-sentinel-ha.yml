@@ -17,9 +17,11 @@ instance_groups:
       redis_conn: {as: master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      master_conn: nil
+      slave_conn: nil
       redis_sentinel_conn: {from: sentinel_master}
+      sentinel_master_conn: nil
+      sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
@@ -43,10 +45,10 @@ instance_groups:
       redis_sentinel_conn: {as: sentinel_master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      master_conn: nil
+      slave_conn: nil
       redis_sentinel_conn: {from: sentinel_master}
-      sentinel_master_conn: {from: sentinel_master}
+      sentinel_master_conn: nil
     properties:
       bind: ((redis_sentinel_bind))
       password: ((redis_sentinel_password))
@@ -54,8 +56,8 @@ instance_groups:
     release: redis-service
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      master_conn: nil
+      slave_conn: nil
       redis_sentinel_conn: {from: sentinel_master}
   - name: redis_exporter
     release: redis-service
@@ -78,42 +80,20 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis
-    release: redis-service
-    provides:
-      redis_conn: {as: slave}
-    consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
-      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_sentinel
     release: redis-service
     provides:
       redis_sentinel_conn: {as: sentinel_slave}
     consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
-      redis_sentinel_conn: {from: sentinel_master}
-      sentinel_master_conn: {from: sentinel_master}
-  - name: redis_check
-    release: redis-service
-    consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
-      redis_sentinel_conn: {from: sentinel_master}
-  - name: redis_exporter
-    release: redis-service
-    consumes:
       redis_conn: {from: master}
-    properties:
-      debug: ((redis_exporter_debug))
+      master_conn: nil
+      slave_conn: nil
+      redis_sentinel_conn: {from: sentinel_master}
+      sentinel_master_conn: nil
   - name: redis_sentinel_exporter
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_conn: {from: sentinel_slave}
     properties:
       debug: ((redis_sentinel_exporter_debug))
 - name: broker
@@ -129,11 +109,11 @@ instance_groups:
     release: redis-service
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      master_conn: nil
+      slave_conn: nil
       redis_sentinel_conn: {from: sentinel_master}
-      sentinel_master_conn: {from: sentinel_master}
-      sentinel_slave_conn: {from: sentinel_slave}
+      sentinel_master_conn: nil
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
