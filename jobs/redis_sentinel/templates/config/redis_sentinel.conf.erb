@@ -1,7 +1,7 @@
 <%
-  sentinel=link('redis_sentinel_conn')
   master=nil
   if_link('redis_conn'){ |x| master=x }
+  sentinel=link('redis_sentinel_conn')
 %>
 # *** IMPORTANT ***
 #

@@ -154,6 +154,20 @@ properties:
     default: "yes"
     description: |
       Since version 5 of RDB a CRC64 checksum is placed at the end of the file. This makes the format more resistant to corruption but there is a performance hit to pay (around 10%) when saving and loading RDB files, so you can disable it for maximum performances.
+  rdb_del_sync_files:
+    default: "no"
+    description: |
+      Remove RDB files used by replication in instances without persistence
+      enabled. By default this option is disabled, however there are environments
+      where for regulations or other security concerns, RDB files persisted on
+      disk by masters in order to feed replicas, or stored on disk by replicas
+      in order to load them for the initial synchronization, should be deleted
+      ASAP. Note that this option ONLY WORKS in instances that have both AOF
+      and RDB persistence disabled, otherwise is completely ignored.
+      
+      An alternative (and sometimes better) way to obtain the same effect is
+      to use diskless replication on both master and replicas instances. However
+      in the case of replicas, diskless is not always an option.
   dir:
     default: "/var/vcap/store/redis"
     description: |
@@ -194,6 +208,24 @@ properties:
 
       The delay is specified in seconds, and by default is 5 seconds. To disable
       it entirely just set it to 0 seconds and the transfer will start ASAP.
+  repl_diskless_load:
+    default: "disabled"
+    description: |
+      Replica can load the RDB it reads from the replication link directly from the socket, or store the RDB to a file and read that file after it was completely recived from the master.
+
+      In many cases the disk is slower than the network, and storing and loading
+      the RDB file may increase replication time (and even increase the master's
+      Copy on Write memory and salve buffers).
+      However, parsing the RDB file directly from the socket may mean that we have
+      to flush the contents of the current database before the full rdb was
+      received. For this reason we have the following options:
+
+      "disabled"    - Don't use diskless load (store the rdb file to the disk
+                      first)
+      "on-empty-db" - Use diskless load only when it is completely safe.
+      "swapdb"      - Keep a copy of the current db contents in RAM while parsing
+                      the data directly from the socket. note that this requires
+                      sufficient memory, if you don't have it, you risk an OOM kill.
   repl_ping_replica_period:
     default: "10"
     description: |
@@ -268,7 +300,63 @@ properties:
     default: false
     description: |
       When port forwarding or Network Address Translation (NAT) is used, the replica may be actually reachable via different IP and port pairs. The option can be used by a replica in order to report to its master a specific set of IP and port, so that both INFO and ROLE will report those values.
+############################### KEYS TRACKING #################################
+  tracking_table_max_keys:
+    default: "1000000"
+    description: |
+      Redis implements server assisted support for client side caching of values.
+      This is implemented using an invalidation table that remembers, using
+      16 millions of slots, what clients may have certain subsets of keys. In turn
+      this is used in order to send invalidation messages to clients. Please
+      to understand more about the feature check this page:
+
+        https://redis.io/topics/client-side-caching
+
+      When tracking is enabled for a client, all the read only queries are assumed
+      to be cached: this will force Redis to store information in the invalidation
+      table. When keys are modified, such information is flushed away, and
+      invalidation messages are sent to the clients. However if the workload is
+      heavily dominated by reads, Redis could use more and more memory in order
+      to track the keys fetched by many clients.
+
+      For this reason it is possible to configure a maximum fill value for the
+      invalidation table. By default it is set to 1M of keys, and once this limit
+      is reached, Redis will start to evict keys in the invalidation table
+      even if they were not modified, just to reclaim memory: this will in turn
+      force the clients to invalidate the cached values. Basically the table
+      maximum size is a trade off between the memory you want to spend server
+      side to track information about who cached what, and the ability of clients
+      to retain cached objects in memory.
+
+      If you set the value to 0, it means there are no limits, and Redis will
+      retain as many keys as needed in the invalidation table.
+      In the "stats" INFO section, you can find information about the number of
+      keys in the invalidation table at every given moment.
+
+      Note: when key tracking is used in broadcasting mode, no memory is used
+      in the server side so this setting is useless.
 ################################## SECURITY ###################################
+  acllog_max_len:
+    default: "128"
+    description: |
+      The ACL Log tracks failed commands and authentication events associated
+      with ACLs. The ACL Log is useful to troubleshoot failed commands blocked 
+      by ACLs. The ACL Log is stored in memory. You can reclaim memory with 
+      ACL LOG RESET.
+  aclfile:
+    description: |
+      Using an external ACL file.
+      
+      Instead of configuring users in Redis configuration file, it is possible to use a stand-alone file just listing users. The two methods cannot be mixed: if you configure users in Redis configuration file and at the same time you activate the exteranl ACL file, the server will refuse to start.
+      
+      The format of the external ACL user file is exactly the same as the
+      format that is used inside redis.conf to describe users.
+  replication_user:
+    description: |
+      If you are using Redis ACLs (for Redis version
+      6 or greater), and the default user is not capable of running the PSYNC
+      command and/or other commands needed for replication. In this case it's
+      better to configure a special user to use with replication.
   password:
     description: |
       Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server.
@@ -376,6 +464,23 @@ properties:
       forth). So make sure you monitor your replicas and make sure they have enough
       memory to never hit a real out-of-memory condition before the master hits
       the configured maxmemory setting.
+  active_expire_effort:
+    default: "1"
+    description: |
+      Redis reclaims expired keys in two ways: upon access when those keys are
+      found to be expired, and also in background, in what is called the
+      "active expire key". The key space is slowly and interactively scanned
+      looking for expired keys to reclaim, so that it is possible to free memory
+      of keys that are expired and will never be accessed again in a short time.
+      
+      The default effort of the expire cycle will try to avoid having more than
+      ten percent of expired keys still in memory, and will try to avoid consuming
+      more than 25% of total memory and to add latency to the system. However
+      it is possible to increase the expire "effort" that is normally set to
+      "1", to a greater value, up to the value "10". At its maximum value the
+      system will use more CPU, longer cycles (and technically may introduce
+      more latency), and will tollerate less already expired keys still present
+      in the system. It's a tradeoff betweeen memory, CPU and latecy.
   lfu_log_factor:
     default: "10"
     description: |
