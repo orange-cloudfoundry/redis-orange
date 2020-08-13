@@ -1,6 +1,5 @@
 <%
   master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
   sentinel=nil
   if_link('redis_sentinel_conn'){ |x| sentinel=x }
 %>

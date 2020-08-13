@@ -17,8 +17,6 @@ instance_groups:
       redis_conn: {as: master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       bind: ((redis_bind))
@@ -43,8 +41,6 @@ instance_groups:
       redis_sentinel_conn: {as: sentinel_master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       bind: ((redis_sentinel_bind))
@@ -53,8 +49,6 @@ instance_groups:
     release: redis-service
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
   - name: redis_exporter
     release: redis-service
@@ -68,7 +62,7 @@ instance_groups:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       debug: ((redis_sentinel_exporter_debug))
-- name: redis-slave
+- name: sentinel-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
   vm_type: ((default_vm_type))
@@ -82,9 +76,7 @@ instance_groups:
     provides:
       redis_sentinel_conn: {as: sentinel_slave}
     consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      redis_conn: {from: master}
       redis_sentinel_conn: {from: sentinel_master}
   - name: redis_sentinel_exporter
     release: redis-service
@@ -105,8 +97,6 @@ instance_groups:
     release: redis-service
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       bind: ((redis_bind))

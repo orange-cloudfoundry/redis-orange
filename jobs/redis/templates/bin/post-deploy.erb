@@ -1,8 +1,7 @@
 #!/bin/bash
 <%
   master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
-  slave=link('redis_conn')
+  slave=nil
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn'){ |x| sentinel=x }
@@ -146,7 +145,7 @@ REDIS_MASTER_INSTANCES="<%= instances %>";
 <%
   slaves_addresses=''
   slave_instances=0
-  if !slave.instances[0].name.eql?(master.instances[0].name)
+  if !slave.nil?
     slave.instances.each{ |x| slaves_addresses.concat(x.address).concat(' ') }
     slave_instances=slave.instances.length
   end
@@ -220,7 +219,7 @@ done
 
 if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
 then
-<% if slave.instances[0].name.eql?(master.instances[0].name) %>
+<% if !slave.nil? %>
   if [[ $(( ${REDIS_MASTER_INSTANCES}%(${SLAVE_PER_INSTANCE}+1) )) -ne 0 ]];
   then
     echo "WARNING: Not enough slave: master [${REDIS_MASTER_INSTANCES}], slave per master [${SLAVE_PER_INSTANCE}]" >&2;
