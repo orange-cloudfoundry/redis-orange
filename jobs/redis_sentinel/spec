@@ -19,6 +19,7 @@ provides:
   - down_after_milliseconds
   - parallel_syncs
   - failover_timeout
+  - shared
 
 consumes:
 - name: redis_sentinel_conn
@@ -91,3 +92,7 @@ properties:
         2. Moreover the same password configured to access the local Sentinel, will be used by this Sentinel instance in order to authenticate to all the other Sentinel instances it connects to.
       This means that you will have to configure the same requirepass password in all the Sentinel instances. This way every Sentinel can talk with every other Sentinel without any need to configure for each Sentinel the password to access all the other Sentinels, that would be very impractical.
       Before using this configuration make sure your client library is able to send the AUTH command to Sentinel instances.
+  shared:
+    default: false
+    description:  |
+      Specify this property to "true" if you would like a Sentinel to be shared with several Redis master.

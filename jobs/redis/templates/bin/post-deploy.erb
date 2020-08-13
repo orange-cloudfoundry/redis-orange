@@ -17,8 +17,8 @@ REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
 #
 # Bind to Sentinel
 #
-<% if master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) && !sentinel.nil? %>
-
+<% if master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) && !sentinel.nil?
+    if sentinel.p('shared') %>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 REDIS_SENTINEL_PASSWORD="";
 <%
@@ -115,7 +115,8 @@ then
   done
 fi
 
-<% end %>
+<%  end
+  end %>
 
 #
 # Build Redis cluster
