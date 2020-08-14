@@ -16,6 +16,8 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      tls: ((redis_tls))
+      tls_keys: ((redis_keys))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
       rename_config_command: ((redis_rename_config_command))
@@ -68,6 +70,22 @@ variables:
   type: password
 - name: redis_broker_password
   type: password
+- name: redis_ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: 'Demo Certificate Authority for Redis'
+- name: redis_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: redis.orange.com
+    alternative_names:
+    - redis.orange.com
+    - www.redis.orange.com
+    extended_key_usage:
+    - client_auth
+
 
 stemcells:
 - alias: default
