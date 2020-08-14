@@ -40,6 +40,9 @@ provides:
   - cluster_enabled
   - cluster_replicas_per_node
   - cluster_node_timeout
+  - tls
+  - tls_port
+  - tls_keys
 
 consumes:
 - name: redis_conn

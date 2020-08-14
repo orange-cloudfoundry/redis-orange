@@ -16,11 +16,11 @@ REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
 
 <% if master.p('tls') %>
-REDIS_TLS_KEYS_DIR="<%= master.p('tls_keys_dir') %>";
-REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= master.p('tls_cert_file') %>";
-REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= master.p('tls_key_file') %>";
-REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= master.p('tls_ca_cert_file') %>";
-REDIS_TLS_DH_PARAMS_FILE="${REDIS_TLS_KEYS_DIR}/<%= master.p('tls_dh_params_file') %>";
+REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_TLS_DH_PARAMS_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_dh_params_file') %>";
 <% end %>
 
 REDIS_IP="127.0.0.1";

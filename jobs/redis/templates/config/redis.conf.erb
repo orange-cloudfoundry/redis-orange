@@ -166,15 +166,15 @@ tls-port <%= master.p('tls_port') %>
 # tls-cert-file redis.crt 
 # tls-key-file redis.key
 <% if master.p('tls') %>
-tls-cert-file <%= master.p('tls_keys_dir')+'/'+master.p('tls_cert_file') %>
-tls-key-file <%= master.p('tls_keys_dir')+'/'+master.p('tls_key_file') %>
+tls-cert-file <%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>
+tls-key-file <%= p('tls_keys_dir')+'/'+p('tls_key_file') %>
 <% end %>
 
 # Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange:
 #
 # tls-dh-params-file redis.dh
 <% if master.p('tls') %>
-tls-dh-params-file <%= master.p('tls_keys_dir')+'/'+master.p('tls_dh_params_file') %>
+tls-dh-params-file <%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>
 <% end %>
 
 # Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
@@ -184,8 +184,8 @@ tls-dh-params-file <%= master.p('tls_keys_dir')+'/'+master.p('tls_dh_params_file
 # tls-ca-cert-file ca.crt
 # tls-ca-cert-dir /etc/ssl/certs
 <% if master.p('tls') %>
-tls-ca-cert-file <%= master.p('tls_keys_dir')+'/'+master.p('tls_ca_cert_file') %>
-tls-ca-cert-dir <%= master.p('tls_ca_cert_dir') %>
+tls-ca-cert-file <%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>
+tls-ca-cert-dir <%= p('tls_ca_cert_dir') %>
 <% end %>
 
 # By default, clients (including replica servers) on a TLS port are required
@@ -194,7 +194,7 @@ tls-ca-cert-dir <%= master.p('tls_ca_cert_dir') %>
 # It is possible to disable authentication using this directive.
 #
 # tls-auth-clients no
-<% if master.p('tls') && !master.p('tls_auth_clients') %>
+<% if master.p('tls') && !p('tls_auth_clients') %>
 tls-auth-clients no
 <% end %>
 
@@ -204,7 +204,7 @@ tls-auth-clients no
 # Use the following directive to enable TLS on replication links.
 #
 # tls-replication yes
-<% if master.p('tls') && master.p('tls_replication') %>
+<% if master.p('tls') && p('tls_replication') %>
 tls-replication yes
 <% end %>
 
@@ -212,7 +212,7 @@ tls-replication yes
 # TLS for the bus protocol, use the following directive:
 #
 # tls-cluster yes
-<% if master.p('tls') && master.p('tls_cluster') %>
+<% if master.p('tls') && p('tls_cluster') %>
 tls-cluster yes
 <% end %>
 
@@ -222,7 +222,7 @@ tls-cluster yes
 #
 # tls-protocols "TLSv1.2 TLSv1.3"
 <% if master.p('tls')
-    master.if_p('tls_protocols') do |protocols|
+    if_p('tls_protocols') do |protocols|
       unless protocols.to_s.empty? %>
 tls-protocols <%= protocols %>
 <%    end
@@ -236,7 +236,7 @@ tls-protocols <%= protocols %>
 #
 # tls-ciphers DEFAULT:!MEDIUM
 <% if master.p('tls')
-    master.if_p('tls_ciphers') do |ciphers|
+    if_p('tls_ciphers') do |ciphers|
       unless ciphers.to_s.empty? %>
 tls-ciphers <%= ciphers %>
 <%    end
@@ -249,7 +249,7 @@ tls-ciphers <%= ciphers %>
 #
 # tls-ciphersuites TLS_CHACHA20_POLY1305_SHA256
 <% if master.p('tls')
-    master.if_p('tls_ciphersuites') do |ciphersuites|
+    if_p('tls_ciphersuites') do |ciphersuites|
       unless ciphersuites.to_s.empty? %>
 tls-ciphersuites <%= ciphersuites %>
 <%    end
@@ -260,7 +260,7 @@ tls-ciphersuites <%= ciphersuites %>
 # preference. By default, the server follows the client's preference.
 #
 # tls-prefer-server-ciphers yes
-<% if master.p('tls') && master.p('tls_prefer_server_ciphers') %>
+<% if master.p('tls') && p('tls_prefer_server_ciphers') %>
 tls-prefer-server-ciphers yes
 <% end %>
 
@@ -269,7 +269,7 @@ tls-prefer-server-ciphers yes
 # caching.
 #
 # tls-session-caching no
-<% if master.p('tls') && !master.p('tls_session_caching') %>
+<% if master.p('tls') && !p('tls_session_caching') %>
 tls-session-caching no
 <% end %>
 
@@ -278,7 +278,7 @@ tls-session-caching no
 #
 # tls-session-cache-size 5000
 <% if master.p('tls') %>
-tls-session-cache-size <%= master.p('tls_session_cache_size') %>
+tls-session-cache-size <%= p('tls_session_cache_size') %>
 <% end %>
 
 # Change the default timeout of cached TLS sessions. The default timeout is 300
@@ -286,7 +286,7 @@ tls-session-cache-size <%= master.p('tls_session_cache_size') %>
 #
 # tls-session-cache-timeout 60
 <% if master.p('tls') %>
-tls-session-cache-timeout <%= master.p('tls_session_cache_timeout') %>
+tls-session-cache-timeout <%= p('tls_session_cache_timeout') %>
 <% end %>
 
 ################################# GENERAL #####################################
