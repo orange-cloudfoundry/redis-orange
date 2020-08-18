@@ -15,14 +15,6 @@ REDIS_STORE_DIR="<%= p('dir') %>";
 REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
 
-<% if master.p('tls') %>
-REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-REDIS_TLS_DH_PARAMS_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_dh_params_file') %>";
-<% end %>
-
 REDIS_IP="127.0.0.1";
 <% if master.p('bind') %>
 REDIS_IP="<%= spec.ip %>";
@@ -30,16 +22,19 @@ REDIS_IP="<%= spec.ip %>";
 
 <% if master.p('tls') %>
 REDIS_PORT="<%= master.p('tls_port') %>";
+REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_TLS_DH_PARAMS_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_dh_params_file') %>";
 <% else %>
 REDIS_PORT="<%= master.p('port') %>";
-<% end %>
-
 REDIS_PASSWORD="";
-<%
-  master.if_p('password') do |password|
-    unless password.to_s.empty? %>
+<%  master.if_p('password') do |password|
+      unless password.to_s.empty? %>
 REDIS_PASSWORD="-a <%= password %>";
-<%  end
+<%    end
+    end
   end %>
 
 REDIS_SHUTDOWN="SHUTDOWN";
@@ -130,14 +125,15 @@ case "${1}" in
       exec chpst -u vcap:vcap \
         "${REDIS_CLI}" \
           -h "${REDIS_IP}" \
+          -p "${REDIS_PORT}" \
 <% if master.p('tls') %>
           --tls \
           --cert "${REDIS_TLS_CERT_FILE}" \
           --key "${REDIS_TLS_KEY_FILE}" \
           --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
-          -p "${REDIS_PORT}" \
+<% else %>
           ${REDIS_PASSWORD} \
+<% end %>
           ${REDIS_SHUTDOWN};
       while [[ -x "/proc/${redis_pid}" ]];
       do

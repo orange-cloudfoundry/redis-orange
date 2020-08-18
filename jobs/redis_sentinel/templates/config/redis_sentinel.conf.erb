@@ -92,8 +92,13 @@ dir <%= p('dir') %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-<% if !master.nil? %>
-sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel.p('max_detected_failures') %>
+<% if !master.nil?
+    if master.p('tls')
+      master_port=master.p('tls_port')
+    else
+      master_port=master.p('port')
+    end %>
+sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= sentinel.p('max_detected_failures') %>
 <% end %>
 
 # sentinel auth-pass <master-name> <password>
@@ -121,6 +126,18 @@ sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
 <%    end
     end
   end %>
+
+# sentinel auth-user <master-name> <username>
+#
+# This is useful in order to authenticate to instances having ACL capabilities,
+# that is, running Redis 6.0 or greater. When just auth-pass is provided the
+# Sentinel instance will authenticate to Redis using the old "AUTH <pass>"
+# method. When also an username is provided, it will use "AUTH <user> <pass>".
+# In the Redis servers side, the ACL to provide just minimal access to
+# Sentinel instances, should be configured along the following lines:
+#
+#     user sentinel-user >somepassword +client +subscribe +publish \
+#                        +ping +info +multi +slaveof +config +client +exec on
 
 # sentinel down-after-milliseconds <master-name> <milliseconds>
 #

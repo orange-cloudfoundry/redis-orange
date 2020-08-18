@@ -103,11 +103,7 @@ protected-mode yes
 
 # Accept connections on the specified port, default is 6379 (IANA #815344).
 # If port 0 is specified Redis will not listen on a TCP socket.
-<% if master.p('tls') %>
-port 0
-<% else %>
 port <%= master.p('port') %>
-<% end %>
 
 # TCP listen() backlog.
 #
@@ -374,8 +370,7 @@ always-show-logo yes
 #   like in the following example:
 #
 #   save ""
-<%
-  master.if_p('save') do |x|
+<% master.if_p('save') do |x|
     if x.to_s.empty? %>
 save ""
 <%  else
@@ -464,8 +459,7 @@ dir <%= p('dir') %>
 #
 # replicaof <masterip> <masterport>
 
-<%
-  if master.p('replication') && !master.p('cluster_enabled').eql?('yes')
+<% if master.p('replication') && !master.p('cluster_enabled').eql?('yes')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     if !master_address.eql?(spec.address) %>
 replicaof <%= master_address %> <%= master.p('port') %>
@@ -489,17 +483,11 @@ replicaof <%= master_address %> <%= master.p('port') %>
 #
 # When masteruser is specified, the replica will authenticate against its
 # master using the new AUTH form: AUTH <username> <password>.
-<%
-  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+<% if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     master.if_p('password') do |password|
       unless password.to_s.empty? %>
 masterauth <%= password %>
 <%    end
-    end
-  end %>
-
-<%
-  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     master.if_p('replication_user') do |replication_user|
       unless replication_user.to_s.empty? %>
 masteruser <%= replication_user %>
@@ -565,8 +553,7 @@ replica-read-only <%= p('replica_read_only') %>
 #
 # With slow disks and fast (large bandwidth) networks, diskless replication
 # works better.
-<%
-  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+<% if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     redis_persistance_rdb=0
     master.if_p('save') do |x|
       if !x.to_s.empty?
@@ -575,12 +562,9 @@ replica-read-only <%= p('replica_read_only') %>
     end
     if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') %>
 repl-diskless-sync yes
-<%
-    else
-%>
+<%  else %>
 repl-diskless-sync no
-<%
-    end
+<%  end
   end %>
 
 # When diskless replication is enabled, it is possible to configure the delay
@@ -718,8 +702,7 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
-<%
-  min_replicas_to_write=master.p('min_replicas_to_write').to_i;
+<% min_replicas_to_write=master.p('min_replicas_to_write').to_i
   if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write>0
     slave_length=(master.instances.length-1)
     if !slave.nil?
@@ -731,8 +714,7 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 <%  end
   end %>
 
-<%
-  replicas_per_node=master.p('cluster_replicas_per_node')
+<% replicas_per_node=master.p('cluster_replicas_per_node').to_i
   if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write>0
     master_length=master.instances.length
     enough_replicas=false
@@ -779,8 +761,7 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 #
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
-<%
-  if p('replica_announce') && master.p('bind')
+<% if p('replica_announce') && master.p('bind')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     if !master_address.eql?(spec.address) %>
 replica-announce-ip <%= spec.ip %>
@@ -939,8 +920,7 @@ acllog-max-len <%= p('acllog_max_len') %>
 # format that is used inside redis.conf to describe users.
 #
 # aclfile /etc/redis/users.acl
-<%
-  master.if_p('aclfile') do |aclfile|
+<% master.if_p('aclfile') do |aclfile|
     unless aclfile.to_s.empty? %>
 aclfile <%= aclfile %>
 <%  end
@@ -953,8 +933,7 @@ aclfile <%= aclfile %>
 # if they follow the new protocol: both will work.
 #
 # requirepass foobared
-<%
-  master.if_p('password') do |password|
+<% master.if_p('password') do |password|
     unless password.to_s.empty? %>
 requirepass <%= password %>
 <%  end
@@ -1251,6 +1230,10 @@ lazyfree-lazy-user-del no
 # sure you also run the benchmark itself in threaded mode, using the
 # --threads option to match the number of Redis theads, otherwise you'll not
 # be able to notice the improvements.
+<% if !master.p('tls') %>
+io-threads <%= p('io_threads') %>
+io-threads-do-reads <%= p('io_threads_do_reads') %>
+<% end %>
 
 ############################## APPEND ONLY MODE ###############################
 
@@ -1602,7 +1585,7 @@ slowlog-max-len <%= p('slowlog_max_len') %>
 # impact, that while very small, can be measured under big load. Latency
 # monitoring can easily be enabled at runtime using the command
 # "CONFIG SET latency-monitor-threshold <milliseconds>" if needed.
-latency-monitor-threshold 0
+latency-monitor-threshold <%= p('latency_monitor_threshold') %>
 
 ############################# EVENT NOTIFICATION ##############################
 
@@ -1648,7 +1631,67 @@ latency-monitor-threshold 0
 #  By default all notifications are disabled because most users don't need
 #  this feature and the feature has some overhead. Note that if you don't
 #  specify at least one of K or E, no events will be delivered.
+<% if p('notify_keyspace_events').to_s.empty? %>
 notify-keyspace-events ""
+<% else %>
+notify-keyspace-events <%= p('notify_keyspace_events') %>
+<% end %>
+
+############################### GOPHER SERVER #################################
+
+# Redis contains an implementation of the Gopher protocol, as specified in
+# the RFC 1436 (https://www.ietf.org/rfc/rfc1436.txt).
+#
+# The Gopher protocol was very popular in the late '90s. It is an alternative
+# to the web, and the implementation both server and client side is so simple
+# that the Redis server has just 100 lines of code in order to implement this
+# support.
+#
+# What do you do with Gopher nowadays? Well Gopher never *really* died, and
+# lately there is a movement in order for the Gopher more hierarchical content
+# composed of just plain text documents to be resurrected. Some want a simpler
+# internet, others believe that the mainstream internet became too much
+# controlled, and it's cool to create an alternative space for people that
+# want a bit of fresh air.
+#
+# Anyway for the 10nth birthday of the Redis, we gave it the Gopher protocol
+# as a gift.
+#
+# --- HOW IT WORKS? ---
+#
+# The Redis Gopher support uses the inline protocol of Redis, and specifically
+# two kind of inline requests that were anyway illegal: an empty request
+# or any request that starts with "/" (there are no Redis commands starting
+# with such a slash). Normal RESP2/RESP3 requests are completely out of the
+# path of the Gopher protocol implementation and are served as usually as well.
+#
+# If you open a connection to Redis when Gopher is enabled and send it
+# a string like "/foo", if there is a key named "/foo" it is served via the
+# Gopher protocol.
+#
+# In order to create a real Gopher "hole" (the name of a Gopher site in Gopher
+# talking), you likely need a script like the following:
+#
+#   https://github.com/antirez/gopher2redis
+#
+# --- SECURITY WARNING ---
+#
+# If you plan to put Redis on the internet in a publicly accessible address
+# to server Gopher pages MAKE SURE TO SET A PASSWORD to the instance.
+# Once a password is set:
+#
+#   1. The Gopher server (when enabled, not by default) will still serve
+#      content via Gopher.
+#   2. However other commands cannot be called before the client will
+#      authenticate.
+#
+# So use the 'requirepass' option to protect your instance.
+#
+# To enable Gopher support uncomment the following line and set
+# the option from no (the default) to yes.
+#
+# gopher-enabled no
+gopher-enabled <%= p('gopher_enabled') %>
 
 ############################### ADVANCED CONFIG ###############################
 
@@ -1899,10 +1942,6 @@ lfu-decay-time <%= master.p('lfu_decay_time') %>
 
 ########################### ACTIVE DEFRAGMENTATION #######################
 #
-# WARNING THIS FEATURE IS EXPERIMENTAL. However it was stress tested
-# even in production and manually tested by multiple engineers for some
-# time.
-#
 # What is active defragmentation?
 # -------------------------------
 #
@@ -1942,7 +1981,7 @@ lfu-decay-time <%= master.p('lfu_decay_time') %>
 # a good idea to leave the defaults untouched.
 
 # Enabled active defragmentation
-# activedefrag yes
+# activedefrag no
 
 # Minimum amount of fragmentation waste to start active defrag
 # active-defrag-ignore-bytes 100mb
@@ -1953,13 +1992,42 @@ lfu-decay-time <%= master.p('lfu_decay_time') %>
 # Maximum percentage of fragmentation at which we use maximum effort
 # active-defrag-threshold-upper 100
 
-# Minimal effort for defrag in CPU percentage
-# active-defrag-cycle-min 5
+# Minimal effort for defrag in CPU percentage, to be used when the lower
+# threshold is reached
+# active-defrag-cycle-min 1
 
-# Maximal effort for defrag in CPU percentage
-# active-defrag-cycle-max 75
+# Maximal effort for defrag in CPU percentage, to be used when the upper
+# threshold is reached
+# active-defrag-cycle-max 25
 
 # Maximum number of set/hash/zset/list fields that will be processed from
 # the main dictionary scan
 # active-defrag-max-scan-fields 1000
 
+# Jemalloc background thread for purging will be enabled by default
+jemalloc-bg-thread yes
+
+# It is possible to pin different threads and processes of Redis to specific
+# CPUs in your system, in order to maximize the performances of the server.
+# This is useful both in order to pin different Redis threads in different
+# CPUs, but also in order to make sure that multiple Redis instances running
+# in the same host will be pinned to different CPUs.
+#
+# Normally you can do this using the "taskset" command, however it is also
+# possible to this via Redis configuration directly, both in Linux and FreeBSD.
+#
+# You can pin the server/IO threads, bio threads, aof rewrite child process, and
+# the bgsave child process. The syntax to specify the cpu list is the same as
+# the taskset command:
+#
+# Set redis server/io threads to cpu affinity 0,2,4,6:
+# server_cpulist 0-7:2
+#
+# Set bio threads to cpu affinity 1,3:
+# bio_cpulist 1,3
+#
+# Set aof rewrite child process to cpu affinity 8,9,10,11:
+# aof_rewrite_cpulist 8-11
+#
+# Set bgsave child process to cpu affinity 1,10,11
+# bgsave_cpulist 1,10-11

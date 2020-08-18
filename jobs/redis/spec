@@ -35,6 +35,7 @@ provides:
   - lfu_log_factor
   - lfu_decay_time
   - replication
+  - replication_user
   - min_replicas_to_write
   - min_replicas_max_lag
   - cluster_enabled
@@ -43,6 +44,7 @@ provides:
   - tls
   - tls_port
   - tls_keys
+  - aclfile
 
 consumes:
 - name: redis_conn
@@ -99,7 +101,7 @@ properties:
     parameters:
       key_length: 4096
   tls_keys_dir:
-    default: "/var/vcap/tls/redis/keys"
+    default: "/var/vcap/packages/redis/keys"
     description: |
       The directory whare are stored TLS keys.
   tls_cert_file:
@@ -121,7 +123,7 @@ properties:
       Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
       clients and peers.  Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
   tls_ca_cert_dir:
-    default: "/var/vcap/tls/redis/ca"
+    default: "/var/vcap/packages/redis/ca"
     description: |
       See tls_ca_cert_file.
   tls_auth_clients:
@@ -583,6 +585,41 @@ properties:
       If LFU eviction is used, lfu_decay_time is the amount of minutes a counter should be decayed,
       when sampled and found to be older than that value. A special value of 0 means: always
       decay the counter every time is scanned, and is rarely useful.
+################################ THREADED I/O #################################
+  io_threads:
+    default: "1"
+    description: |
+      Redis is mostly single threaded, however there are certain threaded
+      operations such as UNLINK, slow I/O accesses and other things that are
+      performed on side threads.
+
+      Now it is also possible to handle Redis clients socket reads and writes
+      in different I/O threads. Since especially writing is so slow, normally
+      Redis users use pipelining in order to speedup the Redis performances per
+      core, and spawn multiple instances in order to scale more. Using I/O
+      threads it is possible to easily speedup two times Redis without resorting
+      to pipelining nor sharding of the instance.
+
+      By default threading is disabled, we suggest enabling it only in machines
+      that have at least 4 or more cores, leaving at least one spare core.
+      Using more than 8 threads is unlikely to help much. We also recommend using
+      threaded I/O only if you actually have performance problems, with Redis
+      instances being able to use a quite big percentage of CPU time, otherwise
+      there is no point in using this feature.
+
+      So for instance if you have a four cores boxes, try to use 2 or 3 I/O
+      threads, if you have a 8 cores, try to use 6 threads.
+
+      Setting io_threads to 1 will just use the main thread as usually.
+  io_threads_do_reads:
+    default: "no"
+    description: |
+      When I/O threads are enabled, we only use threads for writes, that is
+      to thread the write(2) syscall and transfer the client buffers to the
+      socket. However it is also possible to enable threading of reads and
+      protocol parsing using by setting io_threads_do_reads to yes.
+
+      Usually threading reads doesn't help much.
 ############################## APPEND ONLY MODE ###############################
   appendonly:
     default: "no"
@@ -757,3 +794,46 @@ properties:
     default: "128"
     description: |
       The length of the slow log. There is no limit to this length. Just be aware that it will consume memory. You can reclaim memory used by the slow log with SLOWLOG RESET.
+################################ LATENCY MONITOR ##############################
+  latency_monitor_threshold:
+    default: "0"
+    description: |
+      The Redis latency monitoring subsystem samples different operations
+      at runtime in order to collect data related to possible sources of
+      latency of a Redis instance.
+      
+      Via the LATENCY command this information is available to the user that can
+      print graphs and obtain reports.
+      
+      The system only logs operations that were performed in a time equal or
+      greater than the amount of milliseconds specified via the
+      latency-monitor-threshold configuration directive. When its value is set
+      to zero, the latency monitor is turned off.
+      
+      By default latency monitoring is disabled since it is mostly not needed
+      if you don't have latency issues, and collecting data has a performance
+      impact, that while very small, can be measured under big load. Latency
+      monitoring can easily be enabled at runtime using the command
+      "CONFIG SET latency-monitor-threshold <milliseconds>" if needed.
+############################# EVENT NOTIFICATION ##############################
+  notify_keyspace_events:
+    default: ""
+    description: |
+      The notify_keyspace_events takes as argument a string that is composed
+      of zero or multiple characters. The empty string means that notifications
+      are disabled.
+      
+      Example: to enable list and generic events, from the point of view of the
+               event name, use:
+      
+      notify-keyspace-events Elg
+      
+      Example 2: to get the stream of the expired keys subscribing to channel
+                 name __keyevent@0__:expired use:
+      
+      notify-keyspace-events Ex
+############################### GOPHER SERVER #################################
+  gopher_enabled:
+    default: "no"
+    description: |
+      To enable Gopher support set gopher_enabled to yes.
