@@ -75,6 +75,173 @@ sentinel announce-ip <%= spec.ip %>
 # unmounting filesystems.
 dir <%= p('dir') %>
 
+################################# TLS/SSL #####################################
+
+# By default, TLS/SSL is disabled. To enable it, the "tls-port" configuration
+# directive can be used to define TLS-listening ports. To enable TLS on the
+# default port, use:
+#
+# port 0
+# tls-port 6379
+<% if sentinel.p('tls') %>
+tls-port <%= sentinel.p('tls_port') %>
+<% end %>
+
+# Configure a X.509 certificate and private key to use for authenticating the
+# server to connected clients, masters or cluster peers.  These files should be
+# PEM formatted.
+#
+# tls-cert-file redis.crt 
+# tls-key-file redis.key
+<% if sentinel.p('tls') %>
+tls-cert-file <%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>
+tls-key-file <%= p('tls_keys_dir')+'/'+p('tls_key_file') %>
+<% end %>
+
+# Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange:
+#
+# tls-dh-params-file redis.dh
+<% if sentinel.p('tls') %>
+tls-dh-params-file <%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>
+<% end %>
+
+# Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
+# clients and peers.  Redis requires an explicit configuration of at least one
+# of these, and will not implicitly use the system wide configuration.
+#
+# tls-ca-cert-file ca.crt
+# tls-ca-cert-dir /etc/ssl/certs
+<% if sentinel.p('tls') %>
+tls-ca-cert-file <%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>
+tls-ca-cert-dir <%= p('tls_ca_cert_dir') %>
+<% end %>
+
+# By default, clients (including replica servers) on a TLS port are required
+# to authenticate using valid client side certificates.
+#
+# It is possible to disable authentication using this directive.
+#
+# tls-auth-clients no
+<% if sentinel.p('tls') && !sentinel.p('tls_auth_clients') %>
+tls-auth-clients no
+<% end %>
+
+# By default, a Redis replica does not attempt to establish a TLS connection
+# with its master.
+#
+# Use the following directive to enable TLS on replication links.
+#
+# tls-replication yes
+<% if sentinel.p('tls') && sentinel.p('tls_replication') %>
+tls-replication yes
+<% end %>
+
+# Explicitly specify TLS versions to support. Allowed values are case insensitive
+# and include "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3" (OpenSSL >= 1.1.1) or
+# any combination. To enable only TLSv1.2 and TLSv1.3, use:
+#
+# tls-protocols "TLSv1.2 TLSv1.3"
+<% if sentinel.p('tls')
+    sentinel.if_p('tls_protocols') do |protocols|
+      unless protocols.to_s.empty? %>
+tls-protocols <%= protocols %>
+<%    end
+    end
+  end %>
+
+# Configure allowed ciphers.  See the ciphers(1ssl) manpage for more information
+# about the syntax of this string.
+#
+# Note: this configuration applies only to <= TLSv1.2.
+#
+# tls-ciphers DEFAULT:!MEDIUM
+<% if sentinel.p('tls')
+    sentinel.if_p('tls_ciphers') do |ciphers|
+      unless ciphers.to_s.empty? %>
+tls-ciphers <%= ciphers %>
+<%    end
+    end
+  end %>
+
+# Configure allowed TLSv1.3 ciphersuites.  See the ciphers(1ssl) manpage for more
+# information about the syntax of this string, and specifically for TLSv1.3
+# ciphersuites.
+#
+# tls-ciphersuites TLS_CHACHA20_POLY1305_SHA256
+<% if sentinel.p('tls')
+    sentinel.if_p('tls_ciphersuites') do |ciphersuites|
+      unless ciphersuites.to_s.empty? %>
+tls-ciphersuites <%= ciphersuites %>
+<%    end
+    end
+  end %>
+
+# When choosing a cipher, use the server's preference instead of the client
+# preference. By default, the server follows the client's preference.
+#
+# tls-prefer-server-ciphers yes
+<% if sentinel.p('tls') && sentinel.p('tls_prefer_server_ciphers') %>
+tls-prefer-server-ciphers yes
+<% end %>
+
+# By default, TLS session caching is enabled to allow faster and less expensive
+# reconnections by clients that support it. Use the following directive to disable
+# caching.
+#
+# tls-session-caching no
+<% if sentinel.p('tls') && !p('tls_session_caching') %>
+tls-session-caching no
+<% end %>
+
+# Change the default number of TLS sessions cached. A zero value sets the cache
+# to unlimited size. The default size is 20480.
+#
+# tls-session-cache-size 5000
+<% if sentinel.p('tls') %>
+tls-session-cache-size <%= p('tls_session_cache_size') %>
+<% end %>
+
+# Change the default timeout of cached TLS sessions. The default timeout is 300
+# seconds.
+#
+# tls-session-cache-timeout 60
+<% if sentinel.p('tls') %>
+tls-session-cache-timeout <%= p('tls_session_cache_timeout') %>
+<% end %>
+
+################################# SECURITY ######################################
+
+# You can also configure the Sentinel instance itself in order to require client
+# authentication via the AUTH command, however this feature is only available starting with
+# Redis 5.0.1.
+#
+# In order to do so, just add the following configuration directive to all your Sentinel
+# instances:
+#
+# requirepass "your_password_here"
+# When configured this way, Sentinels will do two things:
+#
+# 1. A password will be required from clients in order to send commands to Sentinels. This
+# is obvious since this is how such configuration directive works in Redis in general.
+# 2. Moreover the same password configured to access the local Sentinel, will be used by
+# this Sentinel instance in order to authenticate to all the other Sentinel instances it
+# connects to.
+#
+# This means that you will have to configure the same requirepass password in all the
+# Sentinel instances. This way every Sentinel can talk with every other Sentinel without
+# any need to configure for each Sentinel the password to access all the other Sentinels,
+# that would be very impractical.
+#
+# Before using this configuration make sure your client library is able to send the AUTH
+# command to Sentinel instances.
+<% sentinel.if_p('password') do |password|
+    unless password.to_s.empty? %>
+requirepass <%= password %>
+<%  end
+  end %>
+
+################################# SENTINEL MONITORING ###########################
+
 # sentinel monitor <master-name> <ip> <redis-port> <quorum>
 #
 # Tells Sentinel to monitor this master, and to consider it in O_DOWN
@@ -93,12 +260,12 @@ dir <%= p('dir') %>
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
 <% if !master.nil?
-    if master.p('tls')
+    if sentinel.p('tls') && master.p('tls') && master.p('tls_replication')
       master_port=master.p('tls_port')
     else
       master_port=master.p('port')
     end %>
-sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= sentinel.p('max_detected_failures') %>
+sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>
 <% end %>
 
 # sentinel auth-pass <master-name> <password>
@@ -149,7 +316,7 @@ sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
 # Default is 30 seconds.
 # sentinel down-after-milliseconds mymaster 30000
 <% if !master.nil? %>
-sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel.p('down_after_milliseconds') %>
+sentinel down-after-milliseconds <%= spec.deployment %> <%= master.p('down_after_milliseconds') %>
 <% end %>
 
 # sentinel parallel-syncs <master-name> <numreplicas>
@@ -160,7 +327,7 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel.p('down_aft
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
 <% if !master.nil? %>
-sentinel parallel-syncs <%= spec.deployment %> <%= sentinel.p('parallel_syncs') %>
+sentinel parallel-syncs <%= spec.deployment %> <%= master.p('parallel_syncs') %>
 <% end %>
 
 # sentinel failover-timeout <master-name> <milliseconds>
@@ -188,7 +355,7 @@ sentinel parallel-syncs <%= spec.deployment %> <%= sentinel.p('parallel_syncs') 
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
 <% if !master.nil? %>
-sentinel failover-timeout <%= spec.deployment %> <%= sentinel.p('failover_timeout') %>
+sentinel failover-timeout <%= spec.deployment %> <%= master.p('failover_timeout') %>
 <% end %>
 
 # SCRIPTS EXECUTION
@@ -329,34 +496,4 @@ sentinel rename-command <%= spec.deployment %> REPLICAOF <%= command %>
 <% master.if_p('rename_sync_command') do |command| %>
 sentinel rename-command <%= spec.deployment %> SYNC <%= command %>
 <% end
-  end %>
-
-# You can also configure the Sentinel instance itself in order to require client
-# authentication via the AUTH command, however this feature is only available starting with
-# Redis 5.0.1.
-#
-# In order to do so, just add the following configuration directive to all your Sentinel
-# instances:
-#
-# requirepass "your_password_here"
-# When configured this way, Sentinels will do two things:
-#
-# 1. A password will be required from clients in order to send commands to Sentinels. This
-# is obvious since this is how such configuration directive works in Redis in general.
-# 2. Moreover the same password configured to access the local Sentinel, will be used by
-# this Sentinel instance in order to authenticate to all the other Sentinel instances it
-# connects to.
-#
-# This means that you will have to configure the same requirepass password in all the
-# Sentinel instances. This way every Sentinel can talk with every other Sentinel without
-# any need to configure for each Sentinel the password to access all the other Sentinels,
-# that would be very impractical.
-#
-# Before using this configuration make sure your client library is able to send the AUTH
-# command to Sentinel instances.
-<%
-  sentinel.if_p('password') do |password|
-    unless password.to_s.empty? %>
-requirepass <%= password %>
-<%  end
   end %>

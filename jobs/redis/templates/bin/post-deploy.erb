@@ -28,7 +28,7 @@ REDIS_SENTINEL_PASSWORD="-a <%= password %>";
   end %>
 
 REDIS_SENTINEL_CMD="";
-printf -v REDIS_SENTINEL_CMD "SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel.p('max_detected_failures') %>\n";
+printf -v REDIS_SENTINEL_CMD "SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= master.p('max_detected_failures') %>\n";
 
 <% master.if_p('password') do |password|
     unless password.to_s.empty? %>
@@ -36,11 +36,11 @@ printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= 
 <%  end
   end %>
 
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= sentinel.p('down_after_milliseconds') %>\n";
+printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
 
 printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= sentinel.p('parallel_syncs') %>\n";
 
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= sentinel.p('failover_timeout') %>\n";
+printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
 
 <% master.if_p('rename_config_command') do |command| %>
 printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND CONFIG <%= command %>\n";
