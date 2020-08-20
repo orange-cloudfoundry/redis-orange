@@ -1,5 +1,6 @@
 
-<% password=nopass
+<% master=link('redis_conn')
+  password='nopass'
   master.if_p('default_password') do |x|
     unless x.to_s.empty?
       password='>'+x
@@ -7,7 +8,7 @@
   end %>
 user default on +@all -@dangerous ~* <%= password %>
 
-<% password=nopass
+<% password='nopass'
   master.if_p('admin_password') do |x|
     unless x.to_s.empty?
       password='>'+x
@@ -15,7 +16,7 @@ user default on +@all -@dangerous ~* <%= password %>
   end %>
 user <%= master.p('admin_user') %> on +@all ~* <%= password %>
 
-<% password=nopass
+<% password='nopass'
   master.if_p('replica_password') do |x|
     unless x.to_s.empty?
       password='>'+x
@@ -23,7 +24,7 @@ user <%= master.p('admin_user') %> on +@all ~* <%= password %>
   end %>
 user <%= master.p('replica_user') %> on +psync +replconf +ping <%= password %>
 
-<% password=nopass
+<% password='nopass'
   master.if_p('sentinel_password') do |x|
     unless x.to_s.empty?
       password='>'+x

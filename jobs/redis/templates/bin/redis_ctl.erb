@@ -21,10 +21,11 @@ REDIS_IP="<%= spec.ip %>";
 <% end %>
 
 REDIS_PORT="<%= master.p('port') %>";
-REDIS_PASSWORD="";
-<% master.if_p('password') do |password|
+REDIS_ADMIN_USER="--user <%= master.p('admin_user') %>";
+REDIS_ADMIN_PASSWORD="";
+<% master.if_p('admin_password') do |password|
     unless password.to_s.empty? %>
-REDIS_PASSWORD="-a <%= password %>";
+REDIS_ADMIN_PASSWORD="--pass <%= password %>";
 <%  end
   end %>
 
@@ -127,7 +128,7 @@ case "${1}" in
         "${REDIS_CLI}" \
           -h "${REDIS_IP}" \
           -p "${REDIS_PORT}" \
-          ${REDIS_PASSWORD} \
+          ${REDIS_ADMIN_PASSWORD} \
 <% if master.p('tls') %>
           --tls \
           --cert "${REDIS_TLS_CERT_FILE}" \
