@@ -41,46 +41,6 @@ printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS
 
 printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
 
-<% master.if_p('rename_config_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND CONFIG <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_save_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND SAVE <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_bgsave_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND BGSAVE <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_bgrewriteaof_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND BGREWRITEAOF <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_monitor_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND MONITOR <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_debug_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND DEBUG <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_shutdown_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND SHUTDOWN <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_slaveof_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND SLAVEOF <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_replicaof_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND REPLICAOF <%= command %>\n";
-<% end %>
-
-<% master.if_p('rename_sync_command') do |command| %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> RENAME-COMMAND SYNC <%= command %>\n";
-<% end %>
-
 REDIS_SENTINEL_ADDRESS="";
 <%
   sentinel_addresses=''

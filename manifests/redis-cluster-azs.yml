@@ -23,16 +23,6 @@ instance_groups:
       password: ((redis_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
-      rename_config_command: ((redis_rename_config_command))
-      rename_save_command: ((redis_rename_save_command))
-      rename_bgsave_command: ((redis_rename_bgsave_command))
-      rename_bgrewriteaof_command: ((redis_rename_bgrewriteaof_command))
-      rename_monitor_command: ((redis_rename_monitor_command))
-      rename_debug_command: ((redis_rename_debug_command))
-      rename_shutdown_command: ((redis_rename_shutdown_command))
-      rename_slaveof_command: ((redis_rename_slaveof_command))
-      rename_replicaof_command: ((redis_rename_replicaof_command))
-      rename_sync_command: ((redis_rename_sync_command))
       cluster_enabled: ((redis_cluster_enabled))
       cluster_replicas_per_node: ((replicas_per_node_count))
       min_replicas_to_write: ((redis_min_replicas_to_write))
@@ -83,7 +73,7 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: redis_broker-1.5
     release: redis-service
     consumes:
       redis_conn: {from: master}
@@ -92,31 +82,11 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check
+  - name: redis_broker_check-1.5
     release: redis-service
 
 variables:
 - name: redis_password
-  type: password
-- name: redis_rename_config_command
-  type: password
-- name: redis_rename_save_command
-  type: password
-- name: redis_rename_bgsave_command
-  type: password
-- name: redis_rename_bgrewriteaof_command
-  type: password
-- name: redis_rename_monitor_command
-  type: password
-- name: redis_rename_debug_command
-  type: password
-- name: redis_rename_shutdown_command
-  type: password
-- name: redis_rename_slaveof_command
-  type: password
-- name: redis_rename_replicaof_command
-  type: password
-- name: redis_rename_sync_command
   type: password
 - name: redis_broker_password
   type: password

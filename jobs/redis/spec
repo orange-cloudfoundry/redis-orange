@@ -3,6 +3,7 @@ name: redis
 
 templates:
   config/redis.conf.erb: config/redis.conf
+  config/users.acl.erb: config/users.acl
   bin/redis_ctl.erb: bin/redis_ctl
   bin/post-deploy.erb: bin/post-deploy
 
@@ -15,19 +16,15 @@ provides:
   properties:
   - bind
   - port
-  - password
+  - default_password
+  - admin_user
+  - admin_password
+  - replica_user
+  - replica_password
+  - sentinel_user
+  - sentinel_password
   - save
   - appendonly
-  - rename_config_command
-  - rename_save_command
-  - rename_bgsave_command
-  - rename_bgrewriteaof_command
-  - rename_monitor_command
-  - rename_debug_command
-  - rename_shutdown_command
-  - rename_slaveof_command
-  - rename_replicaof_command
-  - rename_sync_command
   - maxmemory
   - maxmemory_policy
   - maxmemory_samples
@@ -35,7 +32,6 @@ provides:
   - lfu_log_factor
   - lfu_decay_time
   - replication
-  - replication_user
   - min_replicas_to_write
   - min_replicas_max_lag
   - max_detected_failures
@@ -55,7 +51,6 @@ provides:
   - tls_ciphers
   - tls_ciphersuites
   - tls_prefer_server_ciphers
-  - aclfile
 
 consumes:
 - name: redis_conn
@@ -109,8 +104,6 @@ properties:
     description: |
       Certificate and private key for TLS connection to API.
     type: certificate
-    parameters:
-      key_length: 4096
   tls_keys_dir:
     default: "/var/vcap/packages/redis/keys"
     description: |
@@ -464,58 +457,41 @@ properties:
       with ACLs. The ACL Log is useful to troubleshoot failed commands blocked 
       by ACLs. The ACL Log is stored in memory. You can reclaim memory with 
       ACL LOG RESET.
-  aclfile:
+  default_password:
     description: |
-      Using an external ACL file.
-      
-      Instead of configuring users in Redis configuration file, it is possible to use a stand-alone file just listing users. The two methods cannot be mixed: if you configure users in Redis configuration file and at the same time you activate the exteranl ACL file, the server will refuse to start.
-      
-      The format of the external ACL user file is exactly the same as the
-      format that is used inside redis.conf to describe users.
-  replication_user:
+      Password for "default" user.
+      Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server.
+      This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers).
+      Warning: since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break.
+    type: password
+  admin_user:
+    default: "admin"
     description: |
+      Name of the administrator user.
+  admin_password:
+    description: |
+      Password for admin_user.
+    type: password
+  replica_user:
+    default: "replica-user"
+    description: |
+      Name of the user for replication.
       If you are using Redis ACLs (for Redis version
       6 or greater), and the default user is not capable of running the PSYNC
       command and/or other commands needed for replication. In this case it's
       better to configure a special user to use with replication.
-  password:
+  replica_password:
     description: |
-      Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server.
-      This should stay commented out for backward compatibility and because most people do not need auth (e.g. they run their own servers).
-      Warning: since Redis is pretty fast an outside user can try up to 150k passwords per second against a good box. This means that you should use a very strong password otherwise it will be very easy to break.
-      type: password
-      parameters:
-        length: 4096
-  rename_config_command:
+      Password for replication_user.
+    type: password
+  sentinel_user:
+    default: "sentinel-user"
     description: |
-      The name of the obfuscated Redis CONFIG command.
-  rename_save_command:
+      Name of the user used by Sentinel.
+  sentinel_password:
     description: |
-      The name of the obfuscated Redis SAVE command.
-  rename_bgsave_command:
-    description: |
-      The name of the obfuscated Redis BGSAVE command.
-  rename_bgrewriteaof_command:
-    description: |
-      The name of the obfuscated Redis BGREWRITEAOF command.
-  rename_monitor_command:
-    description: |
-      The name of the obfuscated Redis MONITOR command.
-  rename_debug_command:
-    description: |
-      The name of the obfuscated Redis DEBUG command.
-  rename_shutdown_command:
-    description: |
-      The name of the obfuscated Redis SHUTDOWN command.
-  rename_slaveof_command:
-    description: |
-      The name of the obfuscated Redis SLAVEOF command.
-  rename_replicaof_command:
-    description: |
-      The name of the obfuscated Redis REPLICAOF command.
-  rename_sync_command:
-    description: |
-      The name of the obfuscated Redis SYNC command.
+      Password for sentinel_user.
+    type: password
 ################################### CLIENTS ####################################
   maxclients:
     default: "10000"
