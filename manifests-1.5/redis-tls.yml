@@ -43,19 +43,20 @@ variables:
 - name: redis_ca
   type: certificate
   options:
+    common_name: ((deployment_name))
+    organization: 'orange.com'
+    key_length: 8192
+    duration: 365
     is_ca: true
-    common_name: 'Demo Certificate Authority for Redis'
+    self_sign: true
 - name: redis_keys
   type: certificate
   options:
     ca: redis_ca
-    common_name: redis.orange.com
-    alternative_names:
-    - redis.orange.com
-    - www.redis.orange.com
-    extended_key_usage:
-    - client_auth
-
+    common_name: 'Server'
+    organization: 'orange.com'
+    key_length: 4096
+    duration: 365
 
 stemcells:
 - alias: default

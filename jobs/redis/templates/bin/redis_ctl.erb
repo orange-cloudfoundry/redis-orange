@@ -1,10 +1,9 @@
 #!/bin/bash
-<%
-  master=link('redis_conn')
+<% master=link('redis_conn')
   if_link('master_conn'){ |x| master=x }
   sentinel=nil
-  if_link('redis_sentinel_conn'){ |x| sentinel=x }
-%>
+  if_link('redis_sentinel_conn'){ |x| sentinel=x } %>
+
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
@@ -21,11 +20,11 @@ REDIS_IP="<%= spec.ip %>";
 <% end %>
 
 REDIS_PORT="<%= master.p('port') %>";
-REDIS_ADMIN_USER="--user <%= master.p('admin_user') %>";
+REDIS_ADMIN_USER="<%= master.p('admin_user') %>";
 REDIS_ADMIN_PASSWORD="";
-<% master.if_p('admin_password') do |password|
-    unless password.to_s.empty? %>
-REDIS_ADMIN_PASSWORD="--pass <%= password %>";
+<% master.if_p('admin_password') do |x|
+    unless x.to_s.empty? %>
+REDIS_ADMIN_PASSWORD="<%= x %>";
 <%  end
   end %>
 
@@ -35,14 +34,6 @@ REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-REDIS_TLS_DH_PARAMS_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_dh_params_file') %>";
-REDIS_CLI_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/cli.crt";
-REDIS_CLI_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/cli.key";
-<% end %>
-
-REDIS_SHUTDOWN="SHUTDOWN";
-<% master.if_p('rename_shutdown_command') do |command| %>
-REDIS_SHUTDOWN="<%= command %>";
 <% end %>
 
 case "${1}" in
@@ -64,10 +55,12 @@ case "${1}" in
 
 <% if master.p('tls') %>
     mkdir -p "${REDIS_TLS_KEYS_DIR}";
-    printf "%s\n" "<%= master.tls_keys.certificate %>" > "${REDIS_TLS_CERT_FILE}";
-    printf "%s\n" "<%= master.tls_keys.private_key %>" > "${REDIS_TLS_KEY_FILE}";
-    printf "%s\n" "<%= master.tls_keys.ca %>" > "${REDIS_TLS_CA_CERT_FILE}";
-    openssl dhparam -out "${REDIS_TLS_DH_PARAMS_FILE}";
+    printf "%s\n" "<%= master.p('tls_keys').certificate %>" > \
+      "${REDIS_TLS_CERT_FILE}";
+    printf "%s\n" "<%= master.p('tls_keys').private_key %>" > \
+      "${REDIS_TLS_KEY_FILE}";
+    printf "%s\n" "<%= master.p('tls_keys').ca %>" > \
+      "${REDIS_TLS_CA_CERT_FILE}";
     chown -R vcap:vcap "${REDIS_TLS_KEYS_DIR}";
     chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
 <% end %>
@@ -128,14 +121,15 @@ case "${1}" in
         "${REDIS_CLI}" \
           -h "${REDIS_IP}" \
           -p "${REDIS_PORT}" \
-          ${REDIS_ADMIN_PASSWORD} \
+          --user "${REDIS_ADMIN_USER}" \
+          --pass "${REDIS_ADMIN_PASSWORD}" \
 <% if master.p('tls') %>
           --tls \
           --cert "${REDIS_TLS_CERT_FILE}" \
-          --key "${REDIS_CLI_TLS_KEY_FILE}" \
-          --cacert "${REDIS_CLI_TLS_CERT_FILE}" \
+          --key "${REDIS_TLS_KEY_FILE}" \
+          --cacert "${REDIS_TLS_CA_CERT_FILE}" \
 <% end %>
-          ${REDIS_SHUTDOWN};
+          SHUTDOWN;
       while [[ -x "/proc/${redis_pid}" ]];
       do
         printf "%s\n" "Waiting for Redis to shutdown ...";

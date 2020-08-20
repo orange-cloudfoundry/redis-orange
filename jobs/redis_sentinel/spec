@@ -3,6 +3,7 @@ name: redis_sentinel
 
 templates:
   config/redis_sentinel.conf.erb: config/redis_sentinel.conf
+  bin/pre-start.erb: bin/pre-start
   bin/redis_sentinel_ctl.erb: bin/redis_sentinel_ctl
 
 packages:
@@ -21,7 +22,6 @@ provides:
   - tls_keys
   - tls_auth_clients
   - tls_replication
-  - tls_cluster
   - tls_protocols
   - tls_ciphers
   - tls_ciphersuites
@@ -82,17 +82,20 @@ properties:
       The TLS/SSL port to use.
   tls_keys:
     description: |
-      Certificate and private key for TLS connection to API.
+      Certificate materials for TLS connection.
     type: certificate
   tls_keys_dir:
     default: "/var/vcap/packages/redis/keys"
     description: |
-      The directory whare are stored TLS keys.
+      The directory where TLS keys are stored.
+  tls_ca_cert_file:
+    default: "ca.crt"
+    description: |
+      Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL clients and peers. Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
   tls_cert_file:
     default: "sentinel.crt"
     description: |
-      Configure a X.509 certificate and private key to use for authenticating the
-      server to connected clients, masters or cluster peers.  These files should be PEM formatted.
+      Configure a X.509 certificate and private key to use for authenticating the server to connected clients, masters or cluster peers. These files should be PEM formatted.
   tls_key_file:
     default: "sentinel.key"
     description: |
@@ -101,11 +104,10 @@ properties:
     default: "sentinel.dh"
     description: |
       Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange.
-  tls_ca_cert_file:
-    default: "ca.crt"
+  tls_dh_length:
+    default: 2048
     description: |
-      Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
-      clients and peers.  Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
+      Length of DH parameters.
   tls_ca_cert_dir:
     default: "/var/vcap/packages/redis/ca"
     description: |
@@ -113,8 +115,7 @@ properties:
   tls_auth_clients:
     default: true
     description: |
-      By default, clients (including replica servers) on a TLS port are required
-      to authenticate using valid client side certificates. It is possible to disable authentication by setting tls_auth_clients to false.
+      By default, clients (including replica servers) on a TLS port are required to authenticate using valid client side certificates. It is possible to disable authentication by setting tls_auth_clients to false.
   tls_replication:
     default: false
     description: |
