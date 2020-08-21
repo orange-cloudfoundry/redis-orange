@@ -33,6 +33,7 @@ instance_groups:
   - name: redis_exporter
     release: redis-service
     properties:
+      tls_keys: ((exporter_keys))
       debug: ((redis_exporter_debug))
 
 variables:
@@ -54,6 +55,14 @@ variables:
   options:
     ca: redis_ca
     common_name: 'Server'
+    organization: 'orange.com'
+    key_length: 4096
+    duration: 365
+- name: exporter_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Exporter'
     organization: 'orange.com'
     key_length: 4096
     duration: 365

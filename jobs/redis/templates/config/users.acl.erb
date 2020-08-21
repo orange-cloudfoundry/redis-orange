@@ -31,3 +31,12 @@ user <%= master.p('replica_user') %> on +psync +replconf +ping <%= password %>
     end
   end %>
 user <%= master.p('sentinel_user') %> on +client +subscribe +publish +ping +info +multi +slaveof +config +client +exec <%= password %>
+
+<% master=link('redis_conn')
+  password='nopass'
+  master.if_p('exporter_password') do |x|
+    unless x.to_s.empty?
+      password='>'+x
+    end
+  end %>
+user <%= master.p('exporter_user') %> on +@all -@dangerous +CONFIG ~* <%= password %>

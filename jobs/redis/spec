@@ -21,6 +21,8 @@ provides:
   - default_password
   - admin_user
   - admin_password
+  - exporter_user
+  - exporter_password
 # Memory management
   - maxmemory
   - maxmemory_policy
@@ -480,6 +482,14 @@ properties:
   admin_password:
     description: |
       Password for admin_user.
+    type: password
+  exporter_user:
+    default: "exporter-user"
+    description: |
+      Name of the exporter user.
+  exporter_password:
+    description: |
+      Password for exporter_user.
     type: password
   replica_user:
     default: "replica-user"

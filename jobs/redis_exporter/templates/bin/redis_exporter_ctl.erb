@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-<%
-  master=link('redis_conn')
-%>
+<% master=link('redis_conn') %>
 
 set -eu
 
@@ -19,17 +17,27 @@ REDIS_IP="127.0.0.1";
 <% if master.p('bind') %>
 REDIS_IP="<%= spec.ip %>";
 <% end %>
-REDIS_ADDR="redis://${REDIS_IP}:<%= master.p('port') %>";
 
+REDIS_PROTOCOLE="redis";
+REDIS_PORT="<%= master.p('port') %>";
+REDIS_USER="<%= master.p('exporter_user') %>";
 REDIS_PASSWORD="";
-<%
-  master.if_p('password') do |password|
-    unless password.to_s.empty? %>
-REDIS_PASSWORD="<%= password %>";
+<% master.if_p('exporter_password') do |x|
+    unless x.to_s.empty? %>
+REDIS_PASSWORD="<%= x %>";
 <%  end
-  end
-%>
+  end %>
 
+<% if master.p('tls') %>
+REDIS_PROTOCOLE="rediss";
+REDIS_PORT="<%= master.p('tls_port') %>";
+REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+<% end %>
+
+REDIS_ADDR="${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
 REDIS_ALIAS="<%= spec.deployment+'/'+spec.ip %>";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
@@ -44,43 +52,69 @@ export REDIS_ADDR REDIS_PASSWORD REDIS_ALIAS;
 
 case $1 in
   start)
+
+<% if master.p('tls') %>
+    mkdir -p "${REDIS_TLS_KEYS_DIR}";
+    printf "%s\n" "<%= p('tls_keys').certificate %>" > \
+      "${REDIS_TLS_CERT_FILE}";
+    printf "%s\n" "<%= p('tls_keys').private_key %>" > \
+      "${REDIS_TLS_KEY_FILE}";
+    printf "%s\n" "<%= p('tls_keys').ca %>" > \
+      "${REDIS_TLS_CA_CERT_FILE}";
+    chown -R vcap:vcap "${REDIS_TLS_KEYS_DIR}";
+    chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
+<% end %>
+
     pid_guard ${PIDFILE} "${PROGNAME}";
     echo $$ > ${PIDFILE};
 
     exec chpst -u vcap:vcap ${PROGNAME} \
-      <% if p('debug') %> \
-      -debug \
-      <% end %> \
-      -redis.addr="${REDIS_ADDR}" \
-      -redis.password="${REDIS_PASSWORD}" \
-      -log-format="<%= p('log_format') %>" \
-      <% if_p('check_keys') do |check_keys| %> \
-      -check-keys="<%= check_keys %>" \
-      <% end %> \
-      <% if_p('check_single_keys') do |check_single_keys| %> \
-      -check-single-keys="<%= check_single_keys %>" \
-      <% end %> \
-      <% if_p('script') do |script| %> \
-      -script="/var/vcap/jobs/redis_exporter/config/script" \
-      <% end %> \
-      -namespace="<%= p('namespace') %>" \
-      -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
-      -web.telemetry-path="<%= p('web.telemetry_path') %>" \
+<% if_p('check_keys') do |x| %>
+      -check-keys="<%= x %>" \
+<% end %>
+<% if_p('check_single_keys') do |x| %>
+      -check-single-keys="<%= x %>" \
+<% end %>
+<% if_p('config_command') do |x| %>
+      -config-command="<%= x %>" \
+<% end %>
       -connection-timeout="<%= p('connection_timeout') %>" \
-      -redis-only-metrics="<%= p('redis_only_metrics') %>" \
-      -include-system-metrics="<%= p('include_system_metrics') %>" \
-      -is-tile38="<%= p('is_tile38') %>" \
-      -export-client-list="<%= p('export_client_list') %>" \
-      <% if_p('skip_tls_verification') do |skip_tls_verification| %> \
-      -skip-tls-verification="<%= skip_tls_verification %>" \
-      <% end %> \
-      <% if_p('tls_client_key_file') do |tls_client_key_file| %> \
-      -tls-client-key-file="<%= tls_client_key_file %>" \
-      <% end %> \
-      <% if_p('tls_client_cert_file') do |tls_client_cert_file| %> \
-      -tls-client-cert-file="<%= tls_client_cert_file %>" \
-      <% end %> \
-      -set-client-name="<%= p('set_client_name') %>" \
+<% if p('debug') %>
+      -debug \
+<% end %>
+<% if p('export_client_list') %>
+      -export-client-list \
+<% end %>
+<% if p('include_system_metrics') %>
+      -include-system-metrics \
+<% end %>
+<% if p('is_tile38') %>
+      -is-tile38 \
+<% end %>
+      -log-format="<%= p('log_format') %>" \
+      -namespace="<%= p('namespace') %>" \
+<% if p('ping_on_connect') %>
+      -ping-on-connect \
+<% end %>
+<% if p('redis_only_metrics') %>
+      -redis-only-metrics \
+<% end %>
+      -redis.addr="${REDIS_ADDR}" \
+      -redis.user="${REDIS_USER}" \
+      -redis.password="${REDIS_PASSWORD}" \
+<% if p('set_client_name') %>
+      -set-client-name \
+<% end %>
+<% if p('skip_tls_verification') %>
+      -skip-tls-verification \
+<% end %>
+      -web.listen-address="<%= spec.ip+':'+p('web_port') %>" \
+      -web.telemetry-path="<%= p('web_telemetry_path') %>" \
+<% if master.p('tls') %>
+      -tls-client-key-file="${REDIS_TLS_KEY_FILE}" \
+      -tls-client-cert-file="${REDIS_TLS_CERT_FILE}" \
+      -tls-ca-cert-file="${REDIS_TLS_CA_CERT_FILE}" \
+<% end %>
       >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
       2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
     ;;
