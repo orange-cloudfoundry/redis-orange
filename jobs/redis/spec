@@ -15,33 +15,20 @@ provides:
 - name: redis_conn
   type: conn
   properties:
+# General
   - bind
   - port
   - default_password
   - admin_user
   - admin_password
-  - replica_user
-  - replica_password
-  - sentinel_user
-  - sentinel_password
-  - save
-  - appendonly
+# Memory management
   - maxmemory
   - maxmemory_policy
   - maxmemory_samples
   - replica_ignore_maxmemory
   - lfu_log_factor
   - lfu_decay_time
-  - replication
-  - min_replicas_to_write
-  - min_replicas_max_lag
-  - max_detected_failures
-  - down_after_milliseconds
-  - parallel_syncs
-  - failover_timeout
-  - cluster_enabled
-  - cluster_replicas_per_node
-  - cluster_node_timeout
+# TLS/SSL
   - tls
   - tls_port
   - tls_keys
@@ -52,6 +39,26 @@ provides:
   - tls_ciphers
   - tls_ciphersuites
   - tls_prefer_server_ciphers
+# Persistence
+  - save
+  - appendonly
+# Replication
+  - replication
+  - replica_user
+  - replica_password
+  - min_replicas_to_write
+  - min_replicas_max_lag
+# Sentinel
+  - sentinel_user
+  - sentinel_password
+  - max_detected_failures
+  - down_after_milliseconds
+  - parallel_syncs
+  - failover_timeout
+# Cluster
+  - cluster_enabled
+  - cluster_replicas_per_node
+  - cluster_node_timeout
 
 consumes:
 - name: redis_conn

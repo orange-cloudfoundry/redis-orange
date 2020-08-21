@@ -8,6 +8,6 @@ export HOME="/var/vcap"
 
 tar xf redis/redis-*.tar.gz
 cd redis-*
-make PREFIX="${BOSH_INSTALL_TARGET}" install
+make BUILD_TLS=yes PREFIX="${BOSH_INSTALL_TARGET}" install
 cd ${BOSH_INSTALL_TARGET}/bin
 strip -s ./*
