@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-<% master=link('redis_conn') %>
-
+<% master=link('redis_conn')
+  slave=nil
+  if_link('slave_conn'){ |x| slave=x } %>
+  
 set -eu
 
 PROGNAME="redis_exporter";

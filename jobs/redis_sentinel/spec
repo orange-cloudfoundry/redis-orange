@@ -19,7 +19,6 @@ provides:
   - password
   - tls
   - tls_port
-  - tls_keys
   - tls_auth_clients
   - tls_replication
   - tls_protocols

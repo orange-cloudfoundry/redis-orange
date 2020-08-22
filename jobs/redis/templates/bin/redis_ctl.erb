@@ -57,11 +57,11 @@ case "${1}" in
 
 <% if master.p('tls') %>
     mkdir -p "${REDIS_TLS_KEYS_DIR}";
-    printf "%s\n" "<%= master.p('tls_keys').certificate %>" > \
+    printf "%s\n" "<%= p('tls_keys').certificate %>" > \
       "${REDIS_TLS_CERT_FILE}";
-    printf "%s\n" "<%= master.p('tls_keys').private_key %>" > \
+    printf "%s\n" "<%= p('tls_keys').private_key %>" > \
       "${REDIS_TLS_KEY_FILE}";
-    printf "%s\n" "<%= master.p('tls_keys').ca %>" > \
+    printf "%s\n" "<%= p('tls_keys').ca %>" > \
       "${REDIS_TLS_CA_CERT_FILE}";
     chown -R vcap:vcap "${REDIS_TLS_KEYS_DIR}";
     chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";

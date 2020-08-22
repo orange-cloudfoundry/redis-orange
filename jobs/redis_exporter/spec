@@ -11,6 +11,9 @@ packages:
 consumes:
 - name: redis_conn
   type: conn
+- name: slave_conn
+  type: conn
+  optional: true
 
 properties:
   check_keys:

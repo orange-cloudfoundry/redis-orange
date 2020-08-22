@@ -10,9 +10,6 @@ packages:
 consumes:
 - name: redis_conn
   type: conn
-- name: master_conn
-  type: conn
-  optional: true
 - name: slave_conn
   type: conn
   optional: true
@@ -23,4 +20,25 @@ consumes:
   type: sentinel_conn
   optional: true
 
-properties: {}
+properties:
+################################# TLS/SSL #####################################
+  tls_keys:
+    description: |
+      Certificate materials for TLS connection.
+    type: certificate
+  tls_keys_dir:
+    default: "/var/vcap/packages/redis/keys"
+    description: |
+      The directory where TLS keys are stored.
+  tls_ca_cert_file:
+    default: "ca.crt"
+    description: |
+      Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL clients and peers. Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
+  tls_cert_file:
+    default: "cli.crt"
+    description: |
+      Configure a X.509 certificate and private key to use for authenticating the server to connected clients, masters or cluster peers. These files should be PEM formatted.
+  tls_key_file:
+    default: "cli.key"
+    description: |
+      See tls_cert_file.
