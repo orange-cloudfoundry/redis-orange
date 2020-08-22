@@ -17,10 +17,10 @@ REDIS_SENTINEL_IP="<%= spec.ip %>";
 <% end %>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 
-REDIS_SENTINEL_PASSWORD="";
+REDIS_SENTINEL_CRED="";
 <% sentinel.if_p('password') do |x|
     unless x.to_s.empty? %>
-REDIS_SENTINEL_PASSWORD="-a <%= x %>";
+REDIS_SENTINEL_CRED="-a <%= x %>";
 <%  end
   end %>
 
@@ -28,8 +28,11 @@ REDIS_SENTINEL_PASSWORD="-a <%= x %>";
 REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
 REDIS_SENTINEL_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_SENTINEL_TLS_CERT_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_SENTINEL_CRED+=" --tls --cert \"${REDIS_SENTINEL_TLS_CERT_FILE}\"";
 REDIS_SENTINEL_TLS_KEY_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_SENTINEL_CRED+=" --key \"${REDIS_SENTINEL_TLS_KEY_FILE}\"";
 REDIS_SENTINEL_TLS_CA_CERT_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_SENTINEL_CRED+=" --cacert \"${REDIS_SENTINEL_TLS_CA_CERT_FILE}\"";
 <% end %>
 
 case "${1}" in
@@ -87,13 +90,7 @@ case "${1}" in
         "${REDIS_CLI}" \
           -h "${REDIS_SENTINEL_IP}" \
           -p "${REDIS_SENTINEL_PORT}" \
-          ${REDIS_SENTINEL_PASSWORD} \
-<% if master.p('tls') %>
-          --tls \
-          --cert "${REDIS_SENTINEL_TLS_CERT_FILE}" \
-          --key "${REDIS_SENTINEL_TLS_KEY_FILE}" \
-          --cacert "${REDIS_SENTINEL_TLS_CA_CERT_FILE}" \
-<% end %>
+          ${REDIS_SENTINEL_CRED} \
           SHUTDOWN;
       while [[ -x "/proc/${redis_sentinel_pid}" ]];
       do

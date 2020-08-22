@@ -20,11 +20,10 @@ REDIS_IP="<%= spec.ip %>";
 <% end %>
 
 REDIS_PORT="<%= master.p('port') %>";
-REDIS_ADMIN_USER="--user <%= master.p('admin_user') %>";
-REDIS_ADMIN_PASSWORD="";
+REDIS_CRED="--user \"<%= master.p('admin_user') %>\"";
 <% master.if_p('admin_password') do |x|
     unless x.to_s.empty? %>
-REDIS_ADMIN_PASSWORD="-a <%= x %>";
+REDIS_CRED+=" --pass \"<%= x %>\"";
 <%  end
   end %>
 
@@ -32,8 +31,11 @@ REDIS_ADMIN_PASSWORD="-a <%= x %>";
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_CRED+=" --tls --cert \"${REDIS_TLS_CERT_FILE}\"";
 REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_CRED+=" --key \"${REDIS_TLS_KEY_FILE}\"";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_CRED+=" --cacert \"${REDIS_TLS_CA_CERT_FILE}\"";
 <% end %>
 
 case "${1}" in
@@ -115,22 +117,15 @@ case "${1}" in
   stop)
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
-      redis_pid="$(cat ${REDIS_PID_FILE})";
+      REDIS_PID="$(cat ${REDIS_PID_FILE})";
       printf "%s\n" "Stopping ...";
       exec chpst -u vcap:vcap \
         "${REDIS_CLI}" \
-          -h "${REDIS_IP}" \
-          -p "${REDIS_PORT}" \
-          ${REDIS_ADMIN_USER} \
-          ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-          --tls \
-          --cert "${REDIS_TLS_CERT_FILE}" \
-          --key "${REDIS_TLS_KEY_FILE}" \
-          --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+          -h ${REDIS_IP} \
+          -p ${REDIS_PORT} \
+          ${REDIS_CRED} \
           SHUTDOWN;
-      while [[ -x "/proc/${redis_pid}" ]];
+      while [[ -x "/proc/${REDIS_PID}" ]];
       do
         printf "%s\n" "Waiting for Redis to shutdown ...";
         sleep 1;

@@ -17,11 +17,10 @@ REDIS_IP="<%= spec.ip %>";
 <% end %>
 
 REDIS_PORT="<%= master.p('port') %>";
-REDIS_ADMIN_USER="--user <%= master.p('admin_user') %>";
-REDIS_ADMIN_PASSWORD="";
+REDIS_CRED="--user \"<%= master.p('admin_user') %>\"";
 <% master.if_p('admin_password') do |x|
     unless x.to_s.empty? %>
-REDIS_ADMIN_PASSWORD="-a <%= x %>";
+REDIS_CRED+=" --pass \"<%= x %>\"";
 <%  end
   end %>
 
@@ -29,8 +28,11 @@ REDIS_ADMIN_PASSWORD="-a <%= x %>";
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_CRED+=" --tls --cert \"${REDIS_TLS_CERT_FILE}\"";
 REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_CRED+=" --key \"${REDIS_TLS_KEY_FILE}\"";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_CRED+=" --cacert \"${REDIS_TLS_CA_CERT_FILE}\"";
 <% end %>
 
 #
@@ -39,37 +41,31 @@ REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 <% if master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) && !sentinel.nil?
     if sentinel.p('shared') %>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
-<% if sentinel.p('tls') %>
-REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
-<% end %>
 
-REDIS_SENTINEL_PASSWORD="";
+REDIS_SENTINEL_CRED="";
 <% sentinel.if_p('password') do |x|
     unless x.to_s.empty? %>
-REDIS_SENTINEL_PASSWORD="-a <%= x %>";
+REDIS_SENTINEL_CRED="-a <%= x %>";
 <%  end
   end %>
 
-REDIS_SENTINEL_CMD="";
-<% master_port=master.p('port')
-  if sentinel.p('tls') && master.p('tls') && master.p('tls_replication')
-    master_port=master.p('tls_port')
-  end %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
+<% if sentinel.p('tls') %>
+REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
+REDIS_SENTINEL_CRED+=" --tls --cert \"${REDIS_TLS_CERT_FILE}\"";
+REDIS_SENTINEL_CRED+=" --key \"${REDIS_TLS_KEY_FILE}\"";
+REDIS_SENTINEL_CRED+=" --cacert \"${REDIS_TLS_CA_CERT_FILE}\"";
+<% end %>
 
+REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> ${REDIS_PORT} <%= master.p('max_detected_failures') %>\n";
 <% master.if_p('sentinel_password') do |x|
     unless x.to_s.empty? %>
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
+REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
 <%  end
   end %>
-
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> AUTH-USER <%= master.p('sentinel_user') %>\n";
-
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
-
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= sentinel.p('parallel_syncs') %>\n";
-
-printf -v REDIS_SENTINEL_CMD "SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
+REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-USER <%= master.p('sentinel_user') %>\n";
+REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
+REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= master.p('parallel_syncs') %>\n";
+REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
 
 REDIS_SENTINEL_ADDRESS="";
 <% sentinel_addresses=''
@@ -85,13 +81,7 @@ do
     "${REDIS_CLI}" \
       -h "${x}" \
       -p "${REDIS_SENTINEL_PORT}" \
-      ${REDIS_SENTINEL_PASSWORD} \
-<% if master.p('tls') %>
-      --tls \
-      --cert "${REDIS_TLS_CERT_FILE}" \
-      --key "${REDIS_TLS_KEY_FILE}" \
-      --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>)";
+      ${REDIS_SENTINEL_CRED})";
   if [[ ! ${?} -eq 0 ]];
   then
     ERR=1;
@@ -108,13 +98,7 @@ then
     "${REDIS_CLI}" \
       -h "${x}" \
       -p "${REDIS_SENTINEL_PORT}" \
-      ${REDIS_SENTINEL_PASSWORD} \
-<% if master.p('tls') %>
-      --tls \
-      --cert "${REDIS_TLS_CERT_FILE}" \
-      --key "${REDIS_TLS_KEY_FILE}" \
-      --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>"
+      ${REDIS_SENTINEL_CRED} \
       SENTINEL REMOVE <%= spec.deployment %>;
   done
 fi
@@ -170,14 +154,7 @@ done
 REDIS_CLUSTER_NODES_COMMAND="$("${REDIS_CLI}" \
   -h "${REDIS_IP}" \
   -p "${REDIS_PORT}" \
-  ${REDIS_ADMIN_USER} \
-  ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-  --tls \
-  --cert "${REDIS_TLS_CERT_FILE}" \
-  --key "${REDIS_TLS_KEY_FILE}" \
-  --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+  ${REDIS_CRED} \
   CLUSTER NODES)";
 ERR=${?};
 if [[ ${ERR} -eq 0 ]];
@@ -211,14 +188,7 @@ do
     PING="$("${REDIS_CLI}" \
       -h "${i}" \
       -p "${REDIS_PORT}" \
-      ${REDIS_ADMIN_USER} \
-      ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-      --tls \
-      --cert "${REDIS_TLS_CERT_FILE}" \
-      --key "${REDIS_TLS_KEY_FILE}" \
-      --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+      ${REDIS_CRED} \
       PING)";
     if [[ ${?} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
     then
@@ -235,14 +205,7 @@ then
     echo "WARNING: Not enough slave: master [${REDIS_MASTER_INSTANCES}], slave per master [${SLAVE_PER_INSTANCE}]" >&2;
   fi
   "${REDIS_CLI}" \
-    ${REDIS_ADMIN_USER} \
-    ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-    --tls \
-    --cert "${REDIS_TLS_CERT_FILE}" \
-    --key "${REDIS_TLS_KEY_FILE}" \
-    --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+    ${REDIS_CRED} \
     --cluster create ${REDIS_MASTER_NODES} ${REDIS_SLAVE_NODES} \
     ${REDIS_SLAVE_PER_INSTANCE} <<< "yes";
   ERR=${?};
@@ -257,14 +220,7 @@ then
     REDIS_NODES+=" ${REDIS_SLAVE_NODES}";
   fi
   "${REDIS_CLI}" \
-    ${REDIS_ADMIN_USER} \
-    ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-    --tls \
-    --cert "${REDIS_TLS_CERT_FILE}" \
-    --key "${REDIS_TLS_KEY_FILE}" \
-    --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+    ${REDIS_CRED} \
     --cluster create ${REDIS_NODES} <<< "yes";
   ERR=${?};
   if [[ ${ERR} -eq 0 ]] && [[ ${SLAVE_PER_INSTANCE} -gt 0 ]];
@@ -274,14 +230,7 @@ then
       MASTER_ID="$("${REDIS_CLI}" \
         -h "${i}" \
         -p "${REDIS_PORT}" \
-        ${REDIS_ADMIN_USER} \
-        ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-        --tls \
-        --cert "${REDIS_TLS_CERT_FILE}" \
-        --key "${REDIS_TLS_KEY_FILE}" \
-        --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+        ${REDIS_CRED} \
         CLUSTER MYID)";
       ERR=${?};
       j=0;
@@ -290,14 +239,7 @@ then
         [[ ${j} -lt ${SLAVE_PER_INSTANCE} ]];
       do
         "${REDIS_CLI}" \
-          ${REDIS_ADMIN_USER} \
-          ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-          --tls \
-          --cert "${REDIS_TLS_CERT_FILE}" \
-          --key "${REDIS_TLS_KEY_FILE}" \
-          --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+          ${REDIS_CRED} \
           --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:${REDIS_PORT} \
           ${i}:${REDIS_PORT} \
           --cluster-slave \
@@ -316,25 +258,11 @@ then
         MASTER_ID="$("${REDIS_CLI}" \
           -h "${i}" \
           -p "${REDIS_PORT}" \
-          ${REDIS_ADMIN_USER} \
-          ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-          --tls \
-          --cert "${REDIS_TLS_CERT_FILE}" \
-          --key "${REDIS_TLS_KEY_FILE}" \
-          --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+          ${REDIS_CRED} \
           CLUSTER MYID)";
         ERR=${?};
         "${REDIS_CLI}" \
-          ${REDIS_ADMIN_USER} \
-          ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-          --tls \
-          --cert "${REDIS_TLS_CERT_FILE}" \
-          --key "${REDIS_TLS_KEY_FILE}" \
-          --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+          ${REDIS_CRED} \
           --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:${REDIS_PORT} \
           ${i}:${REDIS_PORT} \
           --cluster-slave \
@@ -352,14 +280,7 @@ then
   REDIS_CLUSTER_NODES_COMMAND="$("${REDIS_CLI}" \
     -h "${REDIS_IP}" \
     -p "${REDIS_PORT}" \
-    ${REDIS_ADMIN_USER} \
-    ${REDIS_ADMIN_PASSWORD} \
-<% if master.p('tls') %>
-    --tls \
-    --cert "${REDIS_TLS_CERT_FILE}" \
-    --key "${REDIS_TLS_KEY_FILE}" \
-    --cacert "${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
+    ${REDIS_CRED} \
     CLUSTER NODES)";
   ERR=${?};
   if [[ ${ERR} -eq 0 ]];
