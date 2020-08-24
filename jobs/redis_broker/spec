@@ -61,7 +61,15 @@ properties:
   password_property_key:
     default: "password"
     description: |
-      Redis servers password property's key for client
+      Redis default user's password property's key for client
+  admin_user_property_key:
+    default: "admin_user"
+    description: |
+      Redis admin's name property's key for client
+  admin_password_property_key:
+    default: "admin_password"
+    description: |
+      Redis admin's password property's key for client
   high_avaibility_ip_property_key:
     default: "ha_hostname"
     description: |
@@ -74,3 +82,23 @@ properties:
     default: "ha_password"
     description: |
       Redis Sentinels password property's key for client
+  tls_keys:
+    description: |
+      Certificate materials for TLS connection.
+    type: certificate
+  tls_port_property_key:
+    default: "tls_port"
+    description: |
+      Redis TLS/SSL port property's key for client
+  tls_client_cert_property_key:
+    default: "tls_cert"
+    description: |
+      Redis TLS/SSL certificate property's key for client
+  tls_client_key_property_key:
+    default: "tls_key"
+    description: |
+      Redis TLS/SSL key property's key for client
+  tls_ca_cert_property_key:
+    default: "tls_ca"
+    description: |
+      Redis TLS/SSL CA certificate property's key for client

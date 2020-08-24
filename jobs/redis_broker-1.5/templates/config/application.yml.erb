@@ -26,9 +26,10 @@ orange:
     HAIPKey: <%= p('high_avaibility_ip_property_key') %>
     HAPortKey: <%= p('high_avaibility_port_property_key') %>
     HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
-    clientTLSCERTKey: <%= p('client_TLS_CERT_property_key') %>
-    clientTLSKEYKey: <%= p('client_TLS_KEY_property_key') %>
-    tlsCACERTKey: <%= p('tls_CA_CERT_property_key') %>
+    tlsPortKey: <%= p('tls_port_property_key') %>
+    tlsClientCERTKey: <%= p('tls_client_cert_property_key') %>
+    tlsClientKeyKey: <%= p('tls_client_key_property_key') %>
+    tlsCACERTKey: <%= p('tls_ca_cert_property_key') %>
     servers:
 <% if !sentinel.nil?
     sentinel.instances.each do |x| %>
@@ -52,12 +53,8 @@ orange:
 <%      end
       end
     end
-  end
-  master_port=master.p('port')
-  if master.p('tls')
-    master_port=master.p('tls_port')
   end %>
-    port: <%= master_port %>
+    port: <%= master.p('port') %>
 <% master.if_p('default_password') do |x|
     unless x.to_s.empty? %>
     password: <%= x %>
@@ -80,9 +77,11 @@ orange:
       masterName: <%= spec.deployment %>
 <% end
   if master.p('tls') %>
-    client_cert: <%= p('tls_keys').certificate %>
-    client_key: <%= p('tls_keys').private_key %>
-    ca_cert: <%= p('tls_keys').ca %>
+    tls:
+      port: <%= master.p('tls_port') %>
+      client_cert: <%= p('tls_keys').certificate %>
+      client_key: <%= p('tls_keys').private_key %>
+      ca_cert: <%= p('tls_keys').ca %>
 <% end %>
 
 security:

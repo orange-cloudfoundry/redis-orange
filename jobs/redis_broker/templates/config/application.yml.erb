@@ -1,12 +1,10 @@
-<%
-  master=link('redis_conn')
+<% master=link('redis_conn')
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn') { |x| sentinel=x }
   sentinel_slave=nil
-  if_link('sentinel_slave_conn') { |x| sentinel_slave=x }
-%>
+  if_link('sentinel_slave_conn') { |x| sentinel_slave=x } %>
 logging:
   config: file:/var/vcap/jobs/redis_broker/config/log4j2.xml
 
@@ -23,12 +21,17 @@ orange:
     IPKey: <%= p('ip_property_key') %>
     portKey: <%= p('port_property_key') %>
     passwordKey: <%= p('password_property_key') %>
+    adminUserKey: <%= p('admin_user_property_key') %>
+    adminPasswordKey: <%= p('admin_password_property_key') %>
     HAIPKey: <%= p('high_avaibility_ip_property_key') %>
     HAPortKey: <%= p('high_avaibility_port_property_key') %>
     HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
+    tlsPortKey: <%= p('tls_port_property_key') %>
+    tlsClientCERTKey: <%= p('tls_client_cert_property_key') %>
+    tlsClientKeyKey: <%= p('tls_client_key_property_key') %>
+    tlsCACERTKey: <%= p('tls_ca_cert_property_key') %>
     servers:
-<%
-  if !sentinel.nil?
+<% if !sentinel.nil?
     sentinel.instances.each do |x| %>
       - <%= x.address %>
 <%  end
@@ -52,103 +55,108 @@ orange:
     end
   end %>
     port: <%= master.p('port') %>
-<%
-  master.if_p('password') do |password|
-    unless password.to_s.empty? %>
-    password: <%= password %>
+<% master.if_p('default_password') do |x|
+    unless x.to_s.empty? %>
+    password: <%= x %>
 <%  end
   end %>
-<% if !sentinel.nil? %>
+    admin_user: <%= master.p('admin_user') %>
+<% master.if_p('admin_password') do |x|
+    unless x.to_s.empty? %>
+    admin_password: <%= x %>
+<%  end
+  end
+  if !sentinel.nil? %>
     sentinel:
       port: <%= sentinel.p('port') %>
-<%
-    sentinel.if_p('password') do |password|
-      unless password.to_s.empty? %>
-      password: <%= password %>
+<%  sentinel.if_p('password') do |x|
+      unless x.to_s.empty? %>
+      password: <%= x %>
 <%    end
-    end
-%>
+    end %>
       masterName: <%= spec.deployment %>
+<% end
+  if master.p('tls') %>
+    tls:
+      port: <%= master.p('tls_port') %>
+      client_cert: <%= p('tls_keys').certificate %>
+      client_key: <%= p('tls_keys').private_key %>
+      ca_cert: <%= p('tls_keys').ca %>
 <% end %>
 
-spring:
-  security:
-    user:
-      name: <%= p('user') %>
-      password: <%= p('password') %>
-  cloud:
-    openservicebroker:
-      catalog:
-        services:
-        - description: Redis Service
-          id: redis-service
-          name: Redis Service
-          bindable: true
-          bindingsRetrievable: true
-          instancesRetrievable: true
-          planUpdateable: false
+security:
+  user:
+    name: <%= p('user') %>
+    password: <%= p('password') %>
+
+catalog_yml: |
+    services:
+    - id: redis-service
+      name: Redis for Cloud Foundry
+      description: Redis on demand on dedicated cluster
+      bindable: true
+      metadata:
+        displayName: Redis
+        imageUrl: https://redis.io/images/redis-white.png
+        longDescription: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes with radius queries and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.
+        providerDisplayName: Orange
+        documentationUrl: https://redis.io/documentation
+        supportUrl: https://cap.nd-cfapi.itn.ftgroup/contact-us/
+      tags:
+        - Redis
+        - Redis Sentinel
+        - Redis Cluster
+        - High Avaibility
+      plans:
+        - description: Redis Single Server
+          id: redis
+          name: Redis
+          free: true
           metadata:
-            displayName: Redis
-            imageUrl: https://redis.io/images/redis-white.png
-            longDescription: Creating a Redis service. Binding applications provisions unique credentials for each application to access a Redis server/cluster.
-            providerDisplayName: Orange
-            documentationUrl: https://redis.io/documentation
-            supportUrl: https://contact-us/
-          tags:
-            - Redis
-            - Redis Sentinel
-            - Redis Cluster
-            - High Avaibility
-          plans:
-          - description: Redis Single Server
-            id: redis
-            name: Redis
-            free: true
-            metadata:
-              bullets:
-              - 100 MB Storage (not enforced)
-              - 40 concurrent connections (not enforced)
-              costs:
-                amount:
-                  eur: 10.0
-                unit: MONTHLY
-              displayName: Dedicated Single Redis Server
-          - description: Highly Available with Redis Sentinel
-            id: redis-sentinel
-            name: Redis Sentinel
-            free: true
-            metadata:
-              bullets:
-              - 100 MB Storage (not enforced)
-              - 40 concurrent connections (not enforced)
-              costs:
-                amount:
-                  eur: 10.0
-                unit: MONTHLY
-              displayName: Dedicated Highly Available Redis Server with Redis Sentinel
-          - description: Redis Cluster
-            id: redis-cluster
-            name: Redis Cluster
-            free: true
-            metadata:
-              bullets:
-              - 100 MB Storage (not enforced)
-              - 40 concurrent connections (not enforced)
-              costs:
-                amount:
-                  eur: 10.0
-                unit: MONTHLY
-              displayName: Dedicated Redis Cluster
-          - description: Highly Available Redis Cluster
-            id: redis-cluster-ha
-            name: High Available Redis Cluster
-            free: true
-            metadata:
-              bullets:
-              - 100 MB Storage (not enforced)
-              - 40 concurrent connections (not enforced)
-              costs:
-                amount:
-                  eur: 10.0
-                unit: MONTHLY
-              displayName: Dedicated Highly Available Redis Cluster
+            bullets:
+            - 100 MB Storage (not enforced)
+            - 40 concurrent connections (not enforced)
+            costs:
+              amount:
+                eur: 10.0
+              unit: MONTHLY
+            displayName: Dedicated Single Redis Server
+        - description: Highly Available with Redis Sentinel
+          id: redis-sentinel
+          name: Redis Sentinel
+          free: true
+          metadata:
+            bullets:
+            - 100 MB Storage (not enforced)
+            - 40 concurrent connections (not enforced)
+            costs:
+              amount:
+                eur: 10.0
+              unit: MONTHLY
+            displayName: Dedicated Highly Available Redis Server with Redis Sentinel
+        - description: Redis Cluster
+          id: redis-cluster
+          name: Redis Cluster
+          free: true
+          metadata:
+            bullets:
+            - 100 MB Storage (not enforced)
+            - 40 concurrent connections (not enforced)
+            costs:
+              amount:
+                eur: 10.0
+              unit: MONTHLY
+            displayName: Dedicated Redis Cluster
+        - description: Highly Available Redis Cluster
+          id: redis-cluster-ha
+          name: High Available Redis Cluster
+          free: true
+          metadata:
+            bullets:
+            - 100 MB Storage (not enforced)
+            - 40 concurrent connections (not enforced)
+            costs:
+              amount:
+                eur: 10.0
+              unit: MONTHLY
+            displayName: Dedicated Highly Available Redis Cluster

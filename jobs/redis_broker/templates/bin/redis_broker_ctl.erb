@@ -12,31 +12,31 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
-source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
-exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
-exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
+exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
+exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
 chown vcap:vcap \
-  "${LOG_DIR}/${PROGNAME}.stdout.log" \
-  "${LOG_DIR}/${PROGNAME}.stderr.log";
+  ${LOG_DIR}/${PROGNAME}.stdout.log \
+  ${LOG_DIR}/${PROGNAME}.stderr.log;
 
 export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
 export PATH=${JAVA_HOME}/bin:${PATH};
 
 case $1 in
   start)
-    pid_guard "${PIDFILE}" "${PROGNAME}";
-    echo $$ > "${PIDFILE}";
+    pid_guard ${PIDFILE} "${PROGNAME}";
+    echo $$ > ${PIDFILE};
 
     exec chpst -u vcap:vcap java \
       -Dspring.config.location="file:/var/vcap/jobs/${PROGNAME}/config/application.yml" \
-      -Dio.netty.native.workdir="${TMP_DIR}" \
-      -jar "/var/vcap/packages/${PROGNAME}/bin/${PROGNAME}.jar" \
+      -Dio.netty.native.workdir="${TMP_DIR}"" \
+      -jar "/var/vcap/packages/${PROGNAME}/bin/${PROGNAME}.jar"  \
       >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
       2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
     ;;
 
   stop)
-    kill_and_wait "${PIDFILE}";
+    kill_and_wait ${PIDFILE};
     ;;
 
   *)
