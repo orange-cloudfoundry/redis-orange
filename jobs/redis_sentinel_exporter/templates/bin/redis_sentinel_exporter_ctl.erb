@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-<%
-  sentinel=link('redis_sentinel_conn')
-%>
+<% sentinel=link('redis_sentinel_conn') %>
 
 set -eu
 
@@ -16,53 +14,49 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
 REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel.p('bind') %>
+<% if sentinel.p('bind') && !sentinel.p('tls') %>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
 <% end %>
-REDIS_SENTINEL_ADDR="redis://${REDIS_SENTINEL_IP}:<%= sentinel.p('port') %>";
+REDIS_SENTINEL_EXPORTER_ARGS="-sentinel.addr redis://${REDIS_SENTINEL_IP}:<%= sentinel.p('port') %>";
 
-REDIS_SENTINEL_PASSWORD="";
 <%
-  sentinel.if_p('password') do |password|
-    unless password.to_s.empty? %>
-REDIS_SENTINEL_PASSWORD="<%= password %>";
+  sentinel.if_p('password') do |x|
+    unless x.to_s.empty? %>
+REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password \"<%= x %>\"";
 <%  end
   end
 %>
 
-REDIS_SENTINEL_ALIAS="<%= spec.deployment+'/'+spec.ip %>";
+<% if p('debug') %> \
+REDIS_SENTINEL_EXPORTER_ARGS+=" -debug";
+<% end %> \
 
-source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
-exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
-exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
+exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
+exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
 chown vcap:vcap \
-  ${LOG_DIR}/${PROGNAME}.stdout.log \
-  ${LOG_DIR}/${PROGNAME}.stderr.log;
+  "${LOG_DIR}/${PROGNAME}.stdout.log" \
+  "${LOG_DIR}/${PROGNAME}.stderr.log";
 
-export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH};
-export REDIS_SENTINEL_ADDR REDIS_SENTINEL_PASSWORD REDIS_SENTINEL_ALIAS;
+export PATH="/var/vcap/packages/${PROGNAME}/bin":${PATH};
 
 case $1 in
   start)
-    pid_guard ${PIDFILE} "${PROGNAME}";
-    echo $$ > ${PIDFILE};
+    pid_guard "${PIDFILE}" "${PROGNAME}";
+    echo $$ > "${PIDFILE}";
 
-    exec chpst -u vcap:vcap ${PROGNAME} \
-      <% if p('debug') %> \
-      -debug \
-      <% end %> \
-      -sentinel.addr="${REDIS_SENTINEL_ADDR}" \
-      -sentinel.password="${REDIS_SENTINEL_PASSWORD}" \
-      -log-format="<%= p('log_format') %>" \
-      -namespace="<%= p('namespace') %>" \
-      -web.listen-address="<%= spec.ip + ':' + p('web.port') %>" \
-      -web.telemetry-path="<%= p('web.telemetry_path') %>" \
-      >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
-      2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+    exec chpst -u vcap:vcap "${PROGNAME}" \
+      ${REDIS_SENTINEL_EXPORTER_ARGS} \
+      -log-format "<%= p('log_format') %>" \
+      -namespace "<%= p('namespace') %>" \
+      -web.listen-address "<%= spec.ip+':'+p('web.port') %>" \
+      -web.telemetry-path "<%= p('web.telemetry_path') %>" \
+      >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
+      2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
     ;;
 
   stop)
-    kill_and_wait ${PIDFILE};
+    kill_and_wait "${PIDFILE}";
     ;;
 
   *)

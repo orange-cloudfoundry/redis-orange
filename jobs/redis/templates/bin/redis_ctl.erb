@@ -117,7 +117,7 @@ case "${1}" in
   stop)
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
-      REDIS_PID="$(cat ${REDIS_PID_FILE})";
+      REDIS_PID="$(cat "${REDIS_PID_FILE}")";
       printf "%s\n" "Stopping ...";
       exec chpst -u vcap:vcap \
         "${REDIS_CLI}" \

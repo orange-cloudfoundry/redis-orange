@@ -48,9 +48,9 @@ chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
 #
 # Look up Redis instances
 #
-PING="$(${REDIS_CLI} \
-  -h ${REDIS_IP} \
-  -p ${REDIS_PORT} \
+PING="$("${REDIS_CLI}" \
+  -h "${REDIS_IP}" \
+  -p "${REDIS_PORT}" \
   ${REDIS_CRED} \
   PING)";
 ERR=${?}
@@ -64,7 +64,6 @@ fi
 #
 <% if master.p('replication') && !sentinel.nil? %>
 
-REDIS_SENTINEL_ADDRESS="";
 <% sentinel_addresses=''
   sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   if !sentinel_slave.nil?
@@ -89,42 +88,45 @@ REDIS_SENTINEL_CRED+=" --cacert \"${REDIS_TLS_CA_CERT_FILE}\"";
 
 for x in ${REDIS_SENTINEL_ADDRESSES};
 do
-  PING="$(${REDIS_CLI} \
-    -h ${x} \
-    -p ${REDIS_SENTINEL_PORT} \
+  PING="$("${REDIS_CLI}" \
+    -h "${x}" \
+    -p "${REDIS_SENTINEL_PORT}" \
     ${REDIS_SENTINEL_CRED} \
     PING)";
   ERR=${?}
   if [[ ${ERR} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
   then
     echo "Redis Sentinel at address [${x}] and port [${REDIS_SENTINEL_PORT}] is available.";
-  fi
-  echo "Available master:"
-  ${REDIS_CLI} \
-    -h ${x} \
-    -p ${REDIS_SENTINEL_PORT} \
-    ${REDIS_SENTINEL_CRED} \
-    SENTINEL master <%= spec.deployment %>;
-  ERR=${?};
-  if [[ ${ERR} -eq 0 ]];
-  then
-    echo "Available slaves:"
-    ${REDIS_CLI} \
-      -h ${x} \
-      -p ${REDIS_SENTINEL_PORT} \
-      ${REDIS_SENTINEL_CRED} \
-      SENTINEL slaves <%= spec.deployment %>;
-    ERR=${?};
-  fi
-  if [[ ${ERR} -eq 0 ]];
-  then
-    echo "Available sentinels:"
-    ${REDIS_CLI} \
-      -h ${x} \
-      -p ${REDIS_SENTINEL_PORT} \
-      ${REDIS_SENTINEL_CRED} \
-      SENTINEL sentinels <%= spec.deployment %>;
-    ERR=${?};
+    if [[ ${ERR} -eq 0 ]];
+    then
+      echo "Available master for Sentinel at ${x}:"
+      "${REDIS_CLI}" \
+        -h "${x}" \
+        -p "${REDIS_SENTINEL_PORT}" \
+        ${REDIS_SENTINEL_CRED} \
+        SENTINEL master <%= spec.deployment %>;
+      ERR=${?};
+      if [[ ${ERR} -eq 0 ]];
+      then
+        echo "Available slaves for Sentinel at ${x}:"
+        "${REDIS_CLI}" \
+          -h "${x}" \
+          -p "${REDIS_SENTINEL_PORT}" \
+          ${REDIS_SENTINEL_CRED} \
+          SENTINEL slaves <%= spec.deployment %>;
+        ERR=${?};
+      fi
+      if [[ ${ERR} -eq 0 ]];
+      then
+        echo "Available Sentinels for Sentinel at ${x}:"
+        "${REDIS_CLI}" \
+          -h "${x}" \
+          -p "${REDIS_SENTINEL_PORT}" \
+          ${REDIS_SENTINEL_CRED} \
+          SENTINEL sentinels <%= spec.deployment %>;
+        ERR=${?};
+      fi
+    fi
   fi
 done
 <% end %>
@@ -155,9 +157,9 @@ REDIS_INSTANCES="<%= instances %>";
 
 SLAVE_PER_INSTANCE="<%= master.p('cluster_replicas_per_node') %>";
 
-REDIS_CLUSTER_NODES_COMMAND="$(${REDIS_CLI} \
-  -h ${REDIS_IP} \
-  -p ${REDIS_PORT} 
+REDIS_CLUSTER_NODES_COMMAND="$("${REDIS_CLI}" \
+  -h "${REDIS_IP}" \
+  -p "${REDIS_PORT}" \
   ${REDIS_CRED} \
   CLUSTER NODES)";
 ERR=${?};
@@ -243,37 +245,37 @@ then
 <% if master.p('replication') && !sentinel.nil? %>
   for x in ${REDIS_SENTINEL_ADDRESSES};
   do
-    REDIS_MASTER="$(${REDIS_CLI} \
-      -h ${x} \
-      -p ${REDIS_SENTINEL_PORT} \
+    REDIS_MASTER="$("${REDIS_CLI}" \
+      -h "${x}" \
+      -p "${REDIS_SENTINEL_PORT}" \
       ${REDIS_SENTINEL_CRED} \
       SENTINEL get-master-addr-by-name <%= spec.deployment %>)";
     REDIS_IP="${REDIS_MASTER%%[[:space:]]*}";
     REDIS_PORT="${REDIS_MASTER#*[[:space:]]}";
 <% end %>
     REDIS_CLI_OPTS="-h ${REDIS_IP} -p ${REDIS_PORT} ${REDIS_CRED} ${REDIS_CLI_CLUSTER_OPTS}";
-    ${REDIS_CLI} \
+    "${REDIS_CLI}" \
       ${REDIS_CLI_OPTS} \
       SET ${KV} ${KV};
     ERR=${?};
     if [[ ${ERR} -eq 0 ]];
     then
       echo "Create operation: succeed";
-      RESULT="$(${REDIS_CLI} \
+      RESULT="$("${REDIS_CLI}" \
         ${REDIS_CLI_OPTS} \
         GET ${KV})";
       ERR=${?};
       if [[ ${ERR} -eq 0 ]] && [[ "${KV}" == "${RESULT}" ]];
       then
         echo "Read operation: succeed";
-        ${REDIS_CLI} \
+        "${REDIS_CLI}" \
           ${REDIS_CLI_OPTS} \
           APPEND ${KV} ${KV};
         ERR=${?};
         if [[ ${ERR} -eq 0 ]];
         then
           echo "Append operation: succeed";
-          RESULT="$(${REDIS_CLI} \
+          RESULT="$("${REDIS_CLI}" \
             ${REDIS_CLI_OPTS} \
             GET ${KV})";
           ERR=${?};
@@ -289,7 +291,7 @@ then
       else
         echo "Read operation: failed";
       fi
-      ${REDIS_CLI} \
+      "${REDIS_CLI}" \
         ${REDIS_CLI_OPTS} \
         DEL ${KV};
       ERR=${?};

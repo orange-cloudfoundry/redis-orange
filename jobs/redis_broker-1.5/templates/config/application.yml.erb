@@ -1,15 +1,12 @@
-<%
-  master=link('redis_conn')
+<% master=link('redis_conn')
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn') { |x| sentinel=x }
   sentinel_slave=nil
-  if_link('sentinel_slave_conn') { |x| sentinel_slave=x }
-%>
+  if_link('sentinel_slave_conn') { |x| sentinel_slave=x } %>
 logging:
   config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
-
 
 server:
 <% if p('bind') %>
@@ -24,12 +21,16 @@ orange:
     IPKey: <%= p('ip_property_key') %>
     portKey: <%= p('port_property_key') %>
     passwordKey: <%= p('password_property_key') %>
+    adminUserKey: <%= p('admin_user_property_key') %>
+    adminPasswordKey: <%= p('admin_password_property_key') %>
     HAIPKey: <%= p('high_avaibility_ip_property_key') %>
     HAPortKey: <%= p('high_avaibility_port_property_key') %>
     HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
+    clientTLSCERTKey: <%= p('client_TLS_CERT_property_key') %>
+    clientTLSKEYKey: <%= p('client_TLS_KEY_property_key') %>
+    tlsCACERTKey: <%= p('tls_CA_CERT_property_key') %>
     servers:
-<%
-  if !sentinel.nil?
+<% if !sentinel.nil?
     sentinel.instances.each do |x| %>
       - <%= x.address %>
 <%  end
@@ -51,25 +52,37 @@ orange:
 <%      end
       end
     end
+  end
+  master_port=master.p('port')
+  if master.p('tls')
+    master_port=master.p('tls_port')
   end %>
-    port: <%= master.p('port') %>
-<%
-  master.if_p('password') do |password|
-    unless password.to_s.empty? %>
-    password: <%= password %>
+    port: <%= master_port %>
+<% master.if_p('default_password') do |x|
+    unless x.to_s.empty? %>
+    password: <%= x %>
 <%  end
   end %>
-<% if !sentinel.nil? %>
+    admin_user: <%= master.p('admin_user') %>
+<% master.if_p('admin_password') do |x|
+    unless x.to_s.empty? %>
+    admin_password: <%= x %>
+<%  end
+  end
+  if !sentinel.nil? %>
     sentinel:
       port: <%= sentinel.p('port') %>
-<%
-    sentinel.if_p('password') do |password|
-      unless password.to_s.empty? %>
-      password: <%= password %>
+<%  sentinel.if_p('password') do |x|
+      unless x.to_s.empty? %>
+      password: <%= x %>
 <%    end
-    end
-%>
+    end %>
       masterName: <%= spec.deployment %>
+<% end
+  if master.p('tls') %>
+    client_cert: <%= p('tls_keys').certificate %>
+    client_key: <%= p('tls_keys').private_key %>
+    ca_cert: <%= p('tls_keys').ca %>
 <% end %>
 
 security:

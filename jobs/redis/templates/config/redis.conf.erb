@@ -152,6 +152,7 @@ tcp-keepalive <%= p('tcp_keepalive') %>
 # port 0
 # tls-port 6379
 <% if master.p('tls') %>
+port 0
 tls-port <%= master.p('tls_port') %>
 <% end %>
 
@@ -162,15 +163,15 @@ tls-port <%= master.p('tls_port') %>
 # tls-cert-file redis.crt 
 # tls-key-file redis.key
 <% if master.p('tls') %>
-tls-cert-file <%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>
-tls-key-file <%= p('tls_keys_dir')+'/'+p('tls_key_file') %>
+tls-cert-file "<%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>"
+tls-key-file "<%= p('tls_keys_dir')+'/'+p('tls_key_file') %>"
 <% end %>
 
 # Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange:
 #
 # tls-dh-params-file redis.dh
 <% if master.p('tls') %>
-tls-dh-params-file <%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>
+tls-dh-params-file "<%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>"
 <% end %>
 
 # Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
@@ -180,8 +181,8 @@ tls-dh-params-file <%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>
 # tls-ca-cert-file ca.crt
 # tls-ca-cert-dir /etc/ssl/certs
 <% if master.p('tls') %>
-tls-ca-cert-file <%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>
-tls-ca-cert-dir <%= p('tls_ca_cert_dir') %>
+tls-ca-cert-file "<%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>"
+tls-ca-cert-dir "<%= p('tls_ca_cert_dir') %>"
 <% end %>
 
 # By default, clients (including replica servers) on a TLS port are required
@@ -311,7 +312,7 @@ supervised no
 #
 # Creating a pid file is best effort: if Redis is not able to create it
 # nothing bad happens, the server will start and run normally.
-pidfile <%= p('run_dir')+'/'+p('pidfile') %>
+pidfile "<%= p('run_dir')+'/'+p('pidfile') %>"
 
 # Specify the server verbosity level.
 # This can be one of:
@@ -324,7 +325,7 @@ loglevel <%= p('loglevel') %>
 # Specify the log file name. Also the empty string can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('log_dir')+'/'+p('logfile') %>
+logfile "<%= p('log_dir')+'/'+p('logfile') %>"
 
 # To enable logging to the system logger, just set 'syslog-enabled' to yes,
 # and optionally update the other syslog parameters to suit your needs.
@@ -434,7 +435,7 @@ rdb-del-sync-files <%= p('rdb_del_sync_files') %>
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir <%= p('dir') %>
+dir "<%= p('dir') %>"
 
 ################################# REPLICATION #################################
 
@@ -945,7 +946,7 @@ aclfile /var/vcap/jobs/redis/config/users.acl
 # maxclients 10000
 maxclients <%= p('maxclients') %>
 
-############################## MEMORY MANAGEMENT ################################
+############################## MEMORY MANAGEMENT ###############################
 
 # Set a memory usage limit to the specified amount of bytes.
 # When the memory limit is reached Redis will try to remove keys
@@ -1329,7 +1330,7 @@ cluster-enabled <%= master.p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-cluster-config-file <%= p('run_dir')+'/nodes-'+master.p('port')+'.conf' %>
+cluster-config-file "<%= p('run_dir')+'/nodes-'+master.p('port')+'.conf' %>"
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
@@ -1466,8 +1467,12 @@ cluster-replica-no-failover <%= p('cluster_replica_no_failover') %>
 # cluster-announce-bus-port 6380
 <% if p('cluster_announce') && master.p('bind') %>
 cluster-announce-ip <%= spec.ip %>
+<%  if master.p('tls') && master.p('tls_cluster') %>
+cluster-announce-port <%= master.p('tls_port') %>
+<%  else %>
 cluster-announce-port <%= master.p('port') %>
-<% end %>
+<%  end 
+  end %>
 
 ################################## SLOW LOG ###################################
 

@@ -45,7 +45,7 @@ REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 REDIS_SENTINEL_CRED="";
 <% sentinel.if_p('password') do |x|
     unless x.to_s.empty? %>
-REDIS_SENTINEL_CRED="-a <%= x %>";
+REDIS_SENTINEL_CRED="-a \"<%= x %>\"";
 <%  end
   end %>
 

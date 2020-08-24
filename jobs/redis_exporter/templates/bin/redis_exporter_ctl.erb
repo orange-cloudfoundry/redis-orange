@@ -15,42 +15,78 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
-REDIS_IP="127.0.0.1";
-<% if master.p('bind') %>
-REDIS_IP="<%= spec.ip %>";
-<% end %>
-
-REDIS_PROTOCOLE="redis";
-REDIS_PORT="<%= master.p('port') %>";
-REDIS_USER="<%= master.p('exporter_user') %>";
+REDIS_EXPORTER_ARGS="-redis.user \"<%= master.p('exporter_user') %>\"";
 REDIS_PASSWORD="";
 <% master.if_p('exporter_password') do |x|
     unless x.to_s.empty? %>
-REDIS_PASSWORD="<%= x %>";
+REDIS_EXPORTER_ARGS+=" -redis.password \"<%= x %>\"";
 <%  end
   end %>
 
+REDIS_PROTOCOLE="redis";
+REDIS_PORT="<%= master.p('port') %>";
 <% if master.p('tls') %>
 REDIS_PROTOCOLE="rediss";
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_EXPORTER_ARGS+=" -tls-client-cert-file \"${REDIS_TLS_CERT_FILE}\"";
 REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_EXPORTER_ARGS+=" -tls-client-key-file \"${REDIS_TLS_KEY_FILE}\"";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_EXPORTER_ARGS+=" -tls-ca-cert-file \"${REDIS_TLS_CA_CERT_FILE}\"";
 <% end %>
 
-REDIS_ADDR="${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
-REDIS_ALIAS="<%= spec.deployment+'/'+spec.ip %>";
+REDIS_IP="127.0.0.1";
+<% if master.p('bind') %>
+REDIS_IP="<%= spec.ip %>";
+<% end %>
 
-source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
-exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
-exec 2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+REDIS_EXPORTER_ARGS+=" -redis.addr=${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
+
+<% if_p('check_keys') do |x| %>
+REDIS_EXPORTER_ARGS+=" -check-keys \"<%= x %>\"";
+<% end %>
+<% if_p('check_single_keys') do |x| %>
+REDIS_EXPORTER_ARGS+=" -check-single-keys \"<%= x %>\"";
+<% end %>
+<% if_p('config_command') do |x| %>
+REDIS_EXPORTER_ARGS+=" -config-command \"<%= x %>\"";
+<% end %>
+REDIS_EXPORTER_ARGS+=" -connection-timeout \"<%= p('connection_timeout') %>\"";
+<% if p('debug') %>
+REDIS_EXPORTER_ARGS+=" -debug";
+<% end %>
+<% if p('export_client_list') %>
+REDIS_EXPORTER_ARGS+=" -export-client-list";
+<% end %>
+<% if p('include_system_metrics') %>
+REDIS_EXPORTER_ARGS+=" -include-system-metrics";
+<% end %>
+<% if p('is_tile38') %>
+REDIS_EXPORTER_ARGS+=" -is-tile38";
+<% end %>
+<% if p('ping_on_connect') %>
+REDIS_EXPORTER_ARGS+=" -ping-on-connect";
+<% end %>
+<% if p('redis_only_metrics') %>
+REDIS_EXPORTER_ARGS+=" -redis-only-metrics";
+<% end %>
+<% if p('set_client_name') %>
+REDIS_EXPORTER_ARGS+=" -set-client-name";
+<% end %>
+<% if p('skip_tls_verification') %>
+REDIS_EXPORTER_ARGS+=" -skip-tls-verification";
+<% end %>
+
+source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
+exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
+exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
 chown vcap:vcap \
-  ${LOG_DIR}/${PROGNAME}.stdout.log \
-  ${LOG_DIR}/${PROGNAME}.stderr.log;
+  "${LOG_DIR}/${PROGNAME}.stdout.log" \
+  "${LOG_DIR}/${PROGNAME}.stderr.log";
 
-export PATH=/var/vcap/packages/${PROGNAME}/bin:${PATH};
-export REDIS_ADDR REDIS_PASSWORD REDIS_ALIAS;
+export PATH="/var/vcap/packages/${PROGNAME}/bin":${PATH};
 
 case $1 in
   start)
@@ -67,62 +103,21 @@ case $1 in
     chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
 <% end %>
 
-    pid_guard ${PIDFILE} "${PROGNAME}";
-    echo $$ > ${PIDFILE};
+    pid_guard "${PIDFILE}" "${PROGNAME}";
+    echo $$ > "${PIDFILE}";
 
-    exec chpst -u vcap:vcap ${PROGNAME} \
-<% if_p('check_keys') do |x| %>
-      -check-keys="<%= x %>" \
-<% end %>
-<% if_p('check_single_keys') do |x| %>
-      -check-single-keys="<%= x %>" \
-<% end %>
-<% if_p('config_command') do |x| %>
-      -config-command="<%= x %>" \
-<% end %>
-      -connection-timeout="<%= p('connection_timeout') %>" \
-<% if p('debug') %>
-      -debug \
-<% end %>
-<% if p('export_client_list') %>
-      -export-client-list \
-<% end %>
-<% if p('include_system_metrics') %>
-      -include-system-metrics \
-<% end %>
-<% if p('is_tile38') %>
-      -is-tile38 \
-<% end %>
+    exec chpst -u vcap:vcap "${PROGNAME}"" \
+      ${REDIS_EXPORTER_ARGS} \
       -log-format="<%= p('log_format') %>" \
       -namespace="<%= p('namespace') %>" \
-<% if p('ping_on_connect') %>
-      -ping-on-connect \
-<% end %>
-<% if p('redis_only_metrics') %>
-      -redis-only-metrics \
-<% end %>
-      -redis.addr="${REDIS_ADDR}" \
-      -redis.user="${REDIS_USER}" \
-      -redis.password="${REDIS_PASSWORD}" \
-<% if p('set_client_name') %>
-      -set-client-name \
-<% end %>
-<% if p('skip_tls_verification') %>
-      -skip-tls-verification \
-<% end %>
       -web.listen-address="<%= spec.ip+':'+p('web_port') %>" \
       -web.telemetry-path="<%= p('web_telemetry_path') %>" \
-<% if master.p('tls') %>
-      -tls-client-key-file="${REDIS_TLS_KEY_FILE}" \
-      -tls-client-cert-file="${REDIS_TLS_CERT_FILE}" \
-      -tls-ca-cert-file="${REDIS_TLS_CA_CERT_FILE}" \
-<% end %>
-      >>  ${LOG_DIR}/${PROGNAME}.stdout.log \
-      2>> ${LOG_DIR}/${PROGNAME}.stderr.log;
+      >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
+      2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
     ;;
 
   stop)
-    kill_and_wait ${PIDFILE};
+    kill_and_wait "${PIDFILE}";
     ;;
 
   *)

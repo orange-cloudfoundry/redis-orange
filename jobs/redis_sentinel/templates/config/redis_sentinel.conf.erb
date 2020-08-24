@@ -1,8 +1,6 @@
-<%
-  master=nil
+<% master=nil
   if_link('redis_conn'){ |x| master=x }
-  sentinel=link('redis_sentinel_conn')
-%>
+  sentinel=link('redis_sentinel_conn') %>
 # *** IMPORTANT ***
 #
 # By default Sentinel will not be reachable from interfaces different than
@@ -18,9 +16,15 @@
 # bind 127.0.0.1 192.168.1.1
 #
 # protected-mode no
-<% if sentinel.p('bind') %>
+<% if sentinel.p('bind')
+    if sentinel.p('tls') %>
+# We must bind to 127.0.0.1 too because redis_sentinel_exporter
+# don't support TLS/SSL yet
+bind 127.0.0.1 <%= spec.ip %>
+<%  else %>
 bind <%= spec.ip %>
-<% else %>
+<%  end
+  else %>
 bind 127.0.0.1
 <% end %>
 
@@ -36,12 +40,12 @@ daemonize yes
 # When running daemonized, Redis Sentinel writes a pid file in
 # /var/run/redis-sentinel.pid by default. You can specify a custom pid file
 # location here.
-pidfile <%= p('run_dir')+'/'+p('pidfile') %>
+pidfile "<%= p('run_dir')+'/'+p('pidfile') %>"
 
 # Specify the log file name. Also the empty string can be used to force
 # Sentinel to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= p('log_dir')+'/'+p('logfile') %>
+logfile "<%= p('log_dir')+'/'+p('logfile') %>"
 
 # sentinel announce-ip <ip>
 # sentinel announce-port <port>
@@ -66,14 +70,17 @@ logfile <%= p('log_dir')+'/'+p('logfile') %>
 # sentinel announce-ip 1.2.3.4
 <% if p('announce') && sentinel.p('bind') %>
 sentinel announce-ip <%= spec.ip %>
-<% end %>
+<%  if sentinel.p('tls') %>
+sentinel announce-port <%= sentinel.p('tls_port') %>
+<%  end
+  end %>
 
 # dir <working-directory>
 # Every long running process should have a well-defined working directory.
 # For Redis Sentinel to chdir to /tmp at startup is the simplest thing
 # for the process to don't interfere with administrative tasks such as
 # unmounting filesystems.
-dir <%= p('dir') %>
+dir "<%= p('dir') %>"
 
 ################################# TLS/SSL #####################################
 
@@ -94,15 +101,15 @@ tls-port <%= sentinel.p('tls_port') %>
 # tls-cert-file redis.crt 
 # tls-key-file redis.key
 <% if sentinel.p('tls') %>
-tls-cert-file <%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>
-tls-key-file <%= p('tls_keys_dir')+'/'+p('tls_key_file') %>
+tls-cert-file "<%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>"
+tls-key-file "<%= p('tls_keys_dir')+'/'+p('tls_key_file') %>"
 <% end %>
 
 # Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange:
 #
 # tls-dh-params-file redis.dh
 <% if sentinel.p('tls') %>
-tls-dh-params-file <%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>
+tls-dh-params-file "<%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>"
 <% end %>
 
 # Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
@@ -112,8 +119,8 @@ tls-dh-params-file <%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>
 # tls-ca-cert-file ca.crt
 # tls-ca-cert-dir /etc/ssl/certs
 <% if sentinel.p('tls') %>
-tls-ca-cert-file <%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>
-tls-ca-cert-dir <%= p('tls_ca_cert_dir') %>
+tls-ca-cert-file "<%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>"
+tls-ca-cert-dir "<%= p('tls_ca_cert_dir') %>"
 <% end %>
 
 # By default, clients (including replica servers) on a TLS port are required
@@ -261,7 +268,7 @@ requirepass <%= x %>
 # The valid charset is A-z 0-9 and the three characters ".-_".
 <% if !master.nil?
     master_port=master.p('port')
-    if sentinel.p('tls') && master.p('tls') && master.p('tls_replication')
+    if master.p('tls')
       master_port=master.p('tls_port')
     end %>
 sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>
