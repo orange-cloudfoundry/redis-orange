@@ -51,9 +51,9 @@ public class RedisConfig {
   @NotEmpty
   private String password;
   @NotNull
-  private String adminUser;
+  private String admin_user;
   @NotEmpty
-  private String adminPassword;
+  private String admin_password;
   @Valid
   private Sentinel sentinel = new Sentinel();
   @Valid
@@ -179,20 +179,20 @@ public class RedisConfig {
     this.password = password;
   }
 
-  public String getAdminUser() {
-    return adminUser;
+  public String getAdmin_user() {
+    return admin_user;
   }
 
-  public void setAdminUser(String adminUser) {
-    this.adminUser = adminUser;
+  public void setAdmin_user(String admin_user) {
+    this.admin_user = admin_user;
   }
 
-  public String getAdminPassword() {
-    return adminPassword;
+  public String getAdmin_password() {
+    return admin_password;
   }
 
-  public void setAdminPassword(String adminPassword) {
-    this.adminPassword = adminPassword;
+  public void setAdmin_password(String admin_password) {
+    this.admin_password = admin_password;
   }
 
   public Sentinel getSentinel() {
@@ -307,10 +307,10 @@ public class RedisConfig {
     logger.info(getPortKey().concat(" ").concat(getPort().toString()));
     credentials.put(getPasswordKey(), getPassword());
     logger.info(getPasswordKey().concat(" ").concat(getPassword()));
-    credentials.put(getAdminUserKey(), getAdminUser());
-    logger.info(getAdminUserKey().concat(" ").concat(getAdminUser()));
-    credentials.put(getAdminPasswordKey(), getAdminPassword());
-    logger.info(getAdminPasswordKey().concat(" ").concat(getAdminPassword()));
+    credentials.put(getAdminUserKey(), getAdmin_user());
+    logger.info(getAdminUserKey().concat(" ").concat(getAdmin_user()));
+    credentials.put(getAdminPasswordKey(), getAdmin_password());
+    logger.info(getAdminPasswordKey().concat(" ").concat(getAdmin_password()));
     if (!getSentinel().isEmpty()) {
       credentials.put(getHAIPKey(), getSentinel().getMasterName());
       logger.info(getHAIPKey().concat(" ").concat(getSentinel().getMasterName()));

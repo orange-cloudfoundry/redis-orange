@@ -10,14 +10,22 @@ orange:
     IPKey: hostname
     portKey: port
     passwordKey: password
+    adminUserKey: admin_user
+    adminPasswordKey: admin_password
     HAIPKey: ha_hostname
     HAPortKey: ha_port
     HAPasswordKey: ha_password
+    tlsPortKey: tls_port
+    tlsClientCERTKey: tls_cert
+    tlsClientKeyKey: tls_key
+    tlsCACERTKey: tls_ca
     servers:
       - 192.168.56.101
       - 192.168.56.102
     port: 6379
     password: redis_secret
+    admin_user: admin
+    admin_password: admin_secret
 
 security:
   user:

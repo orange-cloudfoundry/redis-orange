@@ -26,10 +26,19 @@ orange:
     password: redis_secret
     admin_user: admin
     admin_password: admin_secret
-    sentinel:
-      masterName: master
-      port: 26379
-      password: redis_sentinel_secret
+    tls:
+      ca: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      certificate: |
+        -----BEGIN CERTIFICATE-----
+        ...
+        -----END CERTIFICATE-----
+      private_key: |
+        -----BEGIN EXAMPLE RSA PRIVATE KEY-----
+        ...
+        -----END EXAMPLE RSA PRIVATE KEY-----
 
 security:
   user:
