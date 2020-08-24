@@ -14,18 +14,16 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
 REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel.p('bind') && !sentinel.p('tls') %>
+<% if sentinel.p('bind') %>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
 <% end %>
 REDIS_SENTINEL_EXPORTER_ARGS="-sentinel.addr redis://${REDIS_SENTINEL_IP}:<%= sentinel.p('port') %>";
 
-<%
-  sentinel.if_p('password') do |x|
+<% sentinel.if_p('password') do |x|
     unless x.to_s.empty? %>
 REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password \"<%= x %>\"";
 <%  end
-  end
-%>
+  end %>
 
 <% if p('debug') %> \
 REDIS_SENTINEL_EXPORTER_ARGS+=" -debug";

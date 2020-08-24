@@ -16,15 +16,9 @@
 # bind 127.0.0.1 192.168.1.1
 #
 # protected-mode no
-<% if sentinel.p('bind')
-    if sentinel.p('tls') %>
-# We must bind to 127.0.0.1 too because redis_sentinel_exporter
-# don't support TLS/SSL yet
-bind 127.0.0.1 <%= spec.ip %>
-<%  else %>
+<% if sentinel.p('bind') %>
 bind <%= spec.ip %>
-<%  end
-  else %>
+<% else %>
 bind 127.0.0.1
 <% end %>
 
@@ -268,7 +262,7 @@ requirepass <%= x %>
 # The valid charset is A-z 0-9 and the three characters ".-_".
 <% if !master.nil?
     master_port=master.p('port')
-    if master.p('tls')
+    if sentinel.p('tls') && master.p('tls') && master.p('tls_replication')
       master_port=master.p('tls_port')
     end %>
 sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>

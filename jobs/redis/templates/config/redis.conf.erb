@@ -152,7 +152,6 @@ tcp-keepalive <%= p('tcp_keepalive') %>
 # port 0
 # tls-port 6379
 <% if master.p('tls') %>
-port 0
 tls-port <%= master.p('tls_port') %>
 <% end %>
 
