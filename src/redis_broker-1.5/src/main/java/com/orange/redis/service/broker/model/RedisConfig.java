@@ -251,11 +251,11 @@ public class RedisConfig {
 
     private Integer port = null;
 
-    private String clientCERT = null;
+    private String certificate = null;
 
-    private String clientKey = null;
+    private String private_key = null;
 
-    private String caCERT = null;
+    private String ca = null;
 
     public Integer getPort() {
       return port;
@@ -265,28 +265,28 @@ public class RedisConfig {
       this.port = port;
     }
 
-    public String getClientCERT() {
-      return clientCERT;
+    public String getCertificate() {
+      return certificate;
     }
 
-    public void setClientCERT(String clientCERT) {
-      this.clientCERT = clientCERT;
+    public void setCertificate(String certificate) {
+      this.certificate = certificate;
     }
 
-    public String getClientKey() {
-      return clientKey;
+    public String getPrivate_key() {
+      return private_key;
     }
 
-    public void setClientKey(String clientKey) {
-      this.clientKey = clientKey;
+    public void setPrivate_key(String private_key) {
+      this.private_key = private_key;
     }
 
-    public String getCaCERT() {
-      return caCERT;
+    public String getCa() {
+      return ca;
     }
 
-    public void setCaCERT(String caCERT) {
-      this.caCERT = caCERT;
+    public void setCa(String ca) {
+      this.ca = ca;
     }
 
     public boolean isEmpty() {
@@ -321,12 +321,12 @@ public class RedisConfig {
     if (!getTLS().isEmpty()) {
       credentials.put(getTLSPortKey(), getTLS().getPort().toString());
       logger.info(getTLSPortKey().concat(" ").concat(getTLS().getPort().toString()));
-      credentials.put(getTLSClientCERTKey(), getTLS().getClientCERT());
-      logger.info(getTLSClientCERTKey().concat(" ").concat(getTLS().getClientCERT()));
-      credentials.put(getTLSClientKeyKey(), getTLS().getClientKey());
-      logger.info(getTLSClientKeyKey().concat(" ").concat(getTLS().getClientKey()));
-      credentials.put(getTLSCACERTKey(), getTLS().getCaCERT());
-      logger.info(getTLSCACERTKey().concat(" ").concat(getTLS().getCaCERT()));
+      credentials.put(getTLSClientCERTKey(), getTLS().getCertificate());
+      logger.info(getTLSClientCERTKey().concat(" ").concat(getTLS().getCertificate()));
+      credentials.put(getTLSClientKeyKey(), getTLS().getPrivate_key());
+      logger.info(getTLSClientKeyKey().concat(" ").concat(getTLS().getPrivate_key()));
+      credentials.put(getTLSCACERTKey(), getTLS().getCa());
+      logger.info(getTLSCACERTKey().concat(" ").concat(getTLS().getCa()));
     }
     return credentials;
   }
