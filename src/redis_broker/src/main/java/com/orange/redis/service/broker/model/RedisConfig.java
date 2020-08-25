@@ -21,30 +21,30 @@ import org.springframework.validation.annotation.Validated;
 public class RedisConfig {
   private static final Logger logger = LogManager.getLogger(RedisConfig.class);
   @NotNull
-  private String IPKey;
+  private String ip_key;
   @NotNull
-  private String portKey;
+  private String port_key;
   @NotNull
-  private String passwordKey;
+  private String password_key;
   @NotNull
-  private String adminUserKey;
+  private String admin_user_key;
   @NotNull
-  private String adminPasswordKey;
+  private String admin_password_key;
   @NotNull
-  private String HAIPKey;
+  private String ha_master_name_key;
   @NotNull
-  private String HAPortKey;
+  private String ha_port_key;
   @NotNull
-  private String HAPasswordKey;
+  private String ha_password_key;
   @NotNull
-  private String tlsPortKey;
+  private String tls_port_key;
   @NotNull
-  private String tlsClientCERTKey;
+  private String tls_certificate_key;
   @NotNull
-  private String tlsClientKeyKey;
+  private String tls_private_key_key;
   @NotNull
-  private String tlsCACERTKey;
-  @NotEmpty
+  private String tls_ca_key;
+  @NotNull
   private List<InetAddress> servers = new ArrayList<>();
   @NotNull
   private Integer port;
@@ -59,100 +59,100 @@ public class RedisConfig {
   @Valid
   private TLS tls = new TLS();
 
-  public String getIPKey() {
-    return IPKey;
+  public String getIp_key() {
+    return ip_key;
   }
 
-  public void setIPKey(String IPKey) {
-    this.IPKey = IPKey;
+  public void setIp_key(String ip_key) {
+    this.ip_key = ip_key;
   }
 
-  public String getPortKey() {
-    return portKey;
+  public String getPort_key() {
+    return port_key;
   }
 
-  public void setPortKey(String portKey) {
-    this.portKey = portKey;
+  public void setPort_key(String port_key) {
+    this.port_key = port_key;
   }
 
-  public String getPasswordKey() {
-    return passwordKey;
+  public String getPassword_key() {
+    return password_key;
   }
 
-  public void setPasswordKey(String passwordKey) {
-    this.passwordKey = passwordKey;
+  public void setPassword_key(String password_key) {
+    this.password_key = password_key;
   }
 
-  public String getAdminUserKey() {
-    return adminUserKey;
+  public String getAdmin_user_key() {
+    return admin_user_key;
   }
 
-  public void setAdminUserKey(String adminUserKey) {
-    this.adminUserKey = adminUserKey;
+  public void setAdmin_user_key(String admin_user_key) {
+    this.admin_user_key = admin_user_key;
   }
 
-  public String getAdminPasswordKey() {
-    return adminPasswordKey;
+  public String getAdmin_password_key() {
+    return admin_password_key;
   }
 
-  public void setAdminPasswordKey(String adminPasswordKey) {
-    this.adminPasswordKey = adminPasswordKey;
+  public void setAdmin_password_key(String admin_password_key) {
+    this.admin_password_key = admin_password_key;
   }
 
-  public String getHAIPKey() {
-    return HAIPKey;
+  public String getHa_master_name_key() {
+    return ha_master_name_key;
   }
 
-  public void setHAIPKey(String HAIPKey) {
-    this.HAIPKey = HAIPKey;
+  public void setHa_master_name_key(String ha_ip_key) {
+    this.ha_master_name_key = ha_ip_key;
   }
 
-  public String getHAPortKey() {
-    return HAPortKey;
+  public String getHa_port_key() {
+    return ha_port_key;
   }
 
-  public void setHAPortKey(String HAPortKey) {
-    this.HAPortKey = HAPortKey;
+  public void setHa_port_key(String ha_port_key) {
+    this.ha_port_key = ha_port_key;
   }
 
-  public String getHAPasswordKey() {
-    return HAPasswordKey;
+  public String getHa_password_key() {
+    return ha_password_key;
   }
 
-  public void setHAPasswordKey(String HAPasswordKey) {
-    this.HAPasswordKey = HAPasswordKey;
+  public void setHa_password_key(String ha_password_key) {
+    this.ha_password_key = ha_password_key;
   }
 
-  public String getTLSPortKey() {
-    return tlsPortKey;
+  public String getTls_port_key() {
+    return tls_port_key;
   }
 
-  public void setTLSPortKey(String tlsPortKey) {
-    this.tlsPortKey = tlsPortKey;
+  public void setTls_port_key(String tls_port_key) {
+    this.tls_port_key = tls_port_key;
   }
 
-  public String getTLSClientCERTKey() {
-    return tlsClientCERTKey;
+  public String getTls_certificate_key() {
+    return tls_certificate_key;
   }
 
-  public void setTLSClientCERTKey(String tlsClientCERTKey) {
-    this.tlsClientCERTKey = tlsClientCERTKey;
+  public void setTls_certificate_key(String tls_certificate_Key) {
+    this.tls_certificate_key = tls_certificate_Key;
   }
 
-  public String getTLSClientKeyKey() {
-    return tlsClientKeyKey;
+  public String getTls_private_key_key() {
+    return tls_private_key_key;
   }
 
-  public void setTLSClientKeyKey(String tlsClientKeyKey) {
-    this.tlsClientKeyKey = tlsClientKeyKey;
+  public void setTls_private_key_key(String tls_private_key_Key) {
+    this.tls_private_key_key = tls_private_key_Key;
   }
 
-  public String getTLSCACERTKey() {
-    return tlsCACERTKey;
+  public String getTls_ca_key() {
+    return tls_ca_key;
   }
 
-  public void setTLSCACERTKey(String tlsCACERTKey) {
-    this.tlsCACERTKey = tlsCACERTKey;
+  public void setTls_ca_key(String tls_ca_key) {
+    this.tls_ca_key = tls_ca_key;
   }
 
   public List<InetAddress> getServers() {
@@ -203,28 +203,28 @@ public class RedisConfig {
     this.sentinel = sentinel;
   }
 
-  public TLS getTLS() {
+  public TLS getTls() {
     return tls;
   }
 
-  public void setTLS(TLS tls) {
+  public void setTls(TLS tls) {
     this.tls = tls;
   }
 
   public static class Sentinel {
 
-    private String masterName = null;
+    private String master_name = null;
 
     private Integer port = null;
 
     private String password = null;
 
-    public String getMasterName() {
-      return masterName;
+    public String getMaster_name() {
+      return master_name;
     }
 
-    public void setMasterName(String masterName) {
-      this.masterName = masterName;
+    public void setMaster_name(String master_name) {
+      this.master_name = master_name;
     }
 
     public Integer getPort() {
@@ -244,7 +244,7 @@ public class RedisConfig {
     }
 
     public boolean isEmpty() {
-      return masterName == null && port == null && password == null;
+      return master_name == null && port == null && password == null;
     }
   }
 
@@ -252,11 +252,11 @@ public class RedisConfig {
 
     private Integer port = null;
 
-    private String clientCERT = null;
+    private String certificate = null;
 
-    private String clientKey = null;
+    private String private_key = null;
 
-    private String caCERT = null;
+    private String ca = null;
 
     public Integer getPort() {
       return port;
@@ -266,32 +266,32 @@ public class RedisConfig {
       this.port = port;
     }
 
-    public String getClientCERT() {
-      return clientCERT;
+    public String getCertificate() {
+      return certificate;
     }
 
-    public void setClientCERT(String clientCERT) {
-      this.clientCERT = clientCERT;
+    public void setCertificate(String certificate) {
+      this.certificate = certificate;
     }
 
-    public String getClientKey() {
-      return clientKey;
+    public String getPrivate_key() {
+      return private_key;
     }
 
-    public void setClientKey(String clientKey) {
-      this.clientKey = clientKey;
+    public void setPrivate_key(String private_key) {
+      this.private_key = private_key;
     }
 
-    public String getCaCERT() {
-      return caCERT;
+    public String getCa() {
+      return ca;
     }
 
-    public void setCaCERT(String caCERT) {
-      this.caCERT = caCERT;
+    public void setCa(String ca) {
+      this.ca = ca;
     }
 
     public boolean isEmpty() {
-      return port == null && clientCERT == null && clientKey == null && caCERT == null;
+      return port == null && certificate == null && private_key == null && ca == null;
     }
   }
 
@@ -301,33 +301,33 @@ public class RedisConfig {
     for (InetAddress address : getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");
     servers = servers.trim();
-    credentials.put(getIPKey(), servers);
-    logger.info(getIPKey().concat(" ").concat(servers));
-    credentials.put(getPortKey(), getPort().toString());
-    logger.info(getPortKey().concat(" ").concat(getPort().toString()));
-    credentials.put(getPasswordKey(), getPassword());
-    logger.info(getPasswordKey().concat(" ").concat(getPassword()));
-    credentials.put(getAdminUserKey(), getAdmin_user());
-    logger.info(getAdminUserKey().concat(" ").concat(getAdmin_user()));
-    credentials.put(getAdminPasswordKey(), getAdmin_password());
-    logger.info(getAdminPasswordKey().concat(" ").concat(getAdmin_password()));
+    credentials.put(getIp_key(), servers);
+    logger.info(getIp_key().concat(" ").concat(servers));
+    credentials.put(getPort_key(), getPort().toString());
+    logger.info(getPort_key().concat(" ").concat(getPort().toString()));
+    credentials.put(getPassword_key(), getPassword());
+    logger.info(getPassword_key().concat(" ").concat(getPassword()));
+    credentials.put(getAdmin_user_key(), getAdmin_user());
+    logger.info(getAdmin_user_key().concat(" ").concat(getAdmin_user()));
+    credentials.put(getAdmin_password_key(), getAdmin_password());
+    logger.info(getAdmin_password_key().concat(" ").concat(getAdmin_password()));
     if (!getSentinel().isEmpty()) {
-      credentials.put(getHAIPKey(), getSentinel().getMasterName());
-      logger.info(getHAIPKey().concat(" ").concat(getSentinel().getMasterName()));
-      credentials.put(getHAPortKey(), getSentinel().getPort().toString());
-      logger.info(getHAPortKey().concat(" ").concat(getSentinel().getPort().toString()));
-      credentials.put(getHAPasswordKey(), getSentinel().getPassword());
-      logger.info(getHAPasswordKey().concat(" ").concat(getSentinel().getPassword()));
+      credentials.put(getHa_master_name_key(), getSentinel().getMaster_name());
+      logger.info(getHa_master_name_key().concat(" ").concat(getSentinel().getMaster_name()));
+      credentials.put(getHa_port_key(), getSentinel().getPort().toString());
+      logger.info(getHa_port_key().concat(" ").concat(getSentinel().getPort().toString()));
+      credentials.put(getHa_password_key(), getSentinel().getPassword());
+      logger.info(getHa_password_key().concat(" ").concat(getSentinel().getPassword()));
     }
-    if (!getTLS().isEmpty()) {
-      credentials.put(getTLSPortKey(), getTLS().getPort().toString());
-      logger.info(getTLSPortKey().concat(" ").concat(getTLS().getPort().toString()));
-      credentials.put(getTLSClientCERTKey(), getTLS().getClientCERT());
-      logger.info(getTLSClientCERTKey().concat(" ").concat(getTLS().getClientCERT()));
-      credentials.put(getTLSClientKeyKey(), getTLS().getClientKey());
-      logger.info(getTLSClientKeyKey().concat(" ").concat(getTLS().getClientKey()));
-      credentials.put(getTLSCACERTKey(), getTLS().getCaCERT());
-      logger.info(getTLSCACERTKey().concat(" ").concat(getTLS().getCaCERT()));
+    if (!getTls().isEmpty()) {
+      credentials.put(getTls_port_key(), getTls().getPort().toString());
+      logger.info(getTls_port_key().concat(" ").concat(getTls().getPort().toString()));
+      credentials.put(getTls_certificate_key(), getTls().getCertificate());
+      logger.info(getTls_certificate_key().concat(" ").concat(getTls().getCertificate()));
+      credentials.put(getTls_private_key_key(), getTls().getPrivate_key());
+      logger.info(getTls_private_key_key().concat(" ").concat(getTls().getPrivate_key()));
+      credentials.put(getTls_ca_key(), getTls().getCa());
+      logger.info(getTls_ca_key().concat(" ").concat(getTls().getCa()));
     }
     return credentials;
   }

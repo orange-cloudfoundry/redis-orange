@@ -50,35 +50,35 @@ properties:
     default: "8080"
     description: |
       The port that this Redis broker instance will run on.
-  ip_property_key:
+  ip_key:
     default: "hostname"
     description: |
       Redis servers IP property's key for client
-  port_property_key:
+  port_key:
     default: "port"
     description: |
       Redis servers port property's key for client
-  password_property_key:
+  password_key:
     default: "password"
     description: |
       Redis default user's password property's key for client
-  admin_user_property_key:
+  admin_user_key:
     default: "admin_user"
     description: |
       Redis admin's name property's key for client
-  admin_password_property_key:
+  admin_password_key:
     default: "admin_password"
     description: |
       Redis admin's password property's key for client
-  high_avaibility_ip_property_key:
-    default: "ha_hostname"
+  ha_master_name_key:
+    default: "ha_master_name"
     description: |
       Redis Sentinels IP property's key for client
-  high_avaibility_port_property_key:
+  ha_port_key:
     default: "ha_port"
     description: |
       Redis Sentinels port property's key for client
-  high_avaibility_password_property_key:
+  ha_password_key:
     default: "ha_password"
     description: |
       Redis Sentinels password property's key for client
@@ -86,19 +86,19 @@ properties:
     description: |
       Certificate materials for TLS connection.
     type: certificate
-  tls_port_property_key:
+  tls_port_key:
     default: "tls_port"
     description: |
       Redis TLS/SSL port property's key for client
-  tls_client_cert_property_key:
-    default: "tls_cert"
+  tls_certificate_key:
+    default: "tls_certificate"
     description: |
       Redis TLS/SSL certificate property's key for client
-  tls_client_key_property_key:
-    default: "tls_key"
+  tls_private_key_key:
+    default: "tls_private_key"
     description: |
       Redis TLS/SSL key property's key for client
-  tls_ca_cert_property_key:
+  tls_ca_key:
     default: "tls_ca"
     description: |
       Redis TLS/SSL CA certificate property's key for client

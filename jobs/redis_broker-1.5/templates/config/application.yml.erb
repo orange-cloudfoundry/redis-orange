@@ -18,18 +18,18 @@ server:
 
 orange:
   redis:
-    IPKey: <%= p('ip_property_key') %>
-    portKey: <%= p('port_property_key') %>
-    passwordKey: <%= p('password_property_key') %>
-    adminUserKey: <%= p('admin_user_property_key') %>
-    adminPasswordKey: <%= p('admin_password_property_key') %>
-    HAIPKey: <%= p('high_avaibility_ip_property_key') %>
-    HAPortKey: <%= p('high_avaibility_port_property_key') %>
-    HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
-    tlsPortKey: <%= p('tls_port_property_key') %>
-    tlsClientCERTKey: <%= p('tls_client_cert_property_key') %>
-    tlsClientKeyKey: <%= p('tls_client_key_property_key') %>
-    tlsCACERTKey: <%= p('tls_ca_cert_property_key') %>
+    ip_key: <%= p('ip_key') %>
+    port_key: <%= p('port_key') %>
+    password_key: <%= p('password_key') %>
+    admin_user_key: <%= p('admin_user_key') %>
+    admin_password_key: <%= p('admin_password_key') %>
+    ha_master_name_key: <%= p('ha_master_name_key') %>
+    ha_port_key: <%= p('ha_port_key') %>
+    ha_password_key: <%= p('ha_password_key') %>
+    tls_port_key: <%= p('tls_port_key') %>
+    tls_certificate_key: <%= p('tls_certificate_key') %>
+    tls_private_key_key: <%= p('tls_private_key_key') %>
+    tls_ca_key: <%= p('tls_ca_key') %>
     servers:
 <% if !sentinel.nil?
     sentinel.instances.each do |x| %>
@@ -74,14 +74,17 @@ orange:
       password: <%= x %>
 <%    end
     end %>
-      masterName: <%= spec.deployment %>
+      master_name: <%= spec.deployment %>
 <% end
   if master.p('tls') %>
     tls:
       port: <%= master.p('tls_port') %>
-      client_cert: <%= p('tls_keys').certificate %>
-      client_key: <%= p('tls_keys').private_key %>
-      ca_cert: <%= p('tls_keys').ca %>
+      certificate: |
+        <%= p('tls_keys').certificate %>
+      private_key: |
+        <%= p('tls_keys').private_key %>
+      ca: |
+        <%= p('tls_keys').ca %>
 <% end %>
 
 security:
