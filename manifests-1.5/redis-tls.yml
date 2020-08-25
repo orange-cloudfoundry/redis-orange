@@ -15,7 +15,10 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
+      port: 0
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       tls: ((redis_tls))
       tls_keys: ((redis_keys))
       maxmemory: ((redis_maxmemory))
@@ -28,6 +31,7 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       loglevel: ((redis_broker_loglevel))
+      tls_keys: ((redis_broker_keys))
   - name: redis_broker_check-1.5
     release: redis-service
   - name: redis_exporter
@@ -39,8 +43,20 @@ instance_groups:
 variables:
 - name: redis_password
   type: password
+  parameters:
+    length: 1024
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: 1024
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: 1024
 - name: redis_broker_password
   type: password
+  parameters:
+    length: 1024
 - name: redis_ca
   type: certificate
   options:
@@ -55,6 +71,14 @@ variables:
   options:
     ca: redis_ca
     common_name: 'Server'
+    organization: 'orange.com'
+    key_length: 4096
+    duration: 365
+- name: redis_broker_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Client'
     organization: 'orange.com'
     key_length: 4096
     duration: 365

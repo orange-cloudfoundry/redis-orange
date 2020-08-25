@@ -16,10 +16,13 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
+      replica_password: ((redis_replica_password))
+      sentinel_password: ((redis_sentinel_user_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
       replication: ((redis_replication))
-      replication_user: ((redis_replication_user))
       min_replicas_to_write: ((redis_min_replicas_to_write))
   - name: redis_sentinel
     release: redis-service
@@ -57,10 +60,32 @@ instance_groups:
 variables:
 - name: redis_password
   type: password
+  parameters:
+    length: 1024
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: 1024
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: 1024
+- name: redis_replica_password
+  type: password
+  parameters:
+    length: 1024
+- name: redis_sentinel_user_password
+  type: password
+  parameters:
+    length: 1024
 - name: redis_sentinel_password
   type: password
+  parameters:
+    length: 1024
 - name: redis_broker_password
   type: password
+  parameters:
+    length: 1024
 
 stemcells:
 - alias: default

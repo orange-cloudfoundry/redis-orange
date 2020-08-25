@@ -64,10 +64,7 @@ logfile "<%= p('log_dir')+'/'+p('logfile') %>"
 # sentinel announce-ip 1.2.3.4
 <% if p('announce') && sentinel.p('bind') %>
 sentinel announce-ip <%= spec.ip %>
-<%  if sentinel.p('tls') %>
-sentinel announce-port <%= sentinel.p('tls_port') %>
-<%  end
-  end %>
+<% end %>
 
 # dir <working-directory>
 # Every long running process should have a well-defined working directory.

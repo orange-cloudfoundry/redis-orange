@@ -59,7 +59,6 @@ REDIS_SENTINEL_CRED+=" --cacert \"${REDIS_TLS_CA_CERT_FILE}\"";
       master_port=master.p('tls_port')
     end
   end %>
-
 REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
 <% master.if_p('sentinel_password') do |x|
     unless x.to_s.empty? %>
