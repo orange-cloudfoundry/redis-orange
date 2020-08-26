@@ -1,7 +1,7 @@
 
 <% master=link('redis_conn')
   password='nopass'
-  master.if_p('default_password') do |x|
+  master.if_p('password') do |x|
     unless x.to_s.empty?
       password='>'+x
     end
@@ -38,4 +38,4 @@ user <%= master.p('sentinel_user') %> on +client +subscribe +publish +ping +info
       password='>'+x
     end
   end %>
-user <%= master.p('exporter_user') %> on +@all -@dangerous +CONFIG ~* <%= password %>
+user <%= master.p('exporter_user') %> on +@all -@dangerous +CONFIG +INFO ~* <%= password %>

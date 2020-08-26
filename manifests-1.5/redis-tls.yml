@@ -19,10 +19,10 @@ instance_groups:
       password: ((redis_password))
       admin_password: ((redis_admin_password))
       exporter_password: ((redis_exporter_password))
-      tls: ((redis_tls))
-      tls_keys: ((redis_keys))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
+      tls: true
+      tls_keys: ((redis_keys))
   - name: redis_check
     release: redis-service
   - name: redis_broker-1.5
@@ -30,7 +30,6 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
       tls_keys: ((redis_broker_keys))
   - name: redis_broker_check-1.5
     release: redis-service
@@ -38,32 +37,31 @@ instance_groups:
     release: redis-service
     properties:
       tls_keys: ((exporter_keys))
-      debug: ((redis_exporter_debug))
 
 variables:
 - name: redis_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_admin_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_exporter_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_broker_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_ca
   type: certificate
   options:
     common_name: ((deployment_name))
     organization: 'orange.com'
-    key_length: 8192
-    duration: 365
+    key_length: ((ca_key_length))
+    duration: ((certificate_duration))
     is_ca: true
     self_sign: true
 - name: redis_keys
@@ -72,24 +70,24 @@ variables:
     ca: redis_ca
     common_name: 'Server'
     organization: 'orange.com'
-    key_length: 4096
-    duration: 365
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 - name: redis_broker_keys
   type: certificate
   options:
     ca: redis_ca
     common_name: 'Client'
     organization: 'orange.com'
-    key_length: 4096
-    duration: 365
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 - name: exporter_keys
   type: certificate
   options:
     ca: redis_ca
     common_name: 'Exporter'
     organization: 'orange.com'
-    key_length: 4096
-    duration: 365
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 
 stemcells:
 - alias: default

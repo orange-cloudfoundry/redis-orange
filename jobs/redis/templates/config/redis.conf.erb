@@ -488,9 +488,9 @@ replicaof <%= master_address %> <%= master_port %>
 # When masteruser is specified, the replica will authenticate against its
 # master using the new AUTH form: AUTH <username> <password>.
 <% if master.p('replication') || master.p('cluster_enabled').eql?('yes')
-    master.if_p('replica_password') do |password|
-      unless password.to_s.empty? %>
-masterauth <%= password %>
+    master.if_p('replica_password') do |x|
+      unless x.to_s.empty? %>
+masterauth <%= x %>
 <%    end %>
 masteruser <%= master.p('replica_user') %>
 <%  end

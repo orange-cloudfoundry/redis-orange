@@ -55,7 +55,7 @@ orange:
     end
   end %>
     port: <%= master.p('port') %>
-<% master.if_p('default_password') do |x|
+<% master.if_p('password') do |x|
     unless x.to_s.empty? %>
     password: <%= x %>
 <%  end

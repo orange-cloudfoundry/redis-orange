@@ -18,7 +18,7 @@ provides:
 # General
   - bind
   - port
-  - default_password
+  - password
   - admin_user
   - admin_password
   - exporter_user
@@ -28,6 +28,7 @@ provides:
   - maxmemory_policy
   - maxmemory_samples
   - replica_ignore_maxmemory
+  - active_expire_effort
   - lfu_log_factor
   - lfu_decay_time
 # TLS/SSL
@@ -467,7 +468,7 @@ properties:
       with ACLs. The ACL Log is useful to troubleshoot failed commands blocked 
       by ACLs. The ACL Log is stored in memory. You can reclaim memory with 
       ACL LOG RESET.
-  default_password:
+  password:
     description: |
       Password for "default" user.
       Require clients to issue AUTH <PASSWORD> before processing any other commands.  This might be useful in environments in which you do not trust others with access to the host running redis-server.

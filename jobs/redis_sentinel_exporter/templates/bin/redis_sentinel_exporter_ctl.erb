@@ -21,7 +21,7 @@ REDIS_SENTINEL_EXPORTER_ARGS="-sentinel.addr redis://${REDIS_SENTINEL_IP}:<%= se
 
 <% sentinel.if_p('password') do |x|
     unless x.to_s.empty? %>
-REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password \"<%= x %>\"";
+REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password <%= x %>";
 <%  end
   end %>
 

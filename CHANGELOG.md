@@ -4,15 +4,18 @@
   - TSL/SSL
   - ACL
   - Multi-threading
-- Correction for misunderstanding about Sentinel's quorum by adding `max_detected_failures` property in Sentinel's specifications. It's default value is 2.
 - Added support for reconfiguring Sentinel at runtime to share a Sentinel with several Redis master. 
 - Components update:
   - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.6,
-  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.10.0,
+  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.11.0,
   - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.6.0,
   - [*OpenJDK*](https://openjdk.java.net/) 13.0.2 -> 14.0.2,
   - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.2 -> 2.3.3,
   - [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.0 -> 3.1.2.
+
+## redis-orange 1.0.2.1
+
+- Correction for misunderstanding about Sentinel's quorum by adding `max_detected_failures` property in Sentinel's specifications. It's default value is 2.
 
 ## redis-orange 1.0.2
 

@@ -15,11 +15,11 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
-REDIS_EXPORTER_ARGS="-redis.user \"<%= master.p('exporter_user') %>\"";
+REDIS_EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
 REDIS_PASSWORD="";
 <% master.if_p('exporter_password') do |x|
     unless x.to_s.empty? %>
-REDIS_EXPORTER_ARGS+=" -redis.password \"<%= x %>\"";
+REDIS_EXPORTER_ARGS+=" -redis.password <%= x %>";
 <%  end
   end %>
 
@@ -30,11 +30,11 @@ REDIS_PROTOCOLE="rediss";
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_EXPORTER_ARGS+=" -tls-client-cert-file \"${REDIS_TLS_CERT_FILE}\"";
+REDIS_EXPORTER_ARGS+=" -tls-client-cert-file ${REDIS_TLS_CERT_FILE}";
 REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_EXPORTER_ARGS+=" -tls-client-key-file \"${REDIS_TLS_KEY_FILE}\"";
+REDIS_EXPORTER_ARGS+=" -tls-client-key-file ${REDIS_TLS_KEY_FILE}";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-REDIS_EXPORTER_ARGS+=" -tls-ca-cert-file \"${REDIS_TLS_CA_CERT_FILE}\"";
+REDIS_EXPORTER_ARGS+=" -tls-ca-cert-file ${REDIS_TLS_CA_CERT_FILE}";
 <% end %>
 
 REDIS_IP="127.0.0.1";
@@ -45,15 +45,15 @@ REDIS_IP="<%= spec.ip %>";
 REDIS_EXPORTER_ARGS+=" -redis.addr=${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
 
 <% if_p('check_keys') do |x| %>
-REDIS_EXPORTER_ARGS+=" -check-keys \"<%= x %>\"";
+REDIS_EXPORTER_ARGS+=" -check-keys <%= x %>";
 <% end %>
 <% if_p('check_single_keys') do |x| %>
-REDIS_EXPORTER_ARGS+=" -check-single-keys \"<%= x %>\"";
+REDIS_EXPORTER_ARGS+=" -check-single-keys <%= x %>";
 <% end %>
 <% if_p('config_command') do |x| %>
-REDIS_EXPORTER_ARGS+=" -config-command \"<%= x %>\"";
+REDIS_EXPORTER_ARGS+=" -config-command <%= x %>";
 <% end %>
-REDIS_EXPORTER_ARGS+=" -connection-timeout \"<%= p('connection_timeout') %>\"";
+REDIS_EXPORTER_ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
 <% if p('debug') %>
 REDIS_EXPORTER_ARGS+=" -debug";
 <% end %>
@@ -106,7 +106,7 @@ case $1 in
     pid_guard "${PIDFILE}" "${PROGNAME}";
     echo $$ > "${PIDFILE}";
 
-    exec chpst -u vcap:vcap "${PROGNAME}"" \
+    exec chpst -u vcap:vcap "${PROGNAME}" \
       ${REDIS_EXPORTER_ARGS} \
       -log-format="<%= p('log_format') %>" \
       -namespace="<%= p('namespace') %>" \

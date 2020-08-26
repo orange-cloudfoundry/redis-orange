@@ -27,31 +27,28 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
   - name: redis_broker_check-1.5
     release: redis-service
   - name: redis_exporter
     release: redis-service
-    properties:
-      debug: ((redis_exporter_debug))
 
 variables:
 - name: redis_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_admin_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_exporter_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 - name: redis_broker_password
   type: password
   parameters:
-    length: 1024
+    length: ((password_length))
 
 stemcells:
 - alias: default
