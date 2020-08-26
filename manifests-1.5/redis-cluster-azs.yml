@@ -21,11 +21,13 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
       cluster_enabled: ((redis_cluster_enabled))
+      replica_password: ((redis_replica_password))
       cluster_replicas_per_node: ((replicas_per_node_count))
-      min_replicas_to_write: ((redis_min_replicas_to_write))
   - name: redis_check
     release: redis-service
     consumes:
@@ -35,8 +37,6 @@ instance_groups:
     release: redis-service
     consumes:
       redis_conn: {from: master}
-    properties:
-      debug: ((redis_exporter_debug))
 - name: redis-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -62,8 +62,6 @@ instance_groups:
     release: redis-service
     consumes:
       redis_conn: {from: master}
-    properties:
-      debug: ((redis_exporter_debug))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -81,15 +79,30 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
   - name: redis_broker_check-1.5
     release: redis-service
 
 variables:
 - name: redis_password
   type: password
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_replica_password
+  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
+  parameters:
+    length: ((password_length))
 
 stemcells:
 - alias: default

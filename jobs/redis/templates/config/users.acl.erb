@@ -37,4 +37,4 @@ user <%= master.p('sentinel_user') %> on +client +subscribe +publish +ping +info
       password='>'+x
     end
   end %>
-user <%= master.p('exporter_user') %> on +@all -@dangerous +CONFIG +INFO ~* <%= password %>
+user <%= master.p('exporter_user') %> on +@all -@dangerous +config +info ~* <%= password %>

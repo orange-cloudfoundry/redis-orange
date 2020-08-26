@@ -80,7 +80,7 @@ REDIS_SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
 REDIS_SENTINEL_DONE="";
 for x in ${REDIS_SENTINEL_ADDRESSES};
 do
-  MSG="$(printf "%s\n" "${REDIS_SENTINEL_CMD}" | \
+  MSG="$(echo -e "${REDIS_SENTINEL_CMD}" | \
     "${REDIS_CLI}" \
       -h "${x}" \
       -p "${REDIS_SENTINEL_PORT}" \
@@ -88,7 +88,7 @@ do
   if [[ ! ${?} -eq 0 ]];
   then
     ERR=1;
-    printf "%s\n" "ERROR: Commands failed with Sentinel \"${x}\": \"${MSG}\".";
+    echo "ERROR: Commands failed with Sentinel \"${x}\": \"${MSG}\".";
     break;
   fi
   REDIS_SENTINEL_DONE+="${x} ";

@@ -19,7 +19,7 @@ instance_groups:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       shared: true
-      bind: ((redis_sentinel_bind))
+      bind: true
       password: ((redis_sentinel_password))
   - name: redis_sentinel_exporter
     release: redis-service

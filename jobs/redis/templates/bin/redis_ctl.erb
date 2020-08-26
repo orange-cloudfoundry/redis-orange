@@ -57,11 +57,11 @@ case "${1}" in
 
 <% if master.p('tls') %>
     mkdir -p "${REDIS_TLS_KEYS_DIR}";
-    printf "%s\n" "<%= p('tls_keys').certificate %>" > \
+    echo "<%= p('tls_keys').certificate %>" > \
       "${REDIS_TLS_CERT_FILE}";
-    printf "%s\n" "<%= p('tls_keys').private_key %>" > \
+    echo "<%= p('tls_keys').private_key %>" > \
       "${REDIS_TLS_KEY_FILE}";
-    printf "%s\n" "<%= p('tls_keys').ca %>" > \
+    echo "<%= p('tls_keys').ca %>" > \
       "${REDIS_TLS_CA_CERT_FILE}";
     chown -R vcap:vcap "${REDIS_TLS_KEYS_DIR}";
     chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
@@ -77,7 +77,7 @@ case "${1}" in
     then
       # fail silently as bosh-lite is a read-only file system
       set +e;
-      printf "%s\n" never > /sys/kernel/mm/transparent_hugepage/enabled;
+      echo "never" > /sys/kernel/mm/transparent_hugepage/enabled;
       set -e;
     fi
 
@@ -89,9 +89,9 @@ case "${1}" in
 
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
-      printf "%s\n" "${REDIS_PID_FILE} exists, process is already running or crashed";
+      echo "${REDIS_PID_FILE} exists, process is already running or crashed";
     else
-      printf "%s\n" "Starting Redis server...";
+      echo "Starting Redis server...";
 <% if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     redis_persistance_rdb=0
     master.if_p('save') do |x|
@@ -118,7 +118,7 @@ case "${1}" in
     if [[ -f "${REDIS_PID_FILE}" ]];
     then
       REDIS_PID="$(cat "${REDIS_PID_FILE}")";
-      printf "%s\n" "Stopping ...";
+      echo "Stopping ...";
       exec chpst -u vcap:vcap \
         "${REDIS_CLI}" \
           -h ${REDIS_IP} \
@@ -127,17 +127,17 @@ case "${1}" in
           SHUTDOWN;
       while [[ -x "/proc/${REDIS_PID}" ]];
       do
-        printf "%s\n" "Waiting for Redis to shutdown ...";
+        echo "Waiting for Redis to shutdown ...";
         sleep 1;
       done
       rm -f "${REDIS_PID_FILE}"
-      printf "%s\n" "Redis stopped";
+      echo "Redis stopped";
     else
-      printf "%s\n" "${REDIS_PID_FILE} does not exist, process is not running";
+      echo "${REDIS_PID_FILE} does not exist, process is not running";
     fi
     ;;
   *)
-    printf "%s\n" "Usage: ${0} {start|stop}";
+    echo "Usage: ${0} {start|stop}";
   ;;
 esac
 exit 0;

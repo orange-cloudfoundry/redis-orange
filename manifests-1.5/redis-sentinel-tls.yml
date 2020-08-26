@@ -13,11 +13,9 @@ instance_groups:
   jobs:
   - name: redis
     release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master, deployment: redis-sentinel-shared}
-      sentinel_slave_conn: {from: sentinel_slave, deployment: redis-sentinel-shared}
     properties:
       bind: ((redis_bind))
+      port: 0
       password: ((redis_password))
       admin_password: ((redis_admin_password))
       exporter_password: ((redis_exporter_password))
@@ -26,13 +24,21 @@ instance_groups:
       replication: true
       replica_password: ((redis_replica_password))
       sentinel_password: ((redis_sentinel_user_password))
+      tls: true
+      tls_keys: ((redis_keys))
+      tls_replication: true
   - name: redis_check
     release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master, deployment: redis-sentinel-shared}
-      sentinel_slave_conn: {from: sentinel_slave, deployment: redis-sentinel-shared}
   - name: redis_exporter
     release: redis-service
+  - name: redis_sentinel
+    release: redis-service
+    properties:
+      bind: ((redis_bind))
+      password: ((redis_sentinel_password))
+      tls: true
+      tls_keys: ((redis_sentinel_keys))
+      tls_replication: true
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -44,11 +50,10 @@ instance_groups:
   jobs:
   - name: redis_broker-1.5
     release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master, deployment: redis-sentinel-shared}
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
+      tls_keys: ((redis_broker_keys))
   - name: redis_broker_check-1.5
     release: redis-service
 
@@ -73,10 +78,55 @@ variables:
   type: password
   parameters:
     length: ((password_length))
+- name: redis_sentinel_password
+  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
   parameters:
     length: ((password_length))
+- name: redis_ca
+  type: certificate
+  options:
+    common_name: ((deployment_name))
+    organization: 'orange.com'
+    key_length: ((ca_key_length))
+    duration: ((certificate_duration))
+    is_ca: true
+    self_sign: true
+- name: redis_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Server'
+    organization: 'orange.com'
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_broker_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Client'
+    organization: 'orange.com'
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: exporter_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Exporter'
+    organization: 'orange.com'
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_sentinel_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Sentinel'
+    organization: 'orange.com'
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 
 stemcells:
 - alias: default

@@ -31,15 +31,15 @@ REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 mkdir -p "${REDIS_TLS_KEYS_DIR}";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 REDIS_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
-printf "%s\n" "<%= p('tls_keys').certificate %>" > \
+echo "<%= p('tls_keys').certificate %>" > \
   "${REDIS_TLS_CERT_FILE}";
 REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 REDIS_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
-printf "%s\n" "<%= p('tls_keys').private_key %>" > \
+echo "<%= p('tls_keys').private_key %>" > \
   "${REDIS_TLS_KEY_FILE}";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 REDIS_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
-printf "%s\n" "<%= p('tls_keys').ca %>" > \
+echo "<%= p('tls_keys').ca %>" > \
   "${REDIS_TLS_CA_CERT_FILE}";
 chown -R vcap:vcap "${REDIS_TLS_KEYS_DIR}";
 chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
