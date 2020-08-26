@@ -1,8 +1,6 @@
-<%
-  master=link('redis_conn')
+<% master=link('redis_conn')
   slave=nil
-  if_link('slave_conn'){ |x| slave=x }
-%>
+  if_link('slave_conn'){ |x| slave=x } %>
 # Redis configuration file example.
 #
 # Note that in order to read the configuration file, Redis must be

@@ -45,10 +45,10 @@ case $1 in
 
     exec chpst -u vcap:vcap "${PROGNAME}" \
       ${REDIS_SENTINEL_EXPORTER_ARGS} \
-      -log-format "<%= p('log_format') %>" \
-      -namespace "<%= p('namespace') %>" \
-      -web.listen-address "<%= spec.ip+':'+p('web.port') %>" \
-      -web.telemetry-path "<%= p('web.telemetry_path') %>" \
+      -log-format <%= p('log_format') %> \
+      -namespace <%= p('namespace') %> \
+      -web.listen-address <%= spec.ip+':'+p('web.port') %> \
+      -web.telemetry-path <%= p('web.telemetry_path') %> \
       >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
       2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
     ;;

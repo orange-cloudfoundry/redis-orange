@@ -108,10 +108,10 @@ case $1 in
 
     exec chpst -u vcap:vcap "${PROGNAME}" \
       ${REDIS_EXPORTER_ARGS} \
-      -log-format="<%= p('log_format') %>" \
-      -namespace="<%= p('namespace') %>" \
-      -web.listen-address="<%= spec.ip+':'+p('web_port') %>" \
-      -web.telemetry-path="<%= p('web_telemetry_path') %>" \
+      -log-format <%= p('log_format') %> \
+      -namespace <%= p('namespace') %> \
+      -web.listen-address <%= spec.ip+':'+p('web_port') %> \
+      -web.telemetry-path <%= p('web_telemetry_path') %> \
       >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
       2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
     ;;

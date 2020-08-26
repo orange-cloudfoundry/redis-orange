@@ -1,7 +1,5 @@
 #!/bin/bash
-<%
-  broker=link('redis_broker_conn')
-%>
+<% broker=link('redis_broker_conn') %>
 
 REDIS_BROKER_IP="127.0.0.1";
 <% if broker.p('bind') %>
