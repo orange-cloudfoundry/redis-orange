@@ -31,6 +31,8 @@ instance_groups:
     release: redis-service
   - name: redis_exporter
     release: redis-service
+    properties:
+      tls_keys: ((exporter_keys))
   - name: redis_sentinel
     release: redis-service
     properties:
