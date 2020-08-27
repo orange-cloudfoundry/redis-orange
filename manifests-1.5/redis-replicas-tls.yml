@@ -18,6 +18,7 @@ instance_groups:
       sentinel_slave_conn: {from: sentinel_slave, deployment: redis-sentinel-shared}
     properties:
       bind: ((redis_bind))
+      port: '0'
       password: ((redis_password))
       admin_password: ((redis_admin_password))
       exporter_password: ((redis_exporter_password))
@@ -34,10 +35,12 @@ instance_groups:
     consumes:
       redis_sentinel_conn: {from: sentinel_master, deployment: redis-sentinel-shared}
       sentinel_slave_conn: {from: sentinel_slave, deployment: redis-sentinel-shared}
+    properties:
+      tls_keys: ((redis_check_keys))
   - name: redis_exporter
     release: redis-service
     properties:
-      tls_keys: ((exporter_keys))
+      tls_keys: ((redis_exporter_keys))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -91,15 +94,23 @@ variables:
     organization: 'orange.com'
     key_length: ((private_key_length))
     duration: ((certificate_duration))
-- name: redis_broker_keys
+- name: redis_check_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: redis_ca
     common_name: 'Client'
     organization: 'orange.com'
     key_length: ((private_key_length))
     duration: ((certificate_duration))
-- name: exporter_keys
+- name: redis_broker_keys
+  type: certificate
+  options:
+    ca: redis_sentinel_shared_ca
+    common_name: 'Broker'
+    organization: 'orange.com'
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_exporter_keys
   type: certificate
   options:
     ca: redis_sentinel_shared_ca

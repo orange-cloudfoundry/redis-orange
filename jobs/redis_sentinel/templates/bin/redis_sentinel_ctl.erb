@@ -54,11 +54,11 @@ case "${1}" in
 
 <% if sentinel.p('tls') %>
     mkdir -p "${REDIS_SENTINEL_TLS_KEYS_DIR}";
-    echo "<%= p('tls_keys').certificate %>" > \
+    echo "<%= p('tls_keys.certificate') %>" > \
       "${REDIS_SENTINEL_TLS_CERT_FILE}";
-    echo "<%= p('tls_keys').private_key %>" > \
+    echo "<%= p('tls_keys.private_key') %>" > \
       "${REDIS_SENTINEL_TLS_KEY_FILE}";
-    echo "<%= p('tls_keys').ca %>" > \
+    echo "<%= p('tls_keys.ca') %>" > \
       "${REDIS_SENTINEL_TLS_CA_CERT_FILE}";
     chown -R vcap:vcap "${REDIS_SENTINEL_TLS_KEYS_DIR}";
     chmod -R g-rwx,o-rwx "${REDIS_SENTINEL_TLS_KEYS_DIR}";

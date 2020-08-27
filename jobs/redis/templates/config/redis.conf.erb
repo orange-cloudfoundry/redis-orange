@@ -1327,7 +1327,11 @@ cluster-enabled <%= master.p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-cluster-config-file "<%= p('run_dir')+'/nodes-'+master.p('port')+'.conf' %>"
+<% master_port=master.p('port')
+  if master.p('tls') && master.p('tls_cluster')
+    master_port=master.p('tls_port')
+  end %>
+cluster-config-file "<%= p('run_dir')+'/nodes-'+master_port+'.conf' %>"
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
@@ -1464,12 +1468,12 @@ cluster-replica-no-failover <%= p('cluster_replica_no_failover') %>
 # cluster-announce-bus-port 6380
 <% if p('cluster_announce') && master.p('bind') %>
 cluster-announce-ip <%= spec.ip %>
-<%  if master.p('tls') && master.p('tls_cluster') %>
-cluster-announce-port <%= master.p('tls_port') %>
-<%  else %>
-cluster-announce-port <%= master.p('port') %>
-<%  end 
-  end %>
+<%  master_port=master.p('port')
+    if master.p('tls') && master.p('tls_cluster')
+      master_port=master.p('tls_port')
+    end %>
+cluster-announce-port <%= master_port %>
+<% end %>
 
 ################################## SLOW LOG ###################################
 

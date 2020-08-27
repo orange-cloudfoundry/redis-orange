@@ -80,16 +80,16 @@ orange:
     tls:
       port: <%= master.p('tls_port') %>
       certificate: |
-<%  p('tls_keys').certificate.split.each do |x| %>
-<%= x.rjust(8) %>
+<%  p('tls_keys.certificate').split("/\n+/").each do |x| %>
+        <%= x %>
 <%  end %>
       private_key: |
-<%  p('tls_keys').private_key.split.each do |x| %>
-<%= x.rjust(8) %>
+<%  p('tls_keys.private_key').split("/\n+/").each do |x| %>
+        <%= x %>
 <%  end %>
       ca: |
-<%  p('tls_keys').ca.split.each do |x| %>
-<%= x.rjust(8) %>
+<%  p('tls_keys.ca').split("/\n+/").each do |x| %>
+        <%= x %>
 <%  end
   end %>
 
