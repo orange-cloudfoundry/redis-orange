@@ -9,11 +9,11 @@ logging:
   config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
 
 server:
-<% if p('bind') %>
+<%- if p('bind') -%>
   address: <%= spec.ip %>
-<% else %>
+<%- else -%>
   address: 127.0.0.1
-<% end %>
+<%- end -%>
   port: <%= p('port') %>
 
 orange:
@@ -31,67 +31,67 @@ orange:
     tls_private_key_key: <%= p('tls_private_key_key') %>
     tls_ca_key: <%= p('tls_ca_key') %>
     servers:
-<% if !sentinel.nil?
-    sentinel.instances.each do |x| %>
+<%- if !sentinel.nil?
+    sentinel.instances.each do |x| -%>
       - <%= x.address %>
-<%  end
+<%- end
     if !sentinel_slave.nil?
       if !sentinel_slave.instances[0].name.eql?(sentinel.instances[0].name)
-        sentinel_slave.instances.each do |x| %>
+        sentinel_slave.instances.each do |x| -%>
       - <%= x.address %>
-<%      end
+<%-     end
       end
     end
   else
-    master.instances.each do |x| %>
+    master.instances.each do |x| -%>
       - <%= x.address %>
-<%  end
+<%-  end
     if !slave.nil?
       if !slave.instances[0].name.eql?(master.instances[0].name)
-        slave.instances.each do |x| %>
+        slave.instances.each do |x| -%>
       - <%= x.address %>
-<%      end
+<%-     end
       end
     end
-  end %>
+  end -%>
     port: <%= master.p('port') %>
-<% master.if_p('password') do |x|
-    unless x.to_s.empty? %>
+<%- master.if_p('password') do |x|
+    unless x.to_s.empty? -%>
     password: <%= x %>
-<%  end
-  end %>
+<%- end
+  end -%>
     admin_user: <%= master.p('admin_user') %>
-<% master.if_p('admin_password') do |x|
-    unless x.to_s.empty? %>
+<%- master.if_p('admin_password') do |x|
+    unless x.to_s.empty? -%>
     admin_password: <%= x %>
-<%  end
+<%- end
   end
-  if !sentinel.nil? %>
+  if !sentinel.nil? -%>
     sentinel:
       port: <%= sentinel.p('port') %>
-<%  sentinel.if_p('password') do |x|
-      unless x.to_s.empty? %>
+<%- sentinel.if_p('password') do |x|
+      unless x.to_s.empty? -%>
       password: <%= x %>
-<%    end
-    end %>
+<%-   end
+    end -%>
       master_name: <%= spec.deployment %>
-<% end
-  if master.p('tls') %>
+<%- end
+  if master.p('tls') -%>
     tls:
       port: <%= master.p('tls_port') %>
       certificate: |
-<%  p('tls_keys.certificate').lines.each do |x| %>
-        <%= x %>
-<%  end %>
+<%- p('tls_keys.certificate').lines.each do |x| -%>
+        <%= x -%>
+<%- end -%>
       private_key: |
-<%  p('tls_keys.private_key').lines.each do |x| %>
-        <%= x %>
-<%  end %>
+<%- p('tls_keys.private_key').lines.each do |x| -%>
+        <%= x -%>
+<%- end -%>
       ca: |
-<%  p('tls_keys.ca').lines.each do |x| %>
-        <%= x %>
-<%  end
-  end %>
+<%- p('tls_keys.ca').lines.each do |x| -%>
+        <%= x -%>
+<%- end
+  end -%>
 
 security:
   user:
@@ -99,73 +99,73 @@ security:
     password: <%= p('password') %>
 
 catalog_yml: |
-    services:
-    - id: redis-service
-      name: Redis for Cloud Foundry
-      description: Redis on demand on dedicated cluster
-      bindable: true
-      metadata:
-        displayName: Redis
-        imageUrl: https://redis.io/images/redis-white.png
-        longDescription: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes with radius queries and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.
-        providerDisplayName: Orange
-        documentationUrl: https://redis.io/documentation
-        supportUrl: https://cap.nd-cfapi.itn.ftgroup/contact-us/
-      tags:
-        - Redis
-        - Redis Sentinel
-        - Redis Cluster
-        - High Avaibility
-      plans:
-        - description: Redis Single Server
-          id: redis
-          name: Redis
-          free: true
-          metadata:
-            bullets:
-            - 100 MB Storage (not enforced)
-            - 40 concurrent connections (not enforced)
-            costs:
-              amount:
-                eur: 10.0
-              unit: MONTHLY
-            displayName: Dedicated Single Redis Server
-        - description: Highly Available with Redis Sentinel
-          id: redis-sentinel
-          name: Redis Sentinel
-          free: true
-          metadata:
-            bullets:
-            - 100 MB Storage (not enforced)
-            - 40 concurrent connections (not enforced)
-            costs:
-              amount:
-                eur: 10.0
-              unit: MONTHLY
-            displayName: Dedicated Highly Available Redis Server with Redis Sentinel
-        - description: Redis Cluster
-          id: redis-cluster
-          name: Redis Cluster
-          free: true
-          metadata:
-            bullets:
-            - 100 MB Storage (not enforced)
-            - 40 concurrent connections (not enforced)
-            costs:
-              amount:
-                eur: 10.0
-              unit: MONTHLY
-            displayName: Dedicated Redis Cluster
-        - description: Highly Available Redis Cluster
-          id: redis-cluster-ha
-          name: High Available Redis Cluster
-          free: true
-          metadata:
-            bullets:
-            - 100 MB Storage (not enforced)
-            - 40 concurrent connections (not enforced)
-            costs:
-              amount:
-                eur: 10.0
-              unit: MONTHLY
-            displayName: Dedicated Highly Available Redis Cluster
+  services:
+  - id: redis-service
+    name: Redis for Cloud Foundry
+    description: Redis on demand on dedicated cluster
+    bindable: true
+    metadata:
+      displayName: Redis
+      imageUrl: https://redis.io/images/redis-white.png
+      longDescription: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes with radius queries and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.
+      providerDisplayName: Orange
+      documentationUrl: https://redis.io/documentation
+      supportUrl: https://cap.nd-cfapi.itn.ftgroup/contact-us/
+    tags:
+      - Redis
+      - Redis Sentinel
+      - Redis Cluster
+      - High Avaibility
+    plans:
+      - description: Redis Single Server
+        id: redis
+        name: Redis
+        free: true
+        metadata:
+          bullets:
+          - 100 MB Storage (not enforced)
+          - 40 concurrent connections (not enforced)
+          costs:
+            amount:
+              eur: 10.0
+            unit: MONTHLY
+          displayName: Dedicated Single Redis Server
+      - description: Highly Available with Redis Sentinel
+        id: redis-sentinel
+        name: Redis Sentinel
+        free: true
+        metadata:
+          bullets:
+          - 100 MB Storage (not enforced)
+          - 40 concurrent connections (not enforced)
+          costs:
+            amount:
+              eur: 10.0
+            unit: MONTHLY
+          displayName: Dedicated Highly Available Redis Server with Redis Sentinel
+      - description: Redis Cluster
+        id: redis-cluster
+        name: Redis Cluster
+        free: true
+        metadata:
+          bullets:
+          - 100 MB Storage (not enforced)
+          - 40 concurrent connections (not enforced)
+          costs:
+            amount:
+              eur: 10.0
+            unit: MONTHLY
+          displayName: Dedicated Redis Cluster
+      - description: Highly Available Redis Cluster
+        id: redis-cluster-ha
+        name: High Available Redis Cluster
+        free: true
+        metadata:
+          bullets:
+          - 100 MB Storage (not enforced)
+          - 40 concurrent connections (not enforced)
+          costs:
+            amount:
+              eur: 10.0
+            unit: MONTHLY
+          displayName: Dedicated Highly Available Redis Cluster

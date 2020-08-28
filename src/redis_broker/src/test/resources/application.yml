@@ -27,11 +27,6 @@ orange:
     admin_user: admin
     admin_password: admin_secret
 
-security:
-  user:
-    name: broker
-    password: broker
-
 spring:
   security:
     user:

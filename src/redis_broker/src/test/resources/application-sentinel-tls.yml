@@ -117,11 +117,6 @@ orange:
         5gtIRle/3xCIHAdA4LL6
         -----END CERTIFICATE-----
 
-security:
-  user:
-    name: broker
-    password: broker
-
 spring:
   security:
     user:

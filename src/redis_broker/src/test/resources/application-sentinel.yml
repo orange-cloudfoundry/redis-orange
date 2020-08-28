@@ -31,11 +31,6 @@ orange:
       port: 26379
       password: redis_sentinel_secret
 
-security:
-  user:
-    name: broker
-    password: broker
-
 spring:
   security:
     user:
