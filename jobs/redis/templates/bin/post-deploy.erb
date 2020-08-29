@@ -1,20 +1,20 @@
 #!/bin/bash
-<% master=link('redis_conn')
+<%- master=link('redis_conn')
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn'){ |x| sentinel=x }
   sentinel_slave=nil
-  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } %>
+  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } -%>
 
 ERR=0;
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
 
 REDIS_IP="127.0.0.1";
-<% if master.p('bind') %>
+<%- if master.p('bind') -%>
 REDIS_IP="<%= spec.ip %>";
-<% end %>
+<%- end -%>
 
 REDIS_PORT="<%= master.p('port') %>";
 REDIS_CRED="--user <%= master.p('admin_user') %>";

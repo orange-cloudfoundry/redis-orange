@@ -1,6 +1,6 @@
-<% master=link('redis_conn')
+<%- master=link('redis_conn')
   slave=nil
-  if_link('slave_conn'){ |x| slave=x } %>
+  if_link('slave_conn'){ |x| slave=x } -%>
 # Redis configuration file example.
 #
 # Note that in order to read the configuration file, Redis must be
@@ -74,11 +74,11 @@
 # for each instance in your cluster to the static IP which was assigned to the instance
 # If it is set to false, it will not set the bind property which will force it to
 # fall back to default behavior, i.e. protected mode due to bind not being set.
-<% if master.p('bind') %>
+<%- if master.p('bind') -%>
 bind <%= spec.ip %>
-<% else %>
+<%- else -%>
 bind 127.0.0.1
-<% end %>
+<%- end -%>
 
 # Protected mode is a layer of security protection, in order to avoid that
 # Redis instances left open on the internet are accessed and exploited.
@@ -149,9 +149,9 @@ tcp-keepalive <%= p('tcp_keepalive') %>
 #
 # port 0
 # tls-port 6379
-<% if master.p('tls') %>
+<%- if master.p('tls') -%>
 tls-port <%= master.p('tls_port') %>
-<% end %>
+<%- end -%>
 
 # Configure a X.509 certificate and private key to use for authenticating the
 # server to connected clients, masters or cluster peers.  These files should be
@@ -159,17 +159,17 @@ tls-port <%= master.p('tls_port') %>
 #
 # tls-cert-file redis.crt 
 # tls-key-file redis.key
-<% if master.p('tls') %>
+<%- if master.p('tls') -%>
 tls-cert-file "<%= p('tls_keys_dir')+'/'+p('tls_cert_file') %>"
 tls-key-file "<%= p('tls_keys_dir')+'/'+p('tls_key_file') %>"
-<% end %>
+<%- end -%>
 
 # Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange:
 #
 # tls-dh-params-file redis.dh
-<% if master.p('tls') %>
+<%- if master.p('tls') -%>
 tls-dh-params-file "<%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>"
-<% end %>
+<%- end -%>
 
 # Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL
 # clients and peers.  Redis requires an explicit configuration of at least one
@@ -177,10 +177,10 @@ tls-dh-params-file "<%= p('tls_keys_dir')+'/'+p('tls_dh_params_file') %>"
 #
 # tls-ca-cert-file ca.crt
 # tls-ca-cert-dir /etc/ssl/certs
-<% if master.p('tls') %>
+<%- if master.p('tls') -%>
 tls-ca-cert-file "<%= p('tls_keys_dir')+'/'+p('tls_ca_cert_file') %>"
 tls-ca-cert-dir "<%= p('tls_ca_cert_dir') %>"
-<% end %>
+<%- end -%>
 
 # By default, clients (including replica servers) on a TLS port are required
 # to authenticate using valid client side certificates.
@@ -188,9 +188,9 @@ tls-ca-cert-dir "<%= p('tls_ca_cert_dir') %>"
 # It is possible to disable authentication using this directive.
 #
 # tls-auth-clients no
-<% if master.p('tls') && !master.p('tls_auth_clients') %>
+<%- if master.p('tls') && !master.p('tls_auth_clients') -%>
 tls-auth-clients no
-<% end %>
+<%- end -%>
 
 # By default, a Redis replica does not attempt to establish a TLS connection
 # with its master.
@@ -198,30 +198,30 @@ tls-auth-clients no
 # Use the following directive to enable TLS on replication links.
 #
 # tls-replication yes
-<% if master.p('tls') && master.p('tls_replication') %>
+<%- if master.p('tls') && master.p('tls_replication') -%>
 tls-replication yes
-<% end %>
+<%- end -%>
 
 # By default, the Redis Cluster bus uses a plain TCP connection. To enable
 # TLS for the bus protocol, use the following directive:
 #
 # tls-cluster yes
-<% if master.p('tls') && master.p('tls_cluster') %>
+<%- if master.p('tls') && master.p('tls_cluster') -%>
 tls-cluster yes
-<% end %>
+<%- end -%>
 
 # Explicitly specify TLS versions to support. Allowed values are case insensitive
 # and include "TLSv1", "TLSv1.1", "TLSv1.2", "TLSv1.3" (OpenSSL >= 1.1.1) or
 # any combination. To enable only TLSv1.2 and TLSv1.3, use:
 #
 # tls-protocols "TLSv1.2 TLSv1.3"
-<% if master.p('tls')
+<%- if master.p('tls')
     master.if_p('tls_protocols') do |protocols|
-      unless protocols.to_s.empty? %>
+      unless protocols.to_s.empty? -%>
 tls-protocols <%= protocols %>
-<%    end
+<%-   end
     end
-  end %>
+  end -%>
 
 # Configure allowed ciphers.  See the ciphers(1ssl) manpage for more information
 # about the syntax of this string.
@@ -229,59 +229,59 @@ tls-protocols <%= protocols %>
 # Note: this configuration applies only to <= TLSv1.2.
 #
 # tls-ciphers DEFAULT:!MEDIUM
-<% if master.p('tls')
+<%- if master.p('tls')
     master.if_p('tls_ciphers') do |ciphers|
-      unless ciphers.to_s.empty? %>
+      unless ciphers.to_s.empty? -%>
 tls-ciphers <%= ciphers %>
-<%    end
+<%-   end
     end
-  end %>
+  end -%>
 
 # Configure allowed TLSv1.3 ciphersuites.  See the ciphers(1ssl) manpage for more
 # information about the syntax of this string, and specifically for TLSv1.3
 # ciphersuites.
 #
 # tls-ciphersuites TLS_CHACHA20_POLY1305_SHA256
-<% if master.p('tls')
+<%- if master.p('tls')
     master.if_p('tls_ciphersuites') do |ciphersuites|
-      unless ciphersuites.to_s.empty? %>
+      unless ciphersuites.to_s.empty? -%>
 tls-ciphersuites <%= ciphersuites %>
-<%    end
+<%-   end
     end
-  end %>
+  end -%>
 
 # When choosing a cipher, use the server's preference instead of the client
 # preference. By default, the server follows the client's preference.
 #
 # tls-prefer-server-ciphers yes
-<% if master.p('tls') && master.p('tls_prefer_server_ciphers') %>
+<%- if master.p('tls') && master.p('tls_prefer_server_ciphers') -%>
 tls-prefer-server-ciphers yes
-<% end %>
+<%- end -%>
 
 # By default, TLS session caching is enabled to allow faster and less expensive
 # reconnections by clients that support it. Use the following directive to disable
 # caching.
 #
 # tls-session-caching no
-<% if master.p('tls') && !p('tls_session_caching') %>
+<%- if master.p('tls') && !p('tls_session_caching') -%>
 tls-session-caching no
-<% end %>
+<%- end -%>
 
 # Change the default number of TLS sessions cached. A zero value sets the cache
 # to unlimited size. The default size is 20480.
 #
 # tls-session-cache-size 5000
-<% if master.p('tls') %>
+<%- if master.p('tls') -%>
 tls-session-cache-size <%= p('tls_session_cache_size') %>
-<% end %>
+<%- end -%>
 
 # Change the default timeout of cached TLS sessions. The default timeout is 300
 # seconds.
 #
 # tls-session-cache-timeout 60
-<% if master.p('tls') %>
+<%- if master.p('tls') -%>
 tls-session-cache-timeout <%= p('tls_session_cache_timeout') %>
-<% end %>
+<%- end -%>
 
 ################################# GENERAL #####################################
 
@@ -368,15 +368,15 @@ always-show-logo yes
 #   like in the following example:
 #
 #   save ""
-<% master.if_p('save') do |x|
-    if x.to_s.empty? %>
+<%- master.if_p('save') do |x|
+    if x.to_s.empty? -%>
 save ""
-<%  else
-      x.each do |command| %>
+<%- else
+      x.each do |command| -%>
 save <%= command %>
-<%    end
+<%-   end
     end
-  end %>
+  end -%>
 
 # By default Redis will stop accepting writes if RDB snapshots are enabled
 # (at least one save point) and the latest background save failed.
@@ -457,16 +457,16 @@ dir "<%= p('dir') %>"
 #
 # replicaof <masterip> <masterport>
 
-<% if master.p('replication') && !master.p('cluster_enabled').eql?('yes')
+<%- if master.p('replication') && !master.p('cluster_enabled').eql?('yes')
     master_address=master.instances.find{ |x| x.bootstrap }.address
     if !master_address.eql?(spec.address) 
       master_port=master.p('port')
       if master.p('tls') && master.p('tls_replication')
         master_port=master.p('tls_port')
-      end %>
+      end -%>
 replicaof <%= master_address %> <%= master_port %>
-<%  end
-  end %>
+<%- end
+  end -%>
 
 # If the master is password protected (using the "requirepass" configuration
 # directive below) it is possible to tell the replica to authenticate before
@@ -485,14 +485,14 @@ replicaof <%= master_address %> <%= master_port %>
 #
 # When masteruser is specified, the replica will authenticate against its
 # master using the new AUTH form: AUTH <username> <password>.
-<% if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+<%- if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     master.if_p('replica_password') do |x|
-      unless x.to_s.empty? %>
+      unless x.to_s.empty? -%>
 masterauth <%= x %>
-<%    end %>
+<%-   end
+    end -%>
 masteruser <%= master.p('replica_user') %>
-<%  end
-  end %>
+<%- end -%>
 
 # When a replica loses its connection with the master, or when the replication
 # is still in progress, the replica can act in two different ways:
@@ -552,19 +552,19 @@ replica-read-only <%= p('replica_read_only') %>
 #
 # With slow disks and fast (large bandwidth) networks, diskless replication
 # works better.
-<% if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+<%- if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     redis_persistance_rdb=0
     master.if_p('save') do |x|
       if !x.to_s.empty?
         redis_persistance_rdb=1
       end
     end
-    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') %>
+    if redis_persistance_rdb==0 && master.p('appendonly').eql?('no') -%>
 repl-diskless-sync yes
-<%  else %>
+<%- else -%>
 repl-diskless-sync no
-<%  end
-  end %>
+<%- end
+  end -%>
 
 # When diskless replication is enabled, it is possible to configure the delay
 # the server waits in order to spawn the child that transfers the RDB via socket
@@ -701,19 +701,19 @@ replica-priority <%= p('replica_priority') %>
 #
 # By default min-replicas-to-write is set to 0 (feature disabled) and
 # min-replicas-max-lag is set to 10.
-<% min_replicas_to_write=master.p('min_replicas_to_write').to_i
+<%- min_replicas_to_write=master.p('min_replicas_to_write').to_i
   if master.p('replication') && !master.p('cluster_enabled').eql?('yes') && min_replicas_to_write>0
     slave_length=(master.instances.length-1)
     if !slave.nil?
       slave_length+=slave.instances.length
     end
-    if slave_length>=min_replicas_to_write %>
+    if slave_length>=min_replicas_to_write -%>
 min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
-<%  end
-  end %>
+<%- end
+  end -%>
 
-<% replicas_per_node=master.p('cluster_replicas_per_node').to_i
+<%- replicas_per_node=master.p('cluster_replicas_per_node').to_i
   if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write>0
     master_length=master.instances.length
     enough_replicas=false
@@ -726,11 +726,11 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
         enough_replicas=true
       end
     end
-    if enough_replicas && replicas_per_node>=min_replicas_to_write %>
+    if enough_replicas && replicas_per_node>=min_replicas_to_write -%>
 min-replicas-to-write <%= min_replicas_to_write %>
 min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
-<%  end
-  end %>
+<%- end
+  end -%>
 
 # A Redis master is able to list the address and port of the attached
 # replicas in different ways. For example the "INFO replication" section
@@ -760,12 +760,12 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 #
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
-<% if p('replica_announce') && master.p('bind')
+<%- if p('replica_announce') && master.p('bind')
     master_address=master.instances.find{ |x| x.bootstrap }.address
-    if !master_address.eql?(spec.address) %>
+    if !master_address.eql?(spec.address) -%>
 replica-announce-ip <%= spec.ip %>
-<%  end
-  end %>
+<%- end
+  end -%>
 
 ############################### KEYS TRACKING #################################
 
@@ -1155,10 +1155,10 @@ lazyfree-lazy-user-del no
 # sure you also run the benchmark itself in threaded mode, using the
 # --threads option to match the number of Redis theads, otherwise you'll not
 # be able to notice the improvements.
-<% if !master.p('tls') %>
+<%- if !master.p('tls') -%>
 io-threads <%= p('io_threads') %>
 io-threads-do-reads <%= p('io_threads_do_reads') %>
-<% end %>
+<%- end -%>
 
 ############################## APPEND ONLY MODE ###############################
 
@@ -1327,10 +1327,10 @@ cluster-enabled <%= master.p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-<% master_port=master.p('port')
+<%- master_port=master.p('port')
   if master.p('tls') && master.p('tls_cluster')
     master_port=master.p('tls_port')
-  end %>
+  end -%>
 cluster-config-file "<%= p('run_dir')+'/nodes-'+master_port+'.conf' %>"
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
@@ -1466,14 +1466,14 @@ cluster-replica-no-failover <%= p('cluster_replica_no_failover') %>
 # cluster-announce-ip 10.1.1.5
 # cluster-announce-port 6379
 # cluster-announce-bus-port 6380
-<% if p('cluster_announce') && master.p('bind') %>
+<%- if p('cluster_announce') && master.p('bind') -%>
 cluster-announce-ip <%= spec.ip %>
-<%  master_port=master.p('port')
+<%- master_port=master.p('port')
     if master.p('tls') && master.p('tls_cluster')
       master_port=master.p('tls_port')
-    end %>
+    end -%>
 cluster-announce-port <%= master_port %>
-<% end %>
+<%- end -%>
 
 ################################## SLOW LOG ###################################
 
@@ -1564,11 +1564,11 @@ latency-monitor-threshold <%= p('latency_monitor_threshold') %>
 #  By default all notifications are disabled because most users don't need
 #  this feature and the feature has some overhead. Note that if you don't
 #  specify at least one of K or E, no events will be delivered.
-<% if p('notify_keyspace_events').to_s.empty? %>
+<%- if p('notify_keyspace_events').to_s.empty? -%>
 notify-keyspace-events ""
-<% else %>
+<%- else -%>
 notify-keyspace-events <%= p('notify_keyspace_events') %>
-<% end %>
+<%- end -%>
 
 ############################### GOPHER SERVER #################################
 
