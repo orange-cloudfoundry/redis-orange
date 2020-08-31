@@ -16,6 +16,7 @@ orange:
     ha_port_key: ha_port
     ha_password_key: ha_password
     tls_port_key: tls_port
+    tls_ha_port_key: tls_ha_port
     tls_certificate_key: tls_certificate
     tls_private_key_key: tls_private_key
     tls_ca_key: tls_ca

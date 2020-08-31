@@ -120,6 +120,7 @@ public class RedisTlsConfigTest {
     Assert.assertTrue(redisConfig.getSentinel().isEmpty());
     Assert.assertFalse(redisConfig.getTls().isEmpty());
     Assert.assertEquals("6379", redisConfig.getTls().getPort().toString());
+    Assert.assertEquals(null, redisConfig.getTls().getHa_port());
     Assert.assertEquals(certificate, redisConfig.getTls().getCertificate());
     Assert.assertEquals(private_key, redisConfig.getTls().getPrivate_key());
     Assert.assertEquals(ca, redisConfig.getTls().getCa());

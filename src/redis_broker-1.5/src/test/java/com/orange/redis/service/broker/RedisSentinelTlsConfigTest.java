@@ -119,10 +119,11 @@ public class RedisSentinelTlsConfigTest {
     Assert.assertEquals("admin_secret", redisConfig.getAdmin_password());
     Assert.assertFalse(redisConfig.getSentinel().isEmpty());
     Assert.assertEquals("master", redisConfig.getSentinel().getMaster_name());
-    Assert.assertEquals("26379", redisConfig.getSentinel().getPort().toString());
+    Assert.assertEquals("0", redisConfig.getSentinel().getPort().toString());
     Assert.assertEquals("redis_sentinel_secret", redisConfig.getSentinel().getPassword());
     Assert.assertFalse(redisConfig.getTls().isEmpty());
     Assert.assertEquals("6379", redisConfig.getTls().getPort().toString());
+    Assert.assertEquals("26379", redisConfig.getTls().getHa_port().toString());
     Assert.assertEquals(certificate, redisConfig.getTls().getCertificate());
     Assert.assertEquals(private_key, redisConfig.getTls().getPrivate_key());
     Assert.assertEquals(ca, redisConfig.getTls().getCa());

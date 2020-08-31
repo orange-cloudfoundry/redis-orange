@@ -63,6 +63,8 @@ public class RedisBindingServiceTest {
             if (!redisConfig.getTls().isEmpty()) {
               if (credentials.getKey().compareTo(redisConfig.getTls_port_key()) == 0)
                 Assert.assertEquals(redisConfig.getTls().getPort(), credentials.getValue());
+              if (credentials.getKey().compareTo(redisConfig.getTls_ha_port_key()) == 0)
+                Assert.assertEquals(redisConfig.getTls().getHa_port(), credentials.getValue());
               if (credentials.getKey().compareTo(redisConfig.getTls_certificate_key()) == 0)
                 Assert.assertEquals(redisConfig.getTls().getCertificate(), credentials.getValue());
               if (credentials.getKey().compareTo(redisConfig.getTls_private_key_key()) == 0)

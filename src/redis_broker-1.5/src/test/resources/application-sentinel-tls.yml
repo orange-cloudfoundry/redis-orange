@@ -33,7 +33,7 @@ orange:
       password: redis_sentinel_secret
     tls:
       port: 6379
-      ha_hort: 26379
+      ha_port: 26379
       certificate: |
         -----BEGIN CERTIFICATE-----
         MIID4jCCAcoCFFEXfvMQuyMWfZcYX0nlal62wTEOMA0GCSqGSIb3DQEBCwUAMDUx
