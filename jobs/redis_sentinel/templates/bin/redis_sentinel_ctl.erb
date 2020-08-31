@@ -1,5 +1,5 @@
 #!/bin/bash
-<% sentinel=link('redis_sentinel_conn') %>
+<%- sentinel=link('redis_sentinel_conn') -%>
 
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
@@ -12,19 +12,19 @@ REDIS_SENTINEL_PID_FILE="${REDIS_SENTINEL_RUN_DIR}/<%= p('pidfile') %>";
 REDIS_SENTINEL_CONF="/var/vcap/jobs/redis_sentinel/config/redis_sentinel.conf";
 
 REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel.p('bind') %>
+<%- if sentinel.p('bind') -%>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
-<% end %>
+<%- end -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 
 REDIS_SENTINEL_CRED="";
-<% sentinel.if_p('password') do |x|
-    unless x.to_s.empty? %>
+<%- sentinel.if_p('password') do |x|
+    unless x.to_s.empty? -%>
 REDIS_SENTINEL_CRED="-a <%= x %>";
-<%  end
-  end %>
+<%- end
+  end -%>
 
-<% if sentinel.p('tls') %>
+<%- if sentinel.p('tls') -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
 REDIS_SENTINEL_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_SENTINEL_TLS_CERT_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
@@ -33,7 +33,7 @@ REDIS_SENTINEL_TLS_KEY_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_key_file'
 REDIS_SENTINEL_CRED+=" --key ${REDIS_SENTINEL_TLS_KEY_FILE}";
 REDIS_SENTINEL_TLS_CA_CERT_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 REDIS_SENTINEL_CRED+=" --cacert ${REDIS_SENTINEL_TLS_CA_CERT_FILE}";
-<% end %>
+<%- end -%>
 
 case "${1}" in
   start)
@@ -52,7 +52,7 @@ case "${1}" in
     chown vcap:vcap "${REDIS_SENTINEL_LOG_FILE}";
     chmod 660 "${REDIS_SENTINEL_CONF}";
 
-<% if sentinel.p('tls') %>
+<%- if sentinel.p('tls') -%>
     mkdir -p "${REDIS_SENTINEL_TLS_KEYS_DIR}";
     echo "<%= p('tls_keys.certificate') -%>" > \
       "${REDIS_SENTINEL_TLS_CERT_FILE}";
@@ -62,7 +62,7 @@ case "${1}" in
       "${REDIS_SENTINEL_TLS_CA_CERT_FILE}";
     chown -R vcap:vcap "${REDIS_SENTINEL_TLS_KEYS_DIR}";
     chmod -R g-rwx,o-rwx "${REDIS_SENTINEL_TLS_KEYS_DIR}";
-<% end %>
+<%- end -%>
 
     # Remove temp backup files that might be left over because of a
     # previously aborted

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-<% sentinel=link('redis_sentinel_conn') %>
+<%- sentinel=link('redis_sentinel_conn') -%>
 
 set -eu
 
@@ -14,20 +14,20 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 
 REDIS_SENTINEL_IP="127.0.0.1";
-<% if sentinel.p('bind') %>
+<%- if sentinel.p('bind') -%>
 REDIS_SENTINEL_IP="<%= spec.ip %>";
-<% end %>
+<%- end -%>
 REDIS_SENTINEL_EXPORTER_ARGS="-sentinel.addr redis://${REDIS_SENTINEL_IP}:<%= sentinel.p('port') %>";
 
-<% sentinel.if_p('password') do |x|
-    unless x.to_s.empty? %>
+<%- sentinel.if_p('password') do |x|
+    unless x.to_s.empty? -%>
 REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password <%= x %>";
-<%  end
-  end %>
+<%- end
+  end -%>
 
-<% if p('debug') %> \
+<%- if p('debug') -%>
 REDIS_SENTINEL_EXPORTER_ARGS+=" -debug";
-<% end %> \
+<%- end -%>
 
 source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
 exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";

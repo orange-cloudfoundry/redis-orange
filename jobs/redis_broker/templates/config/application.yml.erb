@@ -1,19 +1,19 @@
-<% master=link('redis_conn')
+<%- master=link('redis_conn')
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn') { |x| sentinel=x }
   sentinel_slave=nil
-  if_link('sentinel_slave_conn') { |x| sentinel_slave=x } %>
+  if_link('sentinel_slave_conn') { |x| sentinel_slave=x } -%>
 logging:
   config: file:/var/vcap/jobs/redis_broker/config/log4j2.xml
 
 server:
-<% if p('bind') %>
+<%- if p('bind') -%>
   address: <%= spec.ip %>
-<% else %>
+<%- else -%>
   address: 127.0.0.1
-<% end %>
+<%- end -%>
   port: <%= p('port') %>
 
 orange:
@@ -31,61 +31,67 @@ orange:
     tls_private_key_key: <%= p('tls_private_key_key') %>
     tls_ca_key: <%= p('tls_ca_key') %>
     servers:
-<% if !sentinel.nil?
-    sentinel.instances.each do |x| %>
+<%- if !sentinel.nil?
+    sentinel.instances.each do |x| -%>
       - <%= x.address %>
-<%  end
+<%- end
     if !sentinel_slave.nil?
       if !sentinel_slave.instances[0].name.eql?(sentinel.instances[0].name)
-        sentinel_slave.instances.each do |x| %>
+        sentinel_slave.instances.each do |x| -%>
       - <%= x.address %>
-<%      end
+<%-     end
       end
     end
   else
-    master.instances.each do |x| %>
+    master.instances.each do |x| -%>
       - <%= x.address %>
-<%  end
+<%-  end
     if !slave.nil?
       if !slave.instances[0].name.eql?(master.instances[0].name)
-        slave.instances.each do |x| %>
+        slave.instances.each do |x| -%>
       - <%= x.address %>
-<%      end
+<%-     end
       end
     end
-  end %>
+  end -%>
     port: <%= master.p('port') %>
-<% master.if_p('password') do |x|
-    unless x.to_s.empty? %>
+<%- master.if_p('password') do |x|
+    unless x.to_s.empty? -%>
     password: <%= x %>
-<%  end
-  end %>
+<%- end
+  end -%>
     admin_user: <%= master.p('admin_user') %>
-<% master.if_p('admin_password') do |x|
-    unless x.to_s.empty? %>
+<%- master.if_p('admin_password') do |x|
+    unless x.to_s.empty? -%>
     admin_password: <%= x %>
-<%  end
+<%- end
   end
-  if !sentinel.nil? %>
+  if !sentinel.nil? -%>
     sentinel:
       port: <%= sentinel.p('port') %>
-<%  sentinel.if_p('password') do |x|
-      unless x.to_s.empty? %>
+<%- sentinel.if_p('password') do |x|
+      unless x.to_s.empty? -%>
       password: <%= x %>
-<%    end
-    end %>
+<%-   end
+    end -%>
       master_name: <%= spec.deployment %>
-<% end
-  if master.p('tls') %>
+<%- end
+  if master.p('tls') -%>
     tls:
       port: <%= master.p('tls_port') %>
       certificate: |
-        <%= p('tls_keys.certificate') -%>
+<%- p('tls_keys.certificate').lines.each do |x| -%>
+        <%= x -%>
+<%- end -%>
       private_key: |
-        <%= p('tls_keys.private_key') -%>
+<%- p('tls_keys.private_key').lines.each do |x| -%>
+        <%= x -%>
+<%- end -%>
       ca: |
-        <%= p('tls_keys.ca') -%>
-<% end %>
+<%- p('tls_keys.ca').lines.each do |x| -%>
+        <%= x -%>
+<%- end
+  end -%>
 
 spring:
   security:

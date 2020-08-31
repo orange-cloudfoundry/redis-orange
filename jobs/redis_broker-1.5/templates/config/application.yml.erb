@@ -1,10 +1,10 @@
-<% master=link('redis_conn')
+<%- master=link('redis_conn')
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn') { |x| sentinel=x }
   sentinel_slave=nil
-  if_link('sentinel_slave_conn') { |x| sentinel_slave=x } %>
+  if_link('sentinel_slave_conn') { |x| sentinel_slave=x } -%>
 logging:
   config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
 

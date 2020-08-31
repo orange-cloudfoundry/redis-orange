@@ -2,9 +2,9 @@
 <% broker=link('redis_broker_conn') %>
 
 REDIS_BROKER_IP="127.0.0.1";
-<% if broker.p('bind') %>
+<%- if broker.p('bind') -%>
 REDIS_BROKER_IP="<%= spec.ip %>";
-<% end %>
+<%- end -%>
 REDIS_BROKER_PORT="<%= broker.p('port') %>";
 
 REDIS_BROKER_USER="<%= broker.p('user') %>";
