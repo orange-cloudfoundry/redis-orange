@@ -34,7 +34,7 @@ instance_groups:
   - name: redis_exporter
     release: redis-service
     properties:
-      tls_keys: ((exporter_keys))
+      tls_keys: ((redis_exporter_keys))
   - name: redis_sentinel
     release: redis-service
     properties:
@@ -106,6 +106,7 @@ variables:
     ca: redis_ca
     common_name: 'Server'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 - name: redis_check_keys
@@ -114,6 +115,7 @@ variables:
     ca: redis_ca
     common_name: 'Client'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 - name: redis_broker_keys
@@ -122,6 +124,7 @@ variables:
     ca: redis_ca
     common_name: 'Broker'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 - name: redis_exporter_keys
@@ -130,6 +133,7 @@ variables:
     ca: redis_ca
     common_name: 'Exporter'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 - name: redis_sentinel_keys
@@ -138,6 +142,7 @@ variables:
     ca: redis_ca
     common_name: 'Sentinel'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 

@@ -63,6 +63,7 @@ variables:
     ca: redis_sentinel_shared_ca
     common_name: 'Sentinel'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 - name: redis_sentinel_slave_keys
@@ -71,6 +72,7 @@ variables:
     ca: redis_sentinel_shared_ca
     common_name: 'Sentinel'
     organization: 'orange.com'
+    organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
 

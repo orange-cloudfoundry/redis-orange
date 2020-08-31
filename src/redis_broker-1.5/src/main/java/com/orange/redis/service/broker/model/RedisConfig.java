@@ -38,6 +38,8 @@ public class RedisConfig {
   @NotNull
   private String tls_port_key;
   @NotNull
+  private String tls_ha_port_key;
+  @NotNull
   private String tls_certificate_key;
   @NotNull
   private String tls_private_key_key;
@@ -128,6 +130,14 @@ public class RedisConfig {
 
   public void setTls_port_key(String tls_port_key) {
     this.tls_port_key = tls_port_key;
+  }
+
+  public String getTls_ha_port_key() {
+    return tls_ha_port_key;
+  }
+
+  public void setTls_ha_port_key(String tls_ha_port_key) {
+    this.tls_ha_port_key = tls_ha_port_key;
   }
 
   public String getTls_certificate_key() {
@@ -251,6 +261,8 @@ public class RedisConfig {
 
     private Integer port = null;
 
+    private Integer ha_port = null;
+
     private String certificate = null;
 
     private String private_key = null;
@@ -263,6 +275,14 @@ public class RedisConfig {
 
     public void setPort(Integer port) {
       this.port = port;
+    }
+
+    public Integer getHa_port() {
+      return ha_port;
+    }
+
+    public void setHa_port(Integer ha_port) {
+      this.ha_port = ha_port;
     }
 
     public String getCertificate() {
@@ -290,7 +310,7 @@ public class RedisConfig {
     }
 
     public boolean isEmpty() {
-      return port == null && certificate == null && private_key == null && ca == null;
+      return (port == null || ha_port == null) && certificate == null && private_key == null && ca == null;
     }
   }
 
@@ -321,6 +341,10 @@ public class RedisConfig {
     if (!getTls().isEmpty()) {
       credentials.put(getTls_port_key(), getTls().getPort().toString());
       logger.info(getTls_port_key().concat(" ").concat(getTls().getPort().toString()));
+      if (getTls().getHa_port() != null) {
+        credentials.put(getTls_ha_port_key(), getTls().getHa_port().toString());
+        logger.info(getTls_ha_port_key().concat(" ").concat(getTls().getHa_port().toString()));
+      }
       credentials.put(getTls_certificate_key(), getTls().getCertificate());
       logger.info(getTls_certificate_key().concat(" ").concat(getTls().getCertificate()));
       credentials.put(getTls_private_key_key(), getTls().getPrivate_key());

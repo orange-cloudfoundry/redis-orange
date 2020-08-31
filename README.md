@@ -8,7 +8,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 - [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability,
 - Multi-zone for high availability by Redis Sentinel and Redis cluster with high availability,
 - Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/),
-- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.2 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.0 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
+- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.3 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
 
 ## TODO
 
@@ -19,7 +19,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 ## Packages versions summary
 
 - Redis [*6.0.6*](http://download.redis.io/releases/redis-6.0.6.tar.gz)
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.9.0*](https://github.com/oliver006/redis_exporter/releases/download/v1.9.0/redis_exporter-v1.9.0.linux-amd64.tar.gz)
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.11.1*](https://github.com/oliver006/redis_exporter/releases/download/v1.11.1/redis_exporter-v1.11.1.linux-amd64.tar.gz)
 - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.6.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.6.0/redis_sentinel_exporter-1.6.0.linux-amd64.tar.gz)
 - [*OpenJDK*](https://openjdk.java.net/) [*14.0.2*](https://download.java.net/java/GA/jdk14.0.2/205943a0976c4ed48cb16f1043c5c647/12/GPL/openjdk-14.0.2_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
@@ -127,7 +127,7 @@ bosh upload-release
 
 ### Deploy
 
-#### Single Redis Server
+#### Single Redis Server with TLS/SSL and ACL
 
 The deployment manifest is:
 
@@ -149,72 +149,94 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
+      port: '0'
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
-      rename_config_command: ((redis_rename_config_command))
-      rename_save_command: ((redis_rename_save_command))
-      rename_bgsave_command: ((redis_rename_bgsave_command))
-      rename_bgrewriteaof_command: ((redis_rename_bgrewriteaof_command))
-      rename_monitor_command: ((redis_rename_monitor_command))
-      rename_debug_command: ((redis_rename_debug_command))
-      rename_shutdown_command: ((redis_rename_shutdown_command))
-      rename_slaveof_command: ((redis_rename_slaveof_command))
-      rename_replicaof_command: ((redis_rename_replicaof_command))
-      rename_sync_command: ((redis_rename_sync_command))
-    consumes:
-      master_conn: nil
-      slave_conn: nil
+      tls: true
+      tls_keys: ((redis_keys))
   - name: redis_check
     release: redis-service
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-      redis_sentinel_conn: nil
-  - name: redis_broker
+    properties:
+      tls_keys: ((redis_check_keys))
+  - name: redis_broker-1.5
     release: redis-service
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-      redis_sentinel_conn: nil
-      sentinel_master_conn: nil
-      sentinel_slave_conn: nil
-  - name: redis_broker_check
+      tls_keys: ((redis_broker_keys))
+  - name: redis_broker_check-1.5
     release: redis-service
   - name: redis_exporter
     release: redis-service
     properties:
-      debug: ((redis_exporter_debug))
+      skip_tls_verification: true
+      tls_keys: ((redis_exporter_keys))
 
 variables:
 - name: redis_password
   type: password
-- name: redis_rename_config_command
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
   type: password
-- name: redis_rename_save_command
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
   type: password
-- name: redis_rename_bgsave_command
-  type: password
-- name: redis_rename_bgrewriteaof_command
-  type: password
-- name: redis_rename_monitor_command
-  type: password
-- name: redis_rename_debug_command
-  type: password
-- name: redis_rename_shutdown_command
-  type: password
-- name: redis_rename_slaveof_command
-  type: password
-- name: redis_rename_replicaof_command
-  type: password
-- name: redis_rename_sync_command
-  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
+  parameters:
+    length: ((password_length))
+- name: redis_ca
+  type: certificate
+  options:
+    common_name: ((deployment_name))
+    organization: 'orange.com'
+    key_length: ((ca_key_length))
+    duration: ((certificate_duration))
+    is_ca: true
+    self_sign: true
+- name: redis_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Server'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_check_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Client'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_broker_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Broker'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_exporter_keys
+  type: certificate
+  options:
+    ca: redis_ca
+    common_name: 'Exporter'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 
 stemcells:
 - alias: default
@@ -237,7 +259,7 @@ With the following variables file:
 
 ```yaml
 ---
-deployment_name: redis
+deployment_name: redis-tls
 node_count: 1
 default_vm_type: small
 default_persistent_disk_type: small
@@ -248,16 +270,16 @@ stemcell_version: 456.51
 redis_bind: true
 redis_maxmemory: 536870912
 redis_maxmemory_policy: 'allkeys-lru'
-redis_exporter_debug: false
-redis_broker_loglevel: info
+password_length: 256
+ca_key_length: 4096
+private_key_length: 2048
+certificate_duration: 365
 ```
 
 **Notes**:
-  - For security purposes, we use [*CredHub*](https://docs.cloudfoundry.org/credhub/) for passwords and to obfuscate some Redis admin commands (e.g.: `CONFIG`, `DEBUG`), etc..
   - We provide two errands:
     - `redis_check` to test deployed Redis instance with create, read, write and delete operations,
     - `redis_broker_check` to test deployed Redis broker by accessing Redis's catalog and service instance binding.
-  - Redis server and the Prometheus Redis exporter which monitor it must be on the same instance.
 
 #### Redis High Availability with Redis Sentinel
 
@@ -285,15 +307,10 @@ This release supports at most two kinds of instance groups:
 
 **Note**: If you use only one instance group, we use the parameter `node_count` as the number of instance in the group.
 
-In our release, Redis quorum's value is:
-- **(node_count/2)+1**, if you plan to use only one instance group, or
-- **(master_node_count+slave_node_count/2)+1**, if you plan to use an instance group for Redis master and another one for Redis slaves. 
-
 **Notes**:
 
-- `node_count` and `master_node_count+slave_node_count` must be an odd integer and greater or equal to 3.
+- `node_count` and `master_node_count+slave_node_count` must be greater or equal to 3.
 - To enable Redis High Availability with Redis Sentinel, `replication` (default: `false`) property must be set to `true`.
-- Take care about the `min_replicas_to_write` (default: `0`) property. See release specifications for details.
 
 The deployment manifest is:
 
@@ -316,45 +333,24 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
-      rename_config_command: ((redis_rename_config_command))
-      rename_save_command: ((redis_rename_save_command))
-      rename_bgsave_command: ((redis_rename_bgsave_command))
-      rename_bgrewriteaof_command: ((redis_rename_bgrewriteaof_command))
-      rename_monitor_command: ((redis_rename_monitor_command))
-      rename_debug_command: ((redis_rename_debug_command))
-      rename_shutdown_command: ((redis_rename_shutdown_command))
-      rename_slaveof_command: ((redis_rename_slaveof_command))
-      rename_replicaof_command: ((redis_rename_replicaof_command))
-      rename_sync_command: ((redis_rename_sync_command))
-      replication: ((redis_replication))
-      min_replicas_to_write: ((redis_min_replicas_to_write))
-    consumes:
-      master_conn: nil
-      slave_conn: nil
+      replication: true
+      replica_password: ((redis_replica_password))
+      sentinel_password: ((redis_sentinel_user_password))
+  - name: redis_check
+    release: redis-service
+  - name: redis_exporter
+    release: redis-service
   - name: redis_sentinel
     release: redis-service
     properties:
-      bind: ((redis_sentinel_bind))
+      bind: ((redis_bind))
       password: ((redis_sentinel_password))
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-      sentinel_master_conn: nil
-  - name: redis_check
-    release: redis-service
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-  - name: redis_exporter
-    release: redis-service
-    properties:
-      debug: ((redis_exporter_debug))
   - name: redis_sentinel_exporter
     release: redis-service
-    properties:
-      debug: ((redis_sentinel_exporter_debug))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -364,47 +360,43 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: redis_broker-1.5
     release: redis-service
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-      sentinel_master_conn: nil
-      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check
+  - name: redis_broker_check-1.5
     release: redis-service
 
 variables:
 - name: redis_password
   type: password
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_replica_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_sentinel_user_password
+  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_sentinel_password
   type: password
-- name: redis_rename_config_command
-  type: password
-- name: redis_rename_save_command
-  type: password
-- name: redis_rename_bgsave_command
-  type: password
-- name: redis_rename_bgrewriteaof_command
-  type: password
-- name: redis_rename_monitor_command
-  type: password
-- name: redis_rename_debug_command
-  type: password
-- name: redis_rename_shutdown_command
-  type: password
-- name: redis_rename_slaveof_command
-  type: password
-- name: redis_rename_replicaof_command
-  type: password
-- name: redis_rename_sync_command
-  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
+  parameters:
+    length: ((password_length))
 
 stemcells:
 - alias: default
@@ -427,8 +419,8 @@ With the following variables file:
 
 ```yaml
 ---
-deployment_name: redis-sentinel-exporter
-node_count: 3
+deployment_name: redis-sentinel
+node_count: 4
 default_vm_type: small
 default_persistent_disk_type: small
 default_network: mongo-net
@@ -438,12 +430,7 @@ stemcell_version: 456.51
 redis_bind: true
 redis_maxmemory: 536870912
 redis_maxmemory_policy: 'allkeys-lru'
-redis_exporter_debug: false
-redis_sentinel_exporter_debug: false
-redis_replication: true
-redis_sentinel_bind: true
-redis_min_replicas_to_write: 0
-redis_broker_loglevel: info
+password_length: 256
 ```
 
 ##### With Distinct AZs

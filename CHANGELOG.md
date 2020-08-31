@@ -7,7 +7,7 @@
 - Added support for reconfiguring Sentinel at runtime to share a Sentinel with several Redis master. 
 - Components update:
   - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.6,
-  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.11.0,
+  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.11.1,
   - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.6.0,
   - [*OpenJDK*](https://openjdk.java.net/) 13.0.2 -> 14.0.2,
   - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.2 -> 2.3.3,

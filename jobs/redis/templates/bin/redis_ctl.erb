@@ -1,8 +1,6 @@
 #!/bin/bash
 <%- master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
-  sentinel=nil
-  if_link('redis_sentinel_conn'){ |x| sentinel=x } -%>
+  if_link('master_conn'){ |x| master=x } -%>
 
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
@@ -100,12 +98,15 @@ case "${1}" in
       end
     end
     if redis_persistance_rdb==0 && master.p('appendonly').eql?('no')
-      if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0 -%>
+      if master.p('cluster_enabled').eql?('yes') 
+        if master.p('cluster_replicas_per_node').to_i>0 -%>
       sleep <%= (master.p('cluster_node_timeout').to_i*3)/2000 %>;
-<%-   end
-      if master.p('replication') && !sentinel.nil? -%>
-      sleep <%= (sentinel.p('down_after_milliseconds').to_i*3)/2000 %>;
-<%-   end
+<%-     end
+      else
+        if master.p('replication') -%>
+      sleep <%= (master.p('down_after_milliseconds').to_i*3)/2000 %>;
+<%-     end
+      end
     end
   end -%>
       exec chpst -u vcap:vcap "${REDIS_SERVER}" "${REDIS_CONF}" \
