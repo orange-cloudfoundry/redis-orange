@@ -2,9 +2,9 @@
 name: ((deployment_name))
 
 instance_groups:
-- name: redis-master
+- name: redis
   azs: [((default_az))]
-  instances: ((master_node_count))
+  instances: ((node_count))
   vm_type: ((default_vm_type))
   stemcell: default
   persistent_disk_type: ((default_persistent_disk_type))
@@ -14,7 +14,8 @@ instance_groups:
   - name: redis
     release: redis-service
     consumes:
-      redis_sentinel_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment_name))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment_name))}
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
@@ -28,42 +29,10 @@ instance_groups:
   - name: redis_check
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
-      sentinel_slave_conn: {from: sentinel_slave}
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment_name))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment_name))}
   - name: redis_exporter
     release: redis-service
-  - name: redis_sentinel
-    release: redis-service
-    provides:
-      redis_sentinel_conn: {as: sentinel_master}
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
-    properties:
-      bind: ((redis_bind))
-      password: ((redis_sentinel_password))
-  - name: redis_sentinel_exporter
-    release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
-- name: sentinel-slave
-  azs: [((default_az))]
-  instances: ((slave_node_count))
-  vm_type: ((default_vm_type))
-  stemcell: default
-  persistent_disk_type: ((default_persistent_disk_type))
-  networks:
-  - name: ((default_network))
-  jobs:
-  - name: redis_sentinel
-    release: redis-service
-    provides:
-      redis_sentinel_conn: {as: sentinel_slave}
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
-  - name: redis_sentinel_exporter
-    release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -76,7 +45,7 @@ instance_groups:
   - name: redis_broker
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment_name))}
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
@@ -101,10 +70,6 @@ variables:
   parameters:
     length: ((password_length))
 - name: redis_sentinel_user_password
-  type: password
-  parameters:
-    length: ((password_length))
-- name: redis_sentinel_password
   type: password
   parameters:
     length: ((password_length))

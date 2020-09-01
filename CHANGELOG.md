@@ -4,7 +4,7 @@
   - TSL/SSL
   - ACL
   - Multi-threading
-- Added support for reconfiguring Sentinel at runtime to share a Sentinel with several Redis master. 
+- Added support for reconfiguring Sentinel at runtime to share Sentinels with several Redis masters.
 - Components update:
   - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.6,
   - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.11.1,

@@ -16,28 +16,39 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
   - name: redis_check
     release: redis-service
-  - name: redis_broker-1.5
+  - name: redis_broker
     release: redis-service
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check-1.5
+  - name: redis_broker_check
     release: redis-service
   - name: redis_exporter
     release: redis-service
-    properties:
-      debug: ((redis_exporter_debug))
 
 variables:
 - name: redis_password
   type: password
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
+  parameters:
+    length: ((password_length))
 
 stemcells:
 - alias: default
