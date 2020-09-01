@@ -44,6 +44,7 @@ instance_groups:
     consumes:
       redis_conn: {from: master}
     properties:
+      skip_tls_verification: true
       tls_keys: ((redis_master_exporter_keys))
 - name: redis-slave
   azs: [((default_az))]
@@ -75,6 +76,7 @@ instance_groups:
     consumes:
       redis_conn: {from: master}
     properties:
+      skip_tls_verification: true
       tls_keys: ((redis_slave_exporter_keys))
 - name: broker
   azs: [((default_az))]

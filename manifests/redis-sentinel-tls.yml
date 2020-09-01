@@ -38,6 +38,7 @@ instance_groups:
   - name: redis_exporter
     release: redis-service
     properties:
+      skip_tls_verification: true
       tls_keys: ((redis_exporter_keys))
   - name: redis_sentinel
     release: redis-service
