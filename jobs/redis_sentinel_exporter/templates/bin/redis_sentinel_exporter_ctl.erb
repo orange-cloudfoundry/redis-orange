@@ -8,23 +8,17 @@ RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
 LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
 TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
 STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
+PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
-PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
-
 REDIS_SENTINEL_IP="127.0.0.1";
-<%- if sentinel.p('bind') -%>
-REDIS_SENTINEL_IP="<%= spec.ip %>";
-<%- end -%>
 REDIS_SENTINEL_EXPORTER_ARGS="-sentinel.addr redis://${REDIS_SENTINEL_IP}:<%= sentinel.p('port') %>";
-
 <%- sentinel.if_p('password') do |x|
     unless x.to_s.empty? -%>
 REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password <%= x %>";
 <%- end
   end -%>
-
 <%- if p('debug') -%>
 REDIS_SENTINEL_EXPORTER_ARGS+=" -debug";
 <%- end -%>

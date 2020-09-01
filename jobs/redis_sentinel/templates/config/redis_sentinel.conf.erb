@@ -17,7 +17,7 @@
 #
 # protected-mode no
 <%- if sentinel.p('bind') -%>
-bind <%= spec.ip %>
+bind 127.0.0.1 <%= spec.ip %>
 <%- else -%>
 bind 127.0.0.1
 <%- end -%>

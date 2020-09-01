@@ -27,6 +27,7 @@ orange:
     ha_port_key: <%= p('ha_port_key') %>
     ha_password_key: <%= p('ha_password_key') %>
     tls_port_key: <%= p('tls_port_key') %>
+    tls_ha_port_key: <%= p('tls_ha_port_key') %>
     tls_certificate_key: <%= p('tls_certificate_key') %>
     tls_private_key_key: <%= p('tls_private_key_key') %>
     tls_ca_key: <%= p('tls_ca_key') %>
@@ -79,6 +80,11 @@ orange:
   if master.p('tls') -%>
     tls:
       port: <%= master.p('tls_port') %>
+<%- if !sentinel.nil?
+    if sentinel.p('tls') -%>
+      ha_port: <%= sentinel.p('tls_port') %>
+<%- end
+  end -%>
       certificate: |
 <%- p('tls_keys.certificate').lines.each do |x| -%>
         <%= x -%>

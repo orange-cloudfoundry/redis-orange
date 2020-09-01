@@ -14,9 +14,9 @@ instance_groups:
   - name: redis_sentinel
     release: redis-service
     provides:
-      redis_sentinel_conn: {as: sentinel_master, shared: true}
+      redis_sentinel_conn: {as: ((shared_sentinel_master)), shared: true}
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_conn: {from: ((shared_sentinel_master))}
     properties:
       shared: true
       bind: true
@@ -24,7 +24,7 @@ instance_groups:
   - name: redis_sentinel_exporter
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_conn: {from: ((shared_sentinel_master))}
 - name: sentinel-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -37,13 +37,13 @@ instance_groups:
   - name: redis_sentinel
     release: redis-service
     provides:
-      redis_sentinel_conn: {as: sentinel_slave, shared: true}
+      redis_sentinel_conn: {as: ((shared_sentinel_slave)), shared: true}
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_conn: {from: ((shared_sentinel_master))}
   - name: redis_sentinel_exporter
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: sentinel_master}
+      redis_sentinel_conn: {from: ((shared_sentinel_master))}
 
 variables:
 - name: redis_sentinel_password

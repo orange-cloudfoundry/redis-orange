@@ -43,11 +43,14 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
-      port: '0'
+      port: '26389'
       password: ((redis_sentinel_password))
       tls: true
+      tls_port: '26379'
       tls_keys: ((redis_sentinel_keys))
       tls_replication: true
+  - name: redis_sentinel_exporter
+    release: redis-service
 - name: broker
   azs: [((default_az))]
   instances: 1

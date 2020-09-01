@@ -48,11 +48,14 @@ instance_groups:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       bind: ((redis_bind))
-      port: '0'
+      port: '26389'
       password: ((redis_sentinel_password))
       tls: true
+      tls_port: '26379'
       tls_keys: ((redis_sentinel_master_keys))
       tls_replication: true
+  - name: redis_sentinel_exporter
+    release: redis-service
 - name: sentinel-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -70,6 +73,10 @@ instance_groups:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       tls_keys: ((redis_sentinel_master_keys))
+  - name: redis_sentinel_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -89,6 +96,8 @@ instance_groups:
       tls_keys: ((redis_broker_keys))
   - name: redis_broker_check-1.5
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
 
 variables:
 - name: redis_password

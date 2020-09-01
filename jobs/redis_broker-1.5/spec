@@ -90,6 +90,10 @@ properties:
     default: "tls_port"
     description: |
       Redis TLS/SSL port property's key for client
+  tls_ha_port_key:
+    default: "tls_ha_port"
+    description: |
+      Redis Sentinel TLS/SSL port property's key for client
   tls_certificate_key:
     default: "tls_certificate"
     description: |

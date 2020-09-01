@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-<%- master=link('redis_conn')
-  slave=nil
-  if_link('slave_conn'){ |x| slave=x } -%>
+<%- master=link('redis_conn') -%>
   
 set -eu
 
@@ -10,11 +8,13 @@ RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
 LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
 TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
 STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
+PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
 mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
-PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
-
+REDIS_PROTOCOLE="redis";
+REDIS_IP="127.0.0.1";
+REDIS_PORT="<%= master.p('port') %>";
 REDIS_EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
 REDIS_PASSWORD="";
 <%- master.if_p('exporter_password') do |x|
@@ -22,9 +22,6 @@ REDIS_PASSWORD="";
 REDIS_EXPORTER_ARGS+=" -redis.password <%= x %>";
 <%- end
   end -%>
-
-REDIS_PROTOCOLE="redis";
-REDIS_PORT="<%= master.p('port') %>";
 <%- if master.p('tls') -%>
 REDIS_PROTOCOLE="rediss";
 REDIS_PORT="<%= master.p('tls_port') %>";
@@ -36,14 +33,7 @@ REDIS_EXPORTER_ARGS+=" -tls-client-key-file ${REDIS_TLS_KEY_FILE}";
 REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 REDIS_EXPORTER_ARGS+=" -tls-ca-cert-file ${REDIS_TLS_CA_CERT_FILE}";
 <%- end -%>
-
-REDIS_IP="127.0.0.1";
-<%- if master.p('bind') -%>
-REDIS_IP="<%= spec.ip %>";
-<%- end -%>
-
 REDIS_EXPORTER_ARGS+=" -redis.addr=${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
-
 <%- if_p('check_keys') do |x| -%>
 REDIS_EXPORTER_ARGS+=" -check-keys <%= x %>";
 <%- end -%>
