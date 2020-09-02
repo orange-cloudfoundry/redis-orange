@@ -6,7 +6,7 @@
   - Multi-threading
 - Added support for reconfiguring Sentinel at runtime to share Sentinels with several Redis masters.
 - Components update:
-  - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.6,
+  - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.7,
   - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.11.1,
   - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.6.0,
   - [*OpenJDK*](https://openjdk.java.net/) 13.0.2 -> 14.0.2,
