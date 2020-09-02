@@ -38,8 +38,7 @@ REDIS_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
 #
 # Bind to Sentinel
 #
-<%- if master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) && !sentinel.nil?
-    if sentinel.p('shared') -%>
+<%- if !sentinel.nil? && master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 
 REDIS_SENTINEL_CRED="";
@@ -105,8 +104,7 @@ then
       SENTINEL REMOVE <%= spec.deployment %>;
   done
 fi
-<%- end
-  end -%>
+<%- end -%>
 
 #
 # Build Redis cluster

@@ -1,6 +1,4 @@
-<%- master=nil
-  if_link('redis_conn'){ |x| master=x }
-  sentinel=link('redis_sentinel_conn') -%>
+<%- sentinel=link('redis_sentinel_conn') -%>
 # *** IMPORTANT ***
 #
 # By default Sentinel will not be reachable from interfaces different than
@@ -241,13 +239,7 @@ requirepass <%= x %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-<%- if !master.nil?
-    master_port=master.p('port')
-    if sentinel.p('tls') && master.p('tls') && master.p('tls_replication')
-      master_port=master.p('tls_port')
-    end -%>
-sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>
-<%- end -%>
+# sentinel monitor mymaster 127.0.0.1 6379 2
 
 # sentinel auth-pass <master-name> <password>
 #
@@ -267,13 +259,6 @@ sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstr
 # Example:
 #
 # sentinel auth-pass mymaster MySUPER--secret-0123passw0rd
-<%- if !master.nil?
-    master.if_p('sentinel_password') do |x|
-      unless x.to_s.empty? -%>
-sentinel auth-pass <%= spec.deployment %> <%= x %>
-<%-   end
-    end
-  end -%>
 
 # sentinel auth-user <master-name> <username>
 #
@@ -286,9 +271,6 @@ sentinel auth-pass <%= spec.deployment %> <%= x %>
 #
 #     user sentinel-user >somepassword +client +subscribe +publish \
 #                        +ping +info +multi +slaveof +config +client +exec on
-<%- if !master.nil? -%>
-sentinel auth-user <%= spec.deployment %> <%= master.p('sentinel_user') %>
-<%- end -%>
 
 # sentinel down-after-milliseconds <master-name> <milliseconds>
 #
@@ -299,9 +281,6 @@ sentinel auth-user <%= spec.deployment %> <%= master.p('sentinel_user') %>
 #
 # Default is 30 seconds.
 # sentinel down-after-milliseconds mymaster 30000
-<%- if !master.nil? -%>
-sentinel down-after-milliseconds <%= spec.deployment %> <%= master.p('down_after_milliseconds') %>
-<%- end -%>
 
 # sentinel parallel-syncs <master-name> <numreplicas>
 #
@@ -310,9 +289,6 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= master.p('down_after
 # to avoid that all the replicas will be unreachable at about the same
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
-<%- if !master.nil? -%>
-sentinel parallel-syncs <%= spec.deployment %> <%= master.p('parallel_syncs') %>
-<%- end -%>
 
 # sentinel failover-timeout <master-name> <milliseconds>
 #
@@ -338,9 +314,6 @@ sentinel parallel-syncs <%= spec.deployment %> <%= master.p('parallel_syncs') %>
 #
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
-<%- if !master.nil? -%>
-sentinel failover-timeout <%= spec.deployment %> <%= master.p('failover_timeout') %>
-<%- end -%>
 
 # SCRIPTS EXECUTION
 #
@@ -364,7 +337,7 @@ sentinel failover-timeout <%= spec.deployment %> <%= master.p('failover_timeout'
 # NOTIFICATION SCRIPT
 #
 # sentinel notification-script <master-name> <script-path>
-#
+# 
 # Call the specified notification script for any sentinel event that is
 # generated in the WARNING level (for instance -sdown, -odown, and so forth).
 # This script should notify the system administrator via email, SMS, or any
@@ -388,14 +361,14 @@ sentinel failover-timeout <%= spec.deployment %> <%= master.p('failover_timeout'
 # When the master changed because of a failover a script can be called in
 # order to perform application-specific tasks to notify the clients that the
 # configuration has changed and the master is at a different address.
-#
+# 
 # The following arguments are passed to the script:
 #
 # <master-name> <role> <state> <from-ip> <from-port> <to-ip> <to-port>
 #
 # <state> is currently always "failover"
 # <role> is either "leader" or "observer"
-#
+# 
 # The arguments from-ip, from-port, to-ip, to-port are used to communicate
 # the old address of the master and the new address of the elected replica
 # (now a master).

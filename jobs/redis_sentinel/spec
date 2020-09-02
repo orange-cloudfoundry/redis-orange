@@ -16,7 +16,6 @@ provides:
 - name: redis_sentinel_conn
   type: sentinel_conn
   properties:
-  - shared
   - bind
   - port
   - password
@@ -37,10 +36,6 @@ consumes:
   optional: true
 
 properties:
-  shared:
-    default: false
-    description:  |
-      Specify this property to "true" if you would like a Sentinel to be shared with several Redis master.
   bind:
     default: false
     description:  |

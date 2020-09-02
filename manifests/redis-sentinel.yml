@@ -13,8 +13,6 @@ instance_groups:
   jobs:
   - name: redis
     release: redis-service
-    consumes:
-      redis_sentinel_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_password))

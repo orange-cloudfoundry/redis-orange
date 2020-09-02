@@ -18,7 +18,6 @@ instance_groups:
     consumes:
       redis_sentinel_conn: {from: ((shared_sentinel_master))}
     properties:
-      shared: true
       bind: true
       port: '26389'
       password: ((redis_sentinel_password))
