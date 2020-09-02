@@ -1,7 +1,5 @@
 #!/bin/bash
-<%- master=link('redis_conn')
-  if master.p('tls') -%>
-mkdir -p "<%= p('tls_keys_dir') %>";
+<%- if link('redis_conn').p('tls') -%>
 openssl dhparam -out "<%= p('tls_keys_dir') %>/<%= p('tls_dh_params_file') %>" <%= p('tls_dh_length') %>;
 <%- end -%>
 exit 0;

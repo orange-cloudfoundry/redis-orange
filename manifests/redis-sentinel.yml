@@ -27,8 +27,6 @@ instance_groups:
       sentinel_password: ((redis_sentinel_user_password))
   - name: redis_check
     release: redis-service
-    consumes:
-      redis_sentinel_conn: nil
   - name: redis_exporter
     release: redis-service
   - name: redis_sentinel

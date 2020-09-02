@@ -192,7 +192,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_ca
+- name: ((redis_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -204,7 +204,7 @@ variables:
 - name: redis_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Server'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -213,7 +213,7 @@ variables:
 - name: redis_check_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Client'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -222,7 +222,7 @@ variables:
 - name: redis_broker_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Broker'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -231,7 +231,7 @@ variables:
 - name: redis_exporter_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Exporter'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -274,6 +274,7 @@ password_length: 256
 ca_key_length: 4096
 private_key_length: 2048
 certificate_duration: 365
+redis_ca: redis_ca
 ```
 
 **Notes**:
@@ -358,6 +359,7 @@ instance_groups:
   - name: redis_exporter
     release: redis-service
     properties:
+      skip_tls_verification: true
       tls_keys: ((redis_exporter_keys))
   - name: redis_sentinel
     release: redis-service
@@ -418,7 +420,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_ca
+- name: ((redis_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -430,7 +432,7 @@ variables:
 - name: redis_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Server'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -439,7 +441,7 @@ variables:
 - name: redis_check_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Client'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -448,7 +450,7 @@ variables:
 - name: redis_broker_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Broker'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -457,7 +459,7 @@ variables:
 - name: redis_exporter_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Exporter'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -466,7 +468,7 @@ variables:
 - name: redis_sentinel_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -495,7 +497,7 @@ With the following variables file:
 ```yaml
 ---
 deployment_name: redis-sentinel-tls
-node_count: 4
+node_count: 3
 default_vm_type: small
 default_persistent_disk_type: small
 default_network: mongo-net
@@ -509,6 +511,7 @@ password_length: 256
 ca_key_length: 4096
 private_key_length: 2048
 certificate_duration: 365
+redis_ca: redis_ca
 ```
 
 ##### With Distinct AZs
@@ -533,6 +536,7 @@ instance_groups:
     release: redis-service
     consumes:
       redis_sentinel_conn: nil
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       port: '0'
@@ -557,6 +561,7 @@ instance_groups:
   - name: redis_exporter
     release: redis-service
     properties:
+      skip_tls_verification: true
       tls_keys: ((redis_exporter_keys))
   - name: redis_sentinel
     release: redis-service
@@ -574,6 +579,8 @@ instance_groups:
       tls_replication: true
   - name: redis_sentinel_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
 - name: sentinel-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -608,14 +615,13 @@ instance_groups:
     release: redis-service
     consumes:
       redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls_keys: ((redis_broker_keys))
   - name: redis_broker_check-1.5
     release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
 
 variables:
 - name: redis_password
@@ -646,7 +652,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_ca
+- name: ((redis_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -658,7 +664,7 @@ variables:
 - name: redis_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Server'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -667,7 +673,7 @@ variables:
 - name: redis_check_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Client'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -676,16 +682,16 @@ variables:
 - name: redis_broker_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Broker'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
-- name: exporter_keys
+- name: redis_exporter_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Exporter'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -694,7 +700,7 @@ variables:
 - name: redis_sentinel_master_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -703,7 +709,7 @@ variables:
 - name: redis_sentinel_slave_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -733,7 +739,7 @@ With the following variables file:
 ---
 deployment_name: redis-sentinel-azs-tls
 master_node_count: 2
-slave_node_count: 2
+slave_node_count: 1
 default_vm_type: small
 default_persistent_disk_type: small
 default_network: mongo-net
@@ -747,6 +753,7 @@ password_length: 256
 ca_key_length: 4096
 private_key_length: 2048
 certificate_duration: 365
+redis_ca: redis_ca
 ```
 
 ##### Sharing Redis Sentinel
@@ -813,7 +820,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_sentinel_shared_ca
+- name: ((shared_sentinel_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -825,7 +832,7 @@ variables:
 - name: redis_sentinel_master_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -834,7 +841,7 @@ variables:
 - name: redis_sentinel_slave_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -864,7 +871,7 @@ With the following variables file:
 ---
 deployment_name: redis-sentinel-shared-tls
 master_node_count: 2
-slave_node_count: 2
+slave_node_count: 1
 default_vm_type: small
 default_persistent_disk_type: small
 default_network: mongo-net
@@ -877,6 +884,7 @@ private_key_length: 2048
 certificate_duration: 365
 shared_sentinel_master: sentinel_master
 shared_sentinel_slave: sentinel_slave
+shared_sentinel_ca: sentinel_ca
 ```
 
 ###### Redis deployment manifest using shared Redis Sentinel
@@ -898,8 +906,8 @@ instance_groups:
   - name: redis
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment_name))}
-      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment_name))}
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
     properties:
       bind: ((redis_bind))
       port: '0'
@@ -917,13 +925,14 @@ instance_groups:
   - name: redis_check
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment_name))}
-      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment_name))}
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
     properties:
       tls_keys: ((redis_check_keys))
   - name: redis_exporter
     release: redis-service
     properties:
+      skip_tls_verification: true
       tls_keys: ((redis_exporter_keys))
 - name: broker
   azs: [((default_az))]
@@ -937,7 +946,7 @@ instance_groups:
   - name: redis_broker-1.5
     release: redis-service
     consumes:
-      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment_name))}
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
@@ -973,7 +982,7 @@ variables:
 - name: redis_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Server'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -982,7 +991,7 @@ variables:
 - name: redis_check_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Client'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -991,7 +1000,7 @@ variables:
 - name: redis_broker_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Broker'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -1000,7 +1009,7 @@ variables:
 - name: redis_exporter_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Exporter'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -1043,9 +1052,10 @@ password_length: 256
 ca_key_length: 4096
 private_key_length: 2048
 certificate_duration: 365
-shared_sentinel_deployment_name: redis-sentinel-shared-tls
+shared_sentinel_deployment: redis-sentinel-shared-tls
 shared_sentinel_master: sentinel_master
 shared_sentinel_slave: sentinel_slave
+shared_sentinel_ca: sentinel_ca
 ```
 
 #### Redis Cluster with High Availability
@@ -1102,35 +1112,27 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
+      port: '0'
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
-      rename_config_command: ((redis_rename_config_command))
-      rename_save_command: ((redis_rename_save_command))
-      rename_bgsave_command: ((redis_rename_bgsave_command))
-      rename_bgrewriteaof_command: ((redis_rename_bgrewriteaof_command))
-      rename_monitor_command: ((redis_rename_monitor_command))
-      rename_debug_command: ((redis_rename_debug_command))
-      rename_shutdown_command: ((redis_rename_shutdown_command))
-      rename_slaveof_command: ((redis_rename_slaveof_command))
-      rename_replicaof_command: ((redis_rename_replicaof_command))
-      rename_sync_command: ((redis_rename_sync_command))
       cluster_enabled: ((redis_cluster_enabled))
+      replica_password: ((redis_replica_password))
       cluster_replicas_per_node: ((replicas_per_node_count))
-      min_replicas_to_write: ((redis_min_replicas_to_write))
-    consumes:
-      master_conn: nil
-      slave_conn: nil
+      tls: true
+      tls_keys: ((redis_keys))
+      tls_cluster: true
   - name: redis_check
     release: redis-service
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-      redis_sentinel_conn: nil
+    properties:
+      tls_keys: ((redis_check_keys))
   - name: redis_exporter
     release: redis-service
     properties:
-      debug: ((redis_exporter_debug))
+      skip_tls_verification: true
+      tls_keys: ((redis_exporter_keys))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -1140,46 +1142,81 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: redis_broker-1.5
     release: redis-service
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
-    consumes:
-      master_conn: nil
-      slave_conn: nil
-      redis_sentinel_conn: nil
-      sentinel_master_conn: nil
-      sentinel_slave_conn: nil
-  - name: redis_broker_check
+      tls_keys: ((redis_broker_keys))
+  - name: redis_broker_check-1.5
     release: redis-service
 
 variables:
 - name: redis_password
   type: password
-- name: redis_rename_config_command
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
   type: password
-- name: redis_rename_save_command
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
   type: password
-- name: redis_rename_bgsave_command
+  parameters:
+    length: ((password_length))
+- name: redis_replica_password
   type: password
-- name: redis_rename_bgrewriteaof_command
-  type: password
-- name: redis_rename_monitor_command
-  type: password
-- name: redis_rename_debug_command
-  type: password
-- name: redis_rename_shutdown_command
-  type: password
-- name: redis_rename_slaveof_command
-  type: password
-- name: redis_rename_replicaof_command
-  type: password
-- name: redis_rename_sync_command
-  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
+  parameters:
+    length: ((password_length))
+- name: ((redis_ca))
+  type: certificate
+  options:
+    common_name: ((deployment_name))
+    organization: 'orange.com'
+    key_length: ((ca_key_length))
+    duration: ((certificate_duration))
+    is_ca: true
+    self_sign: true
+- name: redis_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Server'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_check_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Client'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_broker_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Broker'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_exporter_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Exporter'
+    organization_unit: ((deployment_name))
+    organization: 'orange.com'
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 
 stemcells:
 - alias: default
@@ -1213,11 +1250,13 @@ stemcell_version: 456.51
 redis_bind: true
 redis_maxmemory: 536870912
 redis_maxmemory_policy: 'allkeys-lru'
-redis_exporter_debug: false
 redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
-redis_min_replicas_to_write: 0
-redis_broker_loglevel: info
+password_length: 256
+ca_key_length: 4096
+private_key_length: 2048
+certificate_duration: 365
+redis_ca: redis_ca
 ```
 
 ##### With Distinct AZs
@@ -1244,39 +1283,35 @@ instance_groups:
       redis_conn: {as: master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
       slave_conn: {from: slave}
     properties:
       bind: ((redis_bind))
+      port: '0'
       password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
-      rename_config_command: ((redis_rename_config_command))
-      rename_save_command: ((redis_rename_save_command))
-      rename_bgsave_command: ((redis_rename_bgsave_command))
-      rename_bgrewriteaof_command: ((redis_rename_bgrewriteaof_command))
-      rename_monitor_command: ((redis_rename_monitor_command))
-      rename_debug_command: ((redis_rename_debug_command))
-      rename_shutdown_command: ((redis_rename_shutdown_command))
-      rename_slaveof_command: ((redis_rename_slaveof_command))
-      rename_replicaof_command: ((redis_rename_replicaof_command))
-      rename_sync_command: ((redis_rename_sync_command))
       cluster_enabled: ((redis_cluster_enabled))
+      replica_password: ((redis_replica_password))
       cluster_replicas_per_node: ((replicas_per_node_count))
-      min_replicas_to_write: ((redis_min_replicas_to_write))
+      tls: true
+      tls_keys: ((redis_master_keys))
+      tls_cluster: true
   - name: redis_check
     release: redis-service
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
       slave_conn: {from: slave}
-      redis_sentinel_conn: nil
+    properties:
+      tls_keys: ((redis_master_check_keys))
   - name: redis_exporter
     release: redis-service
     consumes:
       redis_conn: {from: master}
     properties:
-      debug: ((redis_exporter_debug))
+      skip_tls_verification: true
+      tls_keys: ((redis_master_exporter_keys))
 - name: redis-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -1291,22 +1326,24 @@ instance_groups:
     provides:
       redis_conn: {as: slave}
     consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
+      redis_conn: {from: master}
       slave_conn: {from: slave}
+    properties:
+      tls_keys: ((redis_slave_keys))
   - name: redis_check
     release: redis-service
     consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
+      redis_conn: {from: master}
       slave_conn: {from: slave}
-      redis_sentinel_conn: nil
+    properties:
+      tls_keys: ((redis_slave_check_keys))
   - name: redis_exporter
     release: redis-service
     consumes:
       redis_conn: {from: master}
     properties:
-      debug: ((redis_exporter_debug))
+      skip_tls_verification: true
+      tls_keys: ((redis_slave_exporter_keys))
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -1316,47 +1353,111 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: redis_broker-1.5
     release: redis-service
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
       slave_conn: {from: slave}
-      redis_sentinel_conn: nil
-      sentinel_master_conn: nil
-      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
-  - name: redis_broker_check
+      tls_keys: ((redis_broker_keys))
+  - name: redis_broker_check-1.5
     release: redis-service
 
 variables:
 - name: redis_password
   type: password
-- name: redis_rename_config_command
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
   type: password
-- name: redis_rename_save_command
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
   type: password
-- name: redis_rename_bgsave_command
+  parameters:
+    length: ((password_length))
+- name: redis_replica_password
   type: password
-- name: redis_rename_bgrewriteaof_command
-  type: password
-- name: redis_rename_monitor_command
-  type: password
-- name: redis_rename_debug_command
-  type: password
-- name: redis_rename_shutdown_command
-  type: password
-- name: redis_rename_slaveof_command
-  type: password
-- name: redis_rename_replicaof_command
-  type: password
-- name: redis_rename_sync_command
-  type: password
+  parameters:
+    length: ((password_length))
 - name: redis_broker_password
   type: password
+  parameters:
+    length: ((password_length))
+- name: ((redis_ca))
+  type: certificate
+  options:
+    common_name: ((deployment_name))
+    organization: 'orange.com'
+    key_length: ((ca_key_length))
+    duration: ((certificate_duration))
+    is_ca: true
+    self_sign: true
+- name: redis_master_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Server'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_master_check_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Client'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_master_exporter_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Exporter'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_slave_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Server'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_slave_check_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Client'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_slave_exporter_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Exporter'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
+- name: redis_broker_keys
+  type: certificate
+  options:
+    ca: ((redis_ca))
+    common_name: 'Broker'
+    organization: 'orange.com'
+    organization_unit: ((deployment_name))
+    key_length: ((private_key_length))
+    duration: ((certificate_duration))
 
 stemcells:
 - alias: default
@@ -1379,7 +1480,7 @@ With the following variables file:
 
 ```yaml
 ---
-deployment_name: redis-cluster-azs
+deployment_name: redis-cluster-azs-tls
 master_node_count: 3
 slave_node_count: 4
 default_vm_type: small
@@ -1391,9 +1492,11 @@ stemcell_version: 456.51
 redis_bind: true
 redis_maxmemory: 536870912
 redis_maxmemory_policy: 'allkeys-lru'
-redis_exporter_debug: false
 redis_cluster_enabled: 'yes'
 replicas_per_node_count: 1
-redis_min_replicas_to_write: 0
-redis_broker_loglevel: info
+password_length: 256
+ca_key_length: 4096
+private_key_length: 2048
+certificate_duration: 365
+redis_ca: redis_ca
 ```

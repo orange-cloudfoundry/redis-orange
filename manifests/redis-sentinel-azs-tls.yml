@@ -15,6 +15,7 @@ instance_groups:
     release: redis-service
     consumes:
       redis_sentinel_conn: nil
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       port: '0'
@@ -57,6 +58,8 @@ instance_groups:
       tls_replication: true
   - name: redis_sentinel_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
 - name: sentinel-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
@@ -91,14 +94,13 @@ instance_groups:
     release: redis-service
     consumes:
       redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls_keys: ((redis_broker_keys))
   - name: redis_broker_check
     release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
 
 variables:
 - name: redis_password
@@ -129,7 +131,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_ca
+- name: ((redis_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -141,7 +143,7 @@ variables:
 - name: redis_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Server'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -150,7 +152,7 @@ variables:
 - name: redis_check_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Client'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -159,16 +161,16 @@ variables:
 - name: redis_broker_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Broker'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
     key_length: ((private_key_length))
     duration: ((certificate_duration))
-- name: exporter_keys
+- name: redis_exporter_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Exporter'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -177,7 +179,7 @@ variables:
 - name: redis_sentinel_master_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -186,7 +188,7 @@ variables:
 - name: redis_sentinel_slave_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))

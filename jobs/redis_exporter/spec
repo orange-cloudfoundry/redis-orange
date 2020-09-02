@@ -4,6 +4,9 @@ name: redis_exporter
 templates:
   bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
   config/script.erb: config/script
+  keys/exporter.crt.erb: keys/exporter.crt
+  keys/exporter.key.erb: keys/exporter.key
+  keys/ca.crt.erb: keys/ca.crt
 
 packages:
   - redis_exporter
@@ -89,7 +92,7 @@ properties:
       Certificate materials for TLS connection.
     type: certificate
   tls_keys_dir:
-    default: "/var/vcap/packages/redis/keys"
+    default: "/var/vcap/jobs/redis_exporter/keys"
     description: |
       The directory where TLS keys are stored.
   tls_ca_cert_file:

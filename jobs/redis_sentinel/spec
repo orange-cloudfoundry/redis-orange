@@ -3,6 +3,9 @@ name: redis_sentinel
 
 templates:
   config/redis_sentinel.conf.erb: config/redis_sentinel.conf
+  keys/sentinel.crt.erb: keys/sentinel.crt
+  keys/sentinel.key.erb: keys/sentinel.key
+  keys/ca.crt.erb: keys/ca.crt
   bin/pre-start.erb: bin/pre-start
   bin/redis_sentinel_ctl.erb: bin/redis_sentinel_ctl
 
@@ -84,7 +87,7 @@ properties:
       Certificate materials for TLS connection.
     type: certificate
   tls_keys_dir:
-    default: "/var/vcap/packages/redis/keys"
+    default: "/var/vcap/jobs/redis_sentinel/keys"
     description: |
       The directory where TLS keys are stored.
   tls_ca_cert_file:

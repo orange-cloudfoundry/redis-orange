@@ -27,12 +27,11 @@ REDIS_SENTINEL_CRED="-a <%= x %>";
 <%- if sentinel.p('tls') -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
 REDIS_SENTINEL_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-REDIS_SENTINEL_TLS_CERT_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_SENTINEL_TLS_CERT_FILE}";
-REDIS_SENTINEL_TLS_KEY_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_SENTINEL_CRED+=" --key ${REDIS_SENTINEL_TLS_KEY_FILE}";
-REDIS_SENTINEL_TLS_CA_CERT_FILE="${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-REDIS_SENTINEL_CRED+=" --cacert ${REDIS_SENTINEL_TLS_CA_CERT_FILE}";
+REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_SENTINEL_CRED+=" --key ${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_SENTINEL_CRED+=" --cacert ${REDIS_SENTINEL_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+chown -R vcap:vcap "${REDIS_SENTINEL_TLS_KEYS_DIR}";
+chmod -R g-rwx,o-rwx "${REDIS_SENTINEL_TLS_KEYS_DIR}";
 <%- end -%>
 
 case "${1}" in
@@ -51,18 +50,6 @@ case "${1}" in
     touch "${REDIS_SENTINEL_LOG_FILE}";
     chown vcap:vcap "${REDIS_SENTINEL_LOG_FILE}";
     chmod 660 "${REDIS_SENTINEL_CONF}";
-
-<%- if sentinel.p('tls') -%>
-    mkdir -p "${REDIS_SENTINEL_TLS_KEYS_DIR}";
-    echo "<%= p('tls_keys.certificate') -%>" > \
-      "${REDIS_SENTINEL_TLS_CERT_FILE}";
-    echo "<%= p('tls_keys.private_key') -%>" > \
-      "${REDIS_SENTINEL_TLS_KEY_FILE}";
-    echo "<%= p('tls_keys.ca') -%>" > \
-      "${REDIS_SENTINEL_TLS_CA_CERT_FILE}";
-    chown -R vcap:vcap "${REDIS_SENTINEL_TLS_KEYS_DIR}";
-    chmod -R g-rwx,o-rwx "${REDIS_SENTINEL_TLS_KEYS_DIR}";
-<%- end -%>
 
     # Remove temp backup files that might be left over because of a
     # previously aborted

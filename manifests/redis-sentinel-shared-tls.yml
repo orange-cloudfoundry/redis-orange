@@ -57,7 +57,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_sentinel_shared_ca
+- name: ((shared_sentinel_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -69,7 +69,7 @@ variables:
 - name: redis_sentinel_master_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -78,7 +78,7 @@ variables:
 - name: redis_sentinel_slave_keys
   type: certificate
   options:
-    ca: redis_sentinel_shared_ca
+    ca: ((shared_sentinel_ca))
     common_name: 'Sentinel'
     organization: 'orange.com'
     organization_unit: ((deployment_name))

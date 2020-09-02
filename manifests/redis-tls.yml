@@ -58,7 +58,7 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: redis_ca
+- name: ((redis_ca))
   type: certificate
   options:
     common_name: ((deployment_name))
@@ -70,7 +70,7 @@ variables:
 - name: redis_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Server'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -79,7 +79,7 @@ variables:
 - name: redis_check_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Client'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -88,7 +88,7 @@ variables:
 - name: redis_broker_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Broker'
     organization: 'orange.com'
     organization_unit: ((deployment_name))
@@ -97,7 +97,7 @@ variables:
 - name: redis_exporter_keys
   type: certificate
   options:
-    ca: redis_ca
+    ca: ((redis_ca))
     common_name: 'Exporter'
     organization: 'orange.com'
     organization_unit: ((deployment_name))

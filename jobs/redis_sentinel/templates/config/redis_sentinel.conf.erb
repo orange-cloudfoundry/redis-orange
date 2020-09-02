@@ -247,6 +247,7 @@ requirepass <%= x %>
       master_port=master.p('tls_port')
     end -%>
 sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>
+<%- end -%>
 
 # sentinel auth-pass <master-name> <password>
 #
@@ -266,10 +267,12 @@ sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstr
 # Example:
 #
 # sentinel auth-pass mymaster MySUPER--secret-0123passw0rd
-<%- master.if_p('sentinel_password') do |x|
-    unless x.to_s.empty? -%>
+<%- if !master.nil?
+    master.if_p('sentinel_password') do |x|
+      unless x.to_s.empty? -%>
 sentinel auth-pass <%= spec.deployment %> <%= x %>
-<%- end
+<%-   end
+    end
   end -%>
 
 # sentinel auth-user <master-name> <username>
@@ -283,7 +286,9 @@ sentinel auth-pass <%= spec.deployment %> <%= x %>
 #
 #     user sentinel-user >somepassword +client +subscribe +publish \
 #                        +ping +info +multi +slaveof +config +client +exec on
+<%- if !master.nil? -%>
 sentinel auth-user <%= spec.deployment %> <%= master.p('sentinel_user') %>
+<%- end -%>
 
 # sentinel down-after-milliseconds <master-name> <milliseconds>
 #
@@ -294,7 +299,9 @@ sentinel auth-user <%= spec.deployment %> <%= master.p('sentinel_user') %>
 #
 # Default is 30 seconds.
 # sentinel down-after-milliseconds mymaster 30000
+<%- if !master.nil? -%>
 sentinel down-after-milliseconds <%= spec.deployment %> <%= master.p('down_after_milliseconds') %>
+<%- end -%>
 
 # sentinel parallel-syncs <master-name> <numreplicas>
 #
@@ -303,7 +310,9 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= master.p('down_after
 # to avoid that all the replicas will be unreachable at about the same
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
+<%- if !master.nil? -%>
 sentinel parallel-syncs <%= spec.deployment %> <%= master.p('parallel_syncs') %>
+<%- end -%>
 
 # sentinel failover-timeout <master-name> <milliseconds>
 #
@@ -329,6 +338,7 @@ sentinel parallel-syncs <%= spec.deployment %> <%= master.p('parallel_syncs') %>
 #
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
+<%- if !master.nil? -%>
 sentinel failover-timeout <%= spec.deployment %> <%= master.p('failover_timeout') %>
 <%- end -%>
 
