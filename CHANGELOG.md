@@ -15,7 +15,7 @@
 
 ## redis-orange 1.0.2.1
 
-- Correction for misunderstanding about Sentinel's quorum by adding `max_detected_failures` property in Sentinel's specifications. It's default value is 2.
+- Correction for misunderstanding about Sentinel's quorum by adding `max_detected_failures` property in Redis's specifications. It's default value is 2.
 
 ## redis-orange 1.0.2
 
