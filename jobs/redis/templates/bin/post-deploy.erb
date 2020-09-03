@@ -49,8 +49,12 @@ REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
 REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
 REDIS_SENTINEL_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
 REDIS_SENTINEL_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
-<%- end -%>
-REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> ${REDIS_PORT} <%= master.p('max_detected_failures') %>\n";
+<%- end
+  master_port=master.p('port')
+  if master.p('tls') && master.p('tls_replication')
+    master_port=master.p('tls_port')
+  end -%>
+REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <= master_port %> <%= master.p('max_detected_failures') %>\n";
 <%- master.if_p('sentinel_password') do |x|
     unless x.to_s.empty? -%>
 REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
@@ -129,16 +133,20 @@ else
   SLAVE_PER_INSTANCE=0;
 fi
 
+<%- node_port=master.p('port')
+  if master.p('tls') && master.p('tls_cluster')
+    node_port=master.p('tls_port')
+  end -%>
 REDIS_MASTER_NODES="";
 for i in ${REDIS_MASTER_ADDRESSES};
 do
-  REDIS_MASTER_NODES+=" ${i}:${REDIS_PORT}";
+  REDIS_MASTER_NODES+=" ${i}:<%= node_port %>";
 done
 
 REDIS_SLAVE_NODES="";
 for i in ${REDIS_SLAVE_ADDRESSES};
 do
-  REDIS_SLAVE_NODES+=" ${i}:${REDIS_PORT}";
+  REDIS_SLAVE_NODES+=" ${i}:<%= node_port %>";
 done
 
 REDIS_CLUSTER_NODES_COMMAND="$("${REDIS_CLI}" \
@@ -156,7 +164,7 @@ then
   do
     for j in ${REDIS_ADDRESSES};
     do
-      if [[ "${i%%@*}" == "${j}:${REDIS_PORT}" ]];
+      if [[ "${i%%@*}" == "${j}:<%= node_port %>" ]];
       then
         ((AVAILABLE_NODES++));
       fi
@@ -230,8 +238,8 @@ then
       do
         "${REDIS_CLI}" \
           ${REDIS_CRED} \
-          --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:${REDIS_PORT} \
-          ${i}:${REDIS_PORT} \
+          --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:<%= node_port %> \
+          ${i}:<%= node_port %> \
           --cluster-slave \
           --cluster-master-id ${MASTER_ID} <<< "yes";
         ERR=${?};
@@ -253,8 +261,8 @@ then
         ERR=${?};
         "${REDIS_CLI}" \
           ${REDIS_CRED} \
-          --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:${REDIS_PORT} \
-          ${i}:${REDIS_PORT} \
+          --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:<%= node_port %> \
+          ${i}:<%= node_port %> \
           --cluster-slave \
           --cluster-master-id ${MASTER_ID} <<< "yes";
         ERR=${?};
