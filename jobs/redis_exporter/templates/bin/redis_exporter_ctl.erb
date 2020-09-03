@@ -14,6 +14,9 @@ chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
 REDIS_PROTOCOLE="redis";
 REDIS_IP="127.0.0.1";
+<%- if master.p('bind') -%>
+REDIS_IP="<%= spec.ip %>";
+<%- end -%>
 REDIS_PORT="<%= master.p('port') %>";
 REDIS_EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
 REDIS_PASSWORD="";
@@ -21,8 +24,8 @@ REDIS_PASSWORD="";
     unless x.to_s.empty? -%>
 REDIS_EXPORTER_ARGS+=" -redis.password <%= x %>";
 <%- end
-  end -%>
-<%- if master.p('tls') -%>
+  end
+  if master.p('tls') -%>
 REDIS_PROTOCOLE="rediss";
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_EXPORTER_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";

@@ -14,7 +14,8 @@ instance_groups:
   - name: redis
     release: redis-service
     consumes:
-      sentinel_slave_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
@@ -28,15 +29,9 @@ instance_groups:
   - name: redis_check
     release: redis-service
     consumes:
-      sentinel_slave_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
   - name: redis_exporter
-    release: redis-service
-  - name: redis_sentinel
-    release: redis-service
-    properties:
-      bind: ((redis_bind))
-      password: ((redis_sentinel_password))
-  - name: redis_sentinel_exporter
     release: redis-service
 - name: broker
   azs: [((default_az))]
@@ -50,7 +45,7 @@ instance_groups:
   - name: redis_broker-1.5
     release: redis-service
     consumes:
-      sentinel_slave_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
@@ -75,10 +70,6 @@ variables:
   parameters:
     length: ((password_length))
 - name: redis_sentinel_user_password
-  type: password
-  parameters:
-    length: ((password_length))
-- name: redis_sentinel_password
   type: password
   parameters:
     length: ((password_length))

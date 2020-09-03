@@ -13,6 +13,8 @@ instance_groups:
   jobs:
   - name: redis
     release: redis-service
+    consumes:
+      slave_conn: nil
     properties:
       bind: ((redis_bind))
       port: '0'
@@ -29,6 +31,8 @@ instance_groups:
       tls_cluster: true
   - name: redis_check
     release: redis-service
+    consumes:
+      slave_conn: nil
     properties:
       tls_keys: ((redis_check_keys))
   - name: redis_exporter
@@ -47,6 +51,8 @@ instance_groups:
   jobs:
   - name: redis_broker-1.5
     release: redis-service
+    consumes:
+      slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))

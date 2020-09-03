@@ -13,6 +13,8 @@ instance_groups:
   jobs:
   - name: redis
     release: redis-service
+    consumes:
+      slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
@@ -25,6 +27,8 @@ instance_groups:
       cluster_replicas_per_node: ((replicas_per_node_count))
   - name: redis_check
     release: redis-service
+    consumes:
+      slave_conn: nil
   - name: redis_exporter
     release: redis-service
 - name: broker
@@ -38,6 +42,8 @@ instance_groups:
   jobs:
   - name: redis_broker-1.5
     release: redis-service
+    consumes:
+      slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))

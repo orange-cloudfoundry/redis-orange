@@ -31,9 +31,6 @@ provides:
 consumes:
 - name: redis_sentinel_conn
   type: sentinel_conn
-- name: redis_conn
-  type: conn
-  optional: true
 
 properties:
   bind:

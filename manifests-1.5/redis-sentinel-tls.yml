@@ -13,6 +13,8 @@ instance_groups:
   jobs:
   - name: redis
     release: redis-service
+    consumes:
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       port: '0'
@@ -29,6 +31,8 @@ instance_groups:
       tls_replication: true
   - name: redis_check
     release: redis-service
+    consumes:
+      sentinel_slave_conn: nil
     properties:
       tls_keys: ((redis_check_keys))
   - name: redis_exporter
@@ -40,14 +44,11 @@ instance_groups:
     release: redis-service
     properties:
       bind: ((redis_bind))
-      port: '26389'
+      port: '0'
       password: ((redis_sentinel_password))
       tls: true
-      tls_port: '26379'
       tls_keys: ((redis_sentinel_keys))
       tls_replication: true
-  - name: redis_sentinel_exporter
-    release: redis-service
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -59,6 +60,8 @@ instance_groups:
   jobs:
   - name: redis_broker-1.5
     release: redis-service
+    consumes:
+      sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))

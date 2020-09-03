@@ -75,7 +75,7 @@
 # If it is set to false, it will not set the bind property which will force it to
 # fall back to default behavior, i.e. protected mode due to bind not being set.
 <%- if master.p('bind') -%>
-bind 127.0.0.1 <%= spec.ip %>
+bind <%= spec.ip %>
 <%- else -%>
 bind 127.0.0.1
 <%- end -%>

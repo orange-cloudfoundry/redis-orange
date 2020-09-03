@@ -15,16 +15,14 @@ REDIS_IP="127.0.0.1";
 <%- if master.p('bind') -%>
 REDIS_IP="<%= spec.ip %>";
 <%- end -%>
-
 REDIS_PORT="<%= master.p('port') %>";
 REDIS_CRED="--user <%= master.p('admin_user') %>";
 <%- master.if_p('admin_password') do |x|
     unless x.to_s.empty? -%>
 REDIS_CRED+=" --pass <%= x %>";
 <%- end
-  end -%>
-
-<%- if master.p('tls') -%>
+  end
+  if master.p('tls') -%>
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
@@ -40,25 +38,19 @@ REDIS_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
 #
 <%- if !sentinel.nil? && master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
-
 REDIS_SENTINEL_CRED="";
 <%- sentinel.if_p('password') do |x|
     unless x.to_s.empty? -%>
 REDIS_SENTINEL_CRED="-a <%= x %>";
 <%- end
-  end -%>
-
-<%- if sentinel.p('tls') -%>
+  end 
+  if sentinel.p('tls') -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
 REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
 REDIS_SENTINEL_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
 REDIS_SENTINEL_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
-<%- master_port=master.p('port')
-    if master.p('tls') && master.p('tls_replication')
-      master_port=master.p('tls_port')
-    end
-  end -%>
-REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
+<%- end -%>
+REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> ${REDIS_PORT} <%= master.p('max_detected_failures') %>\n";
 <%- master.if_p('sentinel_password') do |x|
     unless x.to_s.empty? -%>
 REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";

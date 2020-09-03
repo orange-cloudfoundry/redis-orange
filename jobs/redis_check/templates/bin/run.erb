@@ -16,16 +16,14 @@ REDIS_IP="127.0.0.1";
 <%- if master.p('bind') -%>
 REDIS_IP="<%= spec.ip %>";
 <%- end -%>
-
 REDIS_PORT="<%= master.p('port') %>";
 REDIS_CRED="--user <%= master.p('admin_user') %>";
 <%- master.if_p('admin_password') do |x|
     unless x.to_s.empty? -%>
 REDIS_CRED+=" --pass <%= x %>";
 <%- end
-  end -%>
-
-<%- if master.p('tls') -%>
+  end
+  if master.p('tls') -%>
 REDIS_PORT="<%= master.p('tls_port') %>";
 REDIS_CLIENT_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 REDIS_CLIENT_TLS_CERT_FILE="${REDIS_CLIENT_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
@@ -62,16 +60,14 @@ fi
     sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   end -%>
 REDIS_SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
-
 REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
 REDIS_SENTINEL_CRED="";
 <%- sentinel.if_p('password') do |x|
     unless x.to_s.empty? -%>
 REDIS_SENTINEL_CRED="-a <%= x %>";
 <%- end
-  end -%>
-
-<%- if sentinel.p('tls') -%>
+  end
+  if sentinel.p('tls') -%>
 REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
 REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_CLIENT_TLS_CERT_FILE}";
 REDIS_SENTINEL_CRED+=" --key ${REDIS_CLIENT_TLS_KEY_FILE}";
