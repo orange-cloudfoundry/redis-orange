@@ -17,6 +17,7 @@ if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/catalog)" == "200" ]];
 then
   ERR_CATALOG=0;
+  echo "$(curl -s ${BASE_URI}/v2/catalog)";
   echo "Catalog: OK";
 else
   echo "Catalog: KO";
@@ -27,6 +28,8 @@ if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)" == "200" ]];
 then
   ERR_BINDING=0;
+  echo "$(curl -s \
+  ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)";
   echo "Binding: OK";
 else
   echo "Binding: KO";

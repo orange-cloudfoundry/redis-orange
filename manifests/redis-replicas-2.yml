@@ -14,7 +14,8 @@ instance_groups:
   - name: redis
     release: redis-service
     consumes:
-      slave_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
@@ -22,13 +23,14 @@ instance_groups:
       exporter_password: ((redis_exporter_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
-      cluster_enabled: ((redis_cluster_enabled))
+      replication: true
       replica_password: ((redis_replica_password))
-      cluster_replicas_per_node: ((replicas_per_node_count))
+      sentinel_password: ((redis_sentinel_user_password))
   - name: redis_check
     release: redis-service
     consumes:
-      slave_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
+      sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
   - name: redis_exporter
     release: redis-service
 - name: broker
@@ -43,7 +45,7 @@ instance_groups:
   - name: redis_broker
     release: redis-service
     consumes:
-      slave_conn: nil
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
@@ -64,6 +66,10 @@ variables:
   parameters:
     length: ((password_length))
 - name: redis_replica_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_sentinel_user_password
   type: password
   parameters:
     length: ((password_length))

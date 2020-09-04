@@ -54,7 +54,7 @@ REDIS_SENTINEL_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
   if master.p('tls') && master.p('tls_replication')
     master_port=master.p('tls_port')
   end -%>
-REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <= master_port %> <%= master.p('max_detected_failures') %>\n";
+REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
 <%- master.if_p('sentinel_password') do |x|
     unless x.to_s.empty? -%>
 REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
