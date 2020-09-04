@@ -141,6 +141,7 @@ timeout <%= p('timeout') %>
 # Redis default starting with Redis 3.2.1.
 tcp-keepalive <%= p('tcp_keepalive') %>
 
+<%- if master.p('tls') -%>
 ################################# TLS/SSL #####################################
 
 # By default, TLS/SSL is disabled. To enable it, the "tls-port" configuration
@@ -149,7 +150,6 @@ tcp-keepalive <%= p('tcp_keepalive') %>
 #
 # port 0
 # tls-port 6379
-<%- if master.p('tls') -%>
 tls-port <%= master.p('tls_port') %>
 
 # Configure a X.509 certificate and private key to use for authenticating the
@@ -266,7 +266,6 @@ tls-session-cache-size <%= p('tls_session_cache_size') %>
 # tls-session-cache-timeout 60
 tls-session-cache-timeout <%= p('tls_session_cache_timeout') %>
 <%- end -%>
-
 ################################# GENERAL #####################################
 
 # By default Redis does not run as a daemon. Use 'yes' if you need it.
@@ -745,11 +744,13 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
 # replica-announce-ip 5.5.5.5
 # replica-announce-port 1234
 <%- if p('replica_announce') && master.p('bind')
-    master_address=master.instances.find{ |x| x.bootstrap }.address
-    if !master_address.eql?(spec.address) -%>
+    replica_port=master.p('port')
+    if master.p('tls') && master.p('tls_replication')
+      replica_port=master.p('tls_port')
+    end -%>
 replica-announce-ip <%= spec.ip %>
-<%- end
-  end -%>
+replica-announce-port <%= replica_port %>
+<%- end -%>
 
 ############################### KEYS TRACKING #################################
 
@@ -1311,11 +1312,11 @@ cluster-enabled <%= master.p('cluster_enabled') %>
 # overlapping cluster configuration file names.
 #
 # cluster-config-file nodes-6379.conf
-<%- master_port=master.p('port')
+<%- node_port=master.p('port')
   if master.p('tls') && master.p('tls_cluster')
-    master_port=master.p('tls_port')
+    node_port=master.p('tls_port')
   end -%>
-cluster-config-file "<%= p('run_dir')+'/nodes-'+master_port+'.conf' %>"
+cluster-config-file "<%= p('run_dir')+'/nodes-'+node_port.to_s+'.conf' %>"
 
 # Cluster node timeout is the amount of milliseconds a node must be unreachable
 # for it to be considered in failure state.
@@ -1450,13 +1451,13 @@ cluster-replica-no-failover <%= p('cluster_replica_no_failover') %>
 # cluster-announce-ip 10.1.1.5
 # cluster-announce-port 6379
 # cluster-announce-bus-port 6380
-<%- if p('cluster_announce') && master.p('bind') -%>
-cluster-announce-ip <%= spec.ip %>
-<%- master_port=master.p('port')
+<%- if p('cluster_announce') && master.p('bind')
+    node_port=master.p('port')
     if master.p('tls') && master.p('tls_cluster')
-      master_port=master.p('tls_port')
+      node_port=master.p('tls_port')
     end -%>
-cluster-announce-port <%= master_port %>
+cluster-announce-ip <%= spec.ip %>
+cluster-announce-port <%= node_port %>
 <%- end -%>
 
 ################################## SLOW LOG ###################################

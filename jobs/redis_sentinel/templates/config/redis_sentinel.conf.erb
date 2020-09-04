@@ -60,8 +60,13 @@ logfile "<%= p('log_dir')+'/'+p('logfile') %>"
 # Example:
 #
 # sentinel announce-ip 1.2.3.4
-<%- if p('announce') && sentinel.p('bind') -%>
+<%- if p('announce') && sentinel.p('bind')
+    sentinel_port=sentinel.p('port')
+    if sentinel.p('tls')
+      sentinel_port=sentinel.p('tls_port')
+    end -%>
 sentinel announce-ip <%= spec.ip %>
+sentinel announce-port <%= sentinel_port %>
 <%- end -%>
 
 # dir <working-directory>
@@ -71,6 +76,7 @@ sentinel announce-ip <%= spec.ip %>
 # unmounting filesystems.
 dir "<%= p('dir') %>"
 
+<%- if sentinel.p('tls') -%>
 ################################# TLS/SSL #####################################
 
 # By default, TLS/SSL is disabled. To enable it, the "tls-port" configuration
@@ -79,7 +85,6 @@ dir "<%= p('dir') %>"
 #
 # port 0
 # tls-port 6379
-<%- if sentinel.p('tls') -%>
 tls-port <%= sentinel.p('tls_port') %>
 
 # Configure a X.509 certificate and private key to use for authenticating the
@@ -188,7 +193,6 @@ tls-session-cache-size <%= p('tls_session_cache_size') %>
 # tls-session-cache-timeout 60
 tls-session-cache-timeout <%= p('tls_session_cache_timeout') %>
 <%- end -%>
-
 ################################# SECURITY ######################################
 
 # You can also configure the Sentinel instance itself in order to require client
