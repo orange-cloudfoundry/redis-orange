@@ -28,6 +28,7 @@ instance_groups:
       cluster_replicas_per_node: ((replicas_per_node_count))
       tls: true
       tls_keys: ((redis_keys))
+      tls_dh_length: ((redis_dh_length))
       tls_cluster: true
   - name: redis_check
     release: redis-service

@@ -1,5 +1,5 @@
 check process redis
-  with pidfile <%= p('run_dir')+'/'+<%= p('pidfile') %>
+  with pidfile <%= p('run_dir')+'/'+p('pidfile') %>
   start program "/var/vcap/jobs/redis/bin/redis_ctl start"
 <%- master=link('redis_conn')
   if master.p('replication') || master.p('cluster_enabled').eql?('yes')

@@ -23,6 +23,7 @@ instance_groups:
       maxmemory_policy: ((redis_maxmemory_policy))
       tls: true
       tls_keys: ((redis_keys))
+      tls_dh_length: ((redis_dh_length))
   - name: redis_check
     release: redis-service
     properties:

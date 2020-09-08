@@ -99,7 +99,7 @@ properties:
     description: |
       Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange.
   tls_dh_length:
-    default: 4096
+    default: 2048
     description: |
       Length of DH parameters.
   tls_ca_cert_dir:

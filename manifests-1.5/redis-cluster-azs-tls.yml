@@ -31,6 +31,7 @@ instance_groups:
       cluster_replicas_per_node: ((replicas_per_node_count))
       tls: true
       tls_keys: ((redis_master_keys))
+      tls_dh_length: ((redis_dh_length))
       tls_cluster: true
   - name: redis_check
     release: redis-service
@@ -64,6 +65,7 @@ instance_groups:
       slave_conn: {from: slave}
     properties:
       tls_keys: ((redis_slave_keys))
+      tls_dh_length: ((redis_dh_length))
   - name: redis_check
     release: redis-service
     consumes:

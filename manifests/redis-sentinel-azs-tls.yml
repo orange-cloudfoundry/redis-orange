@@ -29,6 +29,7 @@ instance_groups:
       sentinel_password: ((redis_sentinel_user_password))
       tls: true
       tls_keys: ((redis_keys))
+      tls_dh_length: ((redis_dh_length))
       tls_replication: true
   - name: redis_check
     release: redis-service
@@ -54,6 +55,7 @@ instance_groups:
       password: ((redis_sentinel_password))
       tls: true
       tls_keys: ((redis_sentinel_master_keys))
+      tls_dh_length: ((redis_dh_length))
       tls_replication: true
 - name: sentinel-slave
   azs: [((default_az))]
@@ -72,6 +74,7 @@ instance_groups:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
       tls_keys: ((redis_sentinel_master_keys))
+      tls_dh_length: ((redis_dh_length))
   - name: redis_sentinel_exporter
     release: redis-service
     consumes:

@@ -29,6 +29,7 @@ instance_groups:
       sentinel_password: ((redis_sentinel_user_password))
       tls: true
       tls_keys: ((redis_keys))
+      tls_dh_length: ((redis_dh_length))
       tls_replication: true
   - name: redis_check
     release: redis-service
