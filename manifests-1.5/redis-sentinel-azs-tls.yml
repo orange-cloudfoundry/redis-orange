@@ -75,10 +75,6 @@ instance_groups:
     properties:
       tls_keys: ((redis_sentinel_master_keys))
       tls_dh_length: ((redis_dh_length))
-  - name: redis_sentinel_exporter
-    release: redis-service
-    consumes:
-      redis_sentinel_conn: {from: sentinel_master}
 - name: broker
   azs: [((default_az))]
   instances: 1
