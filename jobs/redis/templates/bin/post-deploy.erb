@@ -89,7 +89,7 @@ do
   REDIS_SENTINEL_DONE+="${x} ";
 done
 
-if [[ ${ERR} -eq 1 ]];
+if [[ ${ERR} -eq 1 ]];
 then
   for x in ${REDIS_SENTINEL_DONE};
   do
@@ -117,14 +117,20 @@ fi
   slaves_addresses=''
   slave_instances=0
   if !slave.nil?
-    slave.instances.each{ |x| slaves_addresses.concat(x.address).concat(' ') }
-    slave_instances=slave.instances.length
+    if replicas_per_node>0
+      slave.instances.each{ |x| slaves_addresses.concat(x.address).concat(' ') }
+      slave_instances=slave.instances.length
+    else
+      slave.instances.each{ |x| master_addresses.concat(x.address).concat(' ') }
+      master_instances+=slave.instances.length
+      replicas_per_node=0
+    end
   elsif replicas_per_node>0
     if master_instances>replicas_per_node
       addresses=master_addresses.split
       master_instances=master_instances.div(replicas_per_node+1)
-      master_addresses=addresses.slice(0, master_instances-1).join(' ')
-      slaves_addresses=addresses.slice(master_instances, -1)
+      master_addresses=addresses.slice(0..master_instances-1).join(' ')
+      slaves_addresses=addresses.slice(master_instances..-1)
       slave_instances=slaves_addresses.length
       slaves_addresses=slaves_addresses.join(' ')
     else
@@ -194,19 +200,20 @@ done
 
 if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
 then
-  REDIS_NODES="";
-  for i in ${REDIS_ADDRESSES};
+  REDIS_MASTER_NODES="";
+  for i in ${REDIS_MASTER_ADDRESSES};
   do
-    REDIS_NODES+=" ${i}:<%= node_port %>";
+    REDIS_MASTER_NODES+=" ${i}:<%= node_port %>";
   done
   "${REDIS_CLI}" \
     ${REDIS_CRED} \
-    --cluster create ${REDIS_NODES} <<< "yes";
+    --cluster create ${REDIS_MASTER_NODES} <<< "yes";
   ERR=${?};
   if [[ ${ERR} -eq 0 ]] && [[ ${REPLICAS_PER_NODE} -gt 0 ]];
   then
     for i in ${REDIS_MASTER_ADDRESSES};
     do
+      echo "Associating replicas to [${i}]...";
       MASTER_ID="$("${REDIS_CLI}" \
         -h "${i}" \
         -p "${REDIS_PORT}" \
@@ -218,6 +225,7 @@ then
         [[ -n "${REDIS_SLAVE_ADDRESSES}" ]] && \
         [[ ${j} -lt ${REPLICAS_PER_NODE} ]];
       do
+        echo "Associate replica [${REDIS_SLAVE_ADDRESSES%% *}] to [${i}]";
         "${REDIS_CLI}" \
           ${REDIS_CRED} \
           --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:<%= node_port %> \
@@ -235,6 +243,7 @@ then
     do
       for i in ${REDIS_MASTER_ADDRESSES};
       do
+        echo "Associate replica [${REDIS_SLAVE_ADDRESSES%% *}] to [${i}]";
         MASTER_ID="$("${REDIS_CLI}" \
           -h "${i}" \
           -p "${REDIS_PORT}" \
