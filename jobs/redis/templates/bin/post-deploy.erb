@@ -142,6 +142,7 @@ fi
   end -%>
 REDIS_MASTER_ADDRESSES="<%= master_addresses %>";
 REDIS_SLAVE_ADDRESSES="<%= slaves_addresses %>";
+REDIS_SLAVE_INSTANCES="<%= slave_instances %>";
 REDIS_ADDRESSES="${REDIS_MASTER_ADDRESSES} ${REDIS_SLAVE_ADDRESSES}";
 REDIS_INSTANCES="<%= master_instances+slave_instances %>";
 REPLICAS_PER_NODE="<%= replicas_per_node %>";
@@ -149,7 +150,7 @@ REPLICAS_PER_NODE="<%= replicas_per_node %>";
 echo "Masters addresses: [${REDIS_MASTER_ADDRESSES}]";
 echo "Number of masters: [<%= master_instances %>]";
 echo "Slaves addresses: [${REDIS_SLAVE_ADDRESSES}]";
-echo "Number of slaves: [<%= slave_instances %>]";
+echo "Number of slaves: [${REDIS_SLAVE_INSTANCES}]";
 echo "Wished replicas per master: [${REPLICAS_PER_NODE}]";
 
 MSG="$("${REDIS_CLI}" \
@@ -211,6 +212,7 @@ then
   ERR=${?};
   if [[ ${ERR} -eq 0 ]] && [[ ${REPLICAS_PER_NODE} -gt 0 ]];
   then
+    k=${REDIS_SLAVE_INSTANCES};
     for i in ${REDIS_MASTER_ADDRESSES};
     do
       echo "Associating replicas to [${i}]...";
@@ -221,8 +223,7 @@ then
         CLUSTER MYID)";
       ERR=${?};
       j=0;
-      while [[ ${ERR} -eq 0 ]] && \
-        [[ -n "${REDIS_SLAVE_ADDRESSES}" ]] && \
+      while [[ ${ERR} -eq 0 ]] && [[ ${k} -gt 0 ]] && \
         [[ ${j} -lt ${REPLICAS_PER_NODE} ]];
       do
         echo "Associate replica [${REDIS_SLAVE_ADDRESSES%% *}] to [${i}]";
@@ -235,11 +236,11 @@ then
         ERR=${?};
         REDIS_SLAVE_ADDRESSES="${REDIS_SLAVE_ADDRESSES#* }";
         ((j++));
+        ((k--));
       done
     done
 
-    while [[ ${ERR} -eq 0 ]] && \
-      [[ -n "${REDIS_SLAVE_ADDRESSES}" ]];
+    while [[ ${ERR} -eq 0 ]] && [[ ${k} -gt 0 ]];
     do
       for i in ${REDIS_MASTER_ADDRESSES};
       do
@@ -258,7 +259,8 @@ then
           --cluster-master-id ${MASTER_ID} <<< "yes";
         ERR=${?};
         REDIS_SLAVE_ADDRESSES="${REDIS_SLAVE_ADDRESSES#* }";
-        if [[ -z "${REDIS_SLAVE_ADDRESSES}" ]];
+        ((k--));
+        if [[ ${k} -le 0 ]];
         then
           break;
         fi
