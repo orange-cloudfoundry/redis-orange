@@ -113,41 +113,38 @@ fi
   master_addresses=''
   master.instances.each{ |x| master_addresses.concat(x.address).concat(' ') }
   master_instances=master.instances.length
-  slaves_per_master=master.p('cluster_replicas_per_node').to_i
+  replicas_per_node=master.p('cluster_replicas_per_node').to_i
   slaves_addresses=''
   slave_instances=0
   if !slave.nil?
     slave.instances.each{ |x| slaves_addresses.concat(x.address).concat(' ') }
     slave_instances=slave.instances.length
-  else
-    if slaves_per_master>0
+  elsif replicas_per_node>0
+    if master_instances>replicas_per_node
       addresses=master_addresses.split
-      master_instances=master_instances.div(replicas_per_instance+1)
+      master_instances=master_instances.div(replicas_per_node+1)
       master_addresses=addresses.slice(0, master_instances-1).join(' ')
       slaves_addresses=addresses.slice(master_instances, -1)
       slave_instances=slaves_addresses.length
       slaves_addresses=slaves_addresses.join(' ')
+    else
+      replicas_per_node=0
     end
   end
-  if master_instances*slaves_per_master>slave_instances -%>
-echo "WARNING: Not enough slave: masters [<%= master_instances %>], slaves [<%= slave_instances %>], slaves per master [<%= slaves_per_master %>]" >&2;
-<%- end-%>
+  if replicas_per_node>0 && master_instances*replicas_per_node>slave_instances
+    STDERR.puts "WARNING: Not enough slave: masters [#{master_instances}], slaves [#{slave_instances}], slaves per master [#{replicas_per_node}]"
+  end -%>
 REDIS_MASTER_ADDRESSES="<%= master_addresses %>";
-REDIS_MASTER_NODES="";
-for i in ${REDIS_MASTER_ADDRESSES};
-do
-  REDIS_MASTER_NODES+=" ${i}:<%= node_port %>";
-done
-REDIS_MASTER_INSTANCES="<%= master_instances %>";
 REDIS_SLAVE_ADDRESSES="<%= slaves_addresses %>";
-REDIS_SLAVE_NODES="";
-for i in ${REDIS_SLAVE_ADDRESSES};
-do
-  REDIS_SLAVE_NODES+=" ${i}:<%= node_port %>";
-done
-REDIS_SLAVE_INSTANCES="<%= slave_instances %>";
 REDIS_ADDRESSES="${REDIS_MASTER_ADDRESSES} ${REDIS_SLAVE_ADDRESSES}";
-REDIS_INSTANCES=$((REDIS_MASTER_INSTANCES+REDIS_SLAVE_INSTANCES));
+REDIS_INSTANCES="<%= master_instances+slave_instances %>";
+REPLICAS_PER_NODE="<%= replicas_per_node %>";
+
+echo "Masters addresses: [${REDIS_MASTER_ADDRESSES}]";
+echo "Number of masters: [<%= master_instances %>]";
+echo "Slaves addresses: [${REDIS_SLAVE_ADDRESSES}]";
+echo "Number of slaves: [<%= slave_instances %>]";
+echo "Wished replicas per master: [${REPLICAS_PER_NODE}]";
 
 MSG="$("${REDIS_CLI}" \
   -h "${REDIS_IP}" \
@@ -197,11 +194,16 @@ done
 
 if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
 then
+  REDIS_NODES="";
+  for i in ${REDIS_ADDRESSES};
+  do
+    REDIS_NODES+=" ${i}:<%= node_port %>";
+  done
   "${REDIS_CLI}" \
     ${REDIS_CRED} \
-    --cluster create ${REDIS_MASTER_NODES} ${REDIS_SLAVE_NODES} <<< "yes";
+    --cluster create ${REDIS_NODES} <<< "yes";
   ERR=${?};
-  if [[ ${ERR} -eq 0 ]] && [[ ${SLAVE_PER_INSTANCE} -gt 0 ]];
+  if [[ ${ERR} -eq 0 ]] && [[ ${REPLICAS_PER_NODE} -gt 0 ]];
   then
     for i in ${REDIS_MASTER_ADDRESSES};
     do
@@ -214,7 +216,7 @@ then
       j=0;
       while [[ ${ERR} -eq 0 ]] && \
         [[ -n "${REDIS_SLAVE_ADDRESSES}" ]] && \
-        [[ ${j} -lt ${SLAVE_PER_INSTANCE} ]];
+        [[ ${j} -lt ${REPLICAS_PER_NODE} ]];
       do
         "${REDIS_CLI}" \
           ${REDIS_CRED} \
