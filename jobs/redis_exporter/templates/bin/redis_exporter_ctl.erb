@@ -19,7 +19,6 @@ REDIS_IP="<%= spec.ip %>";
 <%- end -%>
 REDIS_PORT="<%= master.p('port') %>";
 REDIS_EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
-REDIS_PASSWORD="";
 <%- master.if_p('exporter_password') do |x|
     unless x.to_s.empty? -%>
 REDIS_EXPORTER_ARGS+=" -redis.password <%= x %>";
