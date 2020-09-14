@@ -24,6 +24,7 @@ instance_groups:
       tls: true
       tls_dh_length: ((redis_dh_length))
       tls_replication: true
+      tls_ca_keys: ((shared_sentinel_ca))
       tls_keys:
         certificate: |
           -----BEGIN CERTIFICATE-----
@@ -127,6 +128,7 @@ instance_groups:
       redis_sentinel_conn: {from: ((shared_sentinel_master))}
     properties:
       tls_dh_length: ((redis_dh_length))
+      tls_ca_keys: ((shared_sentinel_ca))
       tls_keys:
         certificate: |
           -----BEGIN CERTIFICATE-----

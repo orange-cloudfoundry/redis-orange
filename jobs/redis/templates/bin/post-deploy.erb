@@ -141,17 +141,20 @@ fi
     STDERR.puts "WARNING: Not enough slave: masters [#{master_instances}], slaves [#{slave_instances}], slaves per master [#{replicas_per_node}]"
   end -%>
 REDIS_MASTER_ADDRESSES="<%= master_addresses %>";
+REDIS_MASTER_INSTANCES="<%= master_instances %>";
 REDIS_SLAVE_ADDRESSES="<%= slaves_addresses %>";
 REDIS_SLAVE_INSTANCES="<%= slave_instances %>";
 REDIS_ADDRESSES="${REDIS_MASTER_ADDRESSES} ${REDIS_SLAVE_ADDRESSES}";
 REDIS_INSTANCES="<%= master_instances+slave_instances %>";
 REPLICAS_PER_NODE="<%= replicas_per_node %>";
+NODE_PORT="<%= node_port %>";
 
 echo "Masters addresses: [${REDIS_MASTER_ADDRESSES}]";
-echo "Number of masters: [<%= master_instances %>]";
+echo "Number of masters: [${REDIS_MASTER_INSTANCES}]";
 echo "Slaves addresses: [${REDIS_SLAVE_ADDRESSES}]";
 echo "Number of slaves: [${REDIS_SLAVE_INSTANCES}]";
-echo "Wished replicas per master: [${REPLICAS_PER_NODE}]";
+echo "Replicas per master: [${REPLICAS_PER_NODE}]";
+echo "Nodes port: [${NODE_PORT}]";
 
 MSG="$("${REDIS_CLI}" \
   -h "${REDIS_IP}" \
@@ -168,7 +171,7 @@ then
   do
     for j in ${REDIS_ADDRESSES};
     do
-      if [[ "${i%%@*}" == "${j}:<%= node_port %>" ]];
+      if [[ "${i%%@*}" == "${j}:${NODE_PORT}" ]];
       then
         ((AVAILABLE_NODES++));
       fi
@@ -204,7 +207,7 @@ then
   REDIS_MASTER_NODES="";
   for i in ${REDIS_MASTER_ADDRESSES};
   do
-    REDIS_MASTER_NODES+=" ${i}:<%= node_port %>";
+    REDIS_MASTER_NODES+=" ${i}:${NODE_PORT}";
   done
   "${REDIS_CLI}" \
     ${REDIS_CRED} \
@@ -213,6 +216,7 @@ then
   if [[ ${ERR} -eq 0 ]] && [[ ${REPLICAS_PER_NODE} -gt 0 ]];
   then
     k=${REDIS_SLAVE_INSTANCES};
+    l="${REDIS_SLAVE_ADDRESSES}";
     for i in ${REDIS_MASTER_ADDRESSES};
     do
       echo "Associating replicas to [${i}]...";
@@ -226,15 +230,15 @@ then
       while [[ ${ERR} -eq 0 ]] && [[ ${k} -gt 0 ]] && \
         [[ ${j} -lt ${REPLICAS_PER_NODE} ]];
       do
-        echo "Associate replica [${REDIS_SLAVE_ADDRESSES%% *}] to [${i}]";
+        echo "Associate replica [${l%% *}] to [${i}]";
         "${REDIS_CLI}" \
           ${REDIS_CRED} \
-          --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:<%= node_port %> \
-          ${i}:<%= node_port %> \
+          --cluster add-node ${l%% *}:${NODE_PORT} \
+          ${i}:${NODE_PORT} \
           --cluster-slave \
           --cluster-master-id ${MASTER_ID} <<< "yes";
         ERR=${?};
-        REDIS_SLAVE_ADDRESSES="${REDIS_SLAVE_ADDRESSES#* }";
+        l="${l#* }";
         ((j++));
         ((k--));
       done
@@ -244,7 +248,7 @@ then
     do
       for i in ${REDIS_MASTER_ADDRESSES};
       do
-        echo "Associate replica [${REDIS_SLAVE_ADDRESSES%% *}] to [${i}]";
+        echo "Associate replica [${l%% *}] to [${i}]";
         MASTER_ID="$("${REDIS_CLI}" \
           -h "${i}" \
           -p "${REDIS_PORT}" \
@@ -253,12 +257,12 @@ then
         ERR=${?};
         "${REDIS_CLI}" \
           ${REDIS_CRED} \
-          --cluster add-node ${REDIS_SLAVE_ADDRESSES%% *}:<%= node_port %> \
-          ${i}:<%= node_port %> \
+          --cluster add-node ${l%% *}:${NODE_PORT} \
+          ${i}:${NODE_PORT} \
           --cluster-slave \
           --cluster-master-id ${MASTER_ID} <<< "yes";
         ERR=${?};
-        REDIS_SLAVE_ADDRESSES="${REDIS_SLAVE_ADDRESSES#* }";
+        l="${l#* }";
         ((k--));
         if [[ ${k} -le 0 ]];
         then
@@ -267,6 +271,10 @@ then
       done
     done
   fi
+
+  #
+  # Check built cluster
+  #
   MSG="$("${REDIS_CLI}" \
     -h "${REDIS_IP}" \
     -p "${REDIS_PORT}" \
@@ -277,6 +285,26 @@ then
   then
     echo "Redis CLUSTER NODES command results:";
     echo "${MSG}";
+    AVAILABLE_NODES=0;
+    for i in $(echo "${MSG}" | awk '{print $2;}');
+    do
+      for j in ${REDIS_ADDRESSES};
+      do
+        if [[ "${i%%@*}" == "${j}:${NODE_PORT}" ]];
+        then
+          ((AVAILABLE_NODES++));
+        fi
+      done
+    done
+    if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+    then
+      echo "All requested Redis nodes [${REDIS_INSTANCES}] are available the cluster";
+    else
+      echo "ERROR: The requested Redis nodes [${REDIS_INSTANCES}] is not equal to the available nodes [${AVAILABLE_NODES}]" >&2;
+      ERR=1;
+    fi
+  else
+    echo "ERROR: Redis CLUSTER NODES command failed." >&2;
   fi
 fi
 <%- end -%>

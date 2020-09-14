@@ -6,6 +6,9 @@ templates:
   keys/sentinel.crt.erb: keys/sentinel.crt
   keys/sentinel.key.erb: keys/sentinel.key
   keys/ca.crt.erb: keys/ca.crt
+  keys/authority.crt.erb: keys/authority.crt
+  keys/authority.key.erb: keys/authority.key
+  keys/authority_ca.crt.erb: keys/authority_ca.crt
   bin/pre-start.erb: bin/pre-start
   bin/redis_sentinel_ctl.erb: bin/redis_sentinel_ctl
 
@@ -74,6 +77,9 @@ properties:
     default: "26379"
     description: |
       The TLS/SSL port to use.
+  tls_ca_keys:
+    description: |
+      Authority certificate materials for TLS connection.
   tls_keys:
     description: |
       Certificate materials for TLS connection.
