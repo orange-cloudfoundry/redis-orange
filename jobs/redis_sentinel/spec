@@ -3,11 +3,8 @@ name: redis_sentinel
 
 templates:
   config/redis_sentinel.conf.erb: config/redis_sentinel.conf
-  keys/sentinel.crt.erb: keys/sentinel.crt
-  keys/sentinel.key.erb: keys/sentinel.key
   keys/ca.crt.erb: keys/ca.crt
-  keys/certificate_authority.crt.erb: keys/certificate_authority.crt
-  keys/certificate_authority.key.erb: keys/certificate_authority.key
+  keys/ca.key.erb: keys/ca.key
   bin/pre-start.erb: bin/pre-start
   bin/redis_sentinel_ctl.erb: bin/redis_sentinel_ctl
 
@@ -23,6 +20,7 @@ provides:
   - password
   - tls
   - tls_port
+  - tls_ca_keys
   - tls_auth_clients
   - tls_replication
   - tls_protocols
@@ -76,22 +74,35 @@ properties:
     default: "26379"
     description: |
       The TLS/SSL port to use.
-  tls_ca_keys:
-    description: |
-      Authority certificate materials for TLS connection.
-    type: certificate
-  tls_keys:
-    description: |
-      Certificate materials for TLS connection.
-    type: certificate
   tls_keys_dir:
     default: "/var/vcap/jobs/redis_sentinel/keys"
     description: |
       The directory where TLS keys are stored.
+  tls_ca_keys:
+    description: |
+      Authority certificate materials for TLS connection.
+    certificate:
+      description: |
+        Authority certificate for TLS connection.
+    private_key:
+      description: |
+        Authority private key for TLS connection.
   tls_ca_cert_file:
     default: "ca.crt"
     description: |
-      Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL clients and peers. Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_key_length:
+    default: "2048"
+    description: |
+      Private key length for TLS connection.
+  tls_cert_duration:
+    default: "365"
+    description: |
+      Certificate duration for TLS connection.
   tls_cert_file:
     default: "sentinel.crt"
     description: |
@@ -105,7 +116,7 @@ properties:
     description: |
       Configure a DH parameters file to enable Diffie-Hellman (DH) key exchange.
   tls_dh_length:
-    default: 2048
+    default: "2048"
     description: |
       Length of DH parameters.
   tls_ca_cert_dir:

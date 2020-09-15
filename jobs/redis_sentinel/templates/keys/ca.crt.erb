@@ -1,3 +1,3 @@
 <%- if link('redis_sentinel_conn').p('tls') -%>
-<%= p('tls_keys.ca') -%>
+<%= link('redis_sentinel_conn').p('tls_ca_keys.certificate') -%>
 <%- end -%>
