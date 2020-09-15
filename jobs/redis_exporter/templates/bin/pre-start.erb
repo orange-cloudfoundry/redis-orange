@@ -7,19 +7,16 @@ TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 TLS_KEY_LENGTH="<%= p('tls_key_length') %>";
 TLS_CERT_DURATION="<%= p('tls_cert_duration') %>";
-TLS_DH_PARAMS_FILE="${TLS_KEYS_DIR}/<%= p('tls_dh_params_file') %>";
-TLS_DH_LENGTH="<%= p('tls_dh_length') %>";
 rm -f \
   ${TLS_KEY_FILE} \
-  ${TLS_CERT_FILE} \
-  ${TLS_DH_PARAMS_FILE};
+  ${TLS_CERT_FILE};
 openssl genrsa -out \
   ${TLS_KEY_FILE} \
   ${TLS_KEY_LENGTH};
 openssl req \
   -new -sha256 \
   -key ${TLS_KEY_FILE} \
-  -subj "/O=orange.com/OU=<%= spec.deployment %>/CN=Server" | \
+  -subj "/O=orange.com/OU=<%= spec.deployment %>/CN=Exporter" | \
   openssl x509 \
     -req -sha256 \
     -CA ${TLS_CA_CERT_FILE} \
@@ -28,8 +25,5 @@ openssl req \
     -CAcreateserial \
     -days ${TLS_CERT_DURATION} \
     -out ${TLS_CERT_FILE};
-openssl dhparam -out \
-  ${TLS_DH_PARAMS_FILE} \
-  ${TLS_DH_LENGTH};
 <%- end -%>
 exit 0;

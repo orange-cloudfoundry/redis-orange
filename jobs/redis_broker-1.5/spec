@@ -2,8 +2,11 @@
 name: redis_broker-1.5
 
 templates:
+  keys/ca.crt.erb: keys/ca.crt
+  keys/ca.key.erb: keys/ca.key
   config/application.yml.erb: config/application.yml
   config/log4j2.xml.erb: config/log4j2.xml
+  bin/pre-start.erb: bin/pre-start
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
@@ -106,3 +109,40 @@ properties:
     default: "tls_ca"
     description: |
       Redis TLS/SSL CA certificate property's key for client
+################################# TLS/SSL #####################################
+  tls:
+    default: false
+    description: |
+      To enable/disable TLS/SSL.
+  tls_keys_dir:
+    default: "/var/vcap/jobs/redis_broker-1.5/keys"
+    description: |
+      The directory where TLS keys are stored.
+  tls_ca_cert_file:
+    default: "ca.crt"
+    description: |
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_ca_key_length:
+    default: "4096"
+    description: |
+      Certificate authority's private key length for TLS connection.
+  tls_key_length:
+    default: "2048"
+    description: |
+      Private key length for TLS connection.
+  tls_cert_duration:
+    default: "365"
+    description: |
+      Certificate duration for TLS connection.
+  tls_cert_file:
+    default: "broker.crt"
+    description: |
+      Configure a X.509 certificate and private key to use for authenticating the server to connected clients, masters or cluster peers. These files should be PEM formatted.
+  tls_key_file:
+    default: "broker.key"
+    description: |
+      See tls_cert_file.

@@ -2,6 +2,8 @@
 name: redis_broker
 
 templates:
+  keys/ca.crt.erb: keys/ca.crt
+  keys/ca.key.erb: keys/ca.key
   config/application.yml.erb: config/application.yml
   config/log4j2.xml.erb: config/log4j2.xml
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl

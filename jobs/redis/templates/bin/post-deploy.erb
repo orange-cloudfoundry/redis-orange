@@ -8,8 +8,7 @@
   if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } -%>
 
 ERR=0;
-REDIS_HOME="/var/vcap/packages/redis";
-REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
+CLI="/var/vcap/packages/redis/bin/redis-cli";
 
 REDIS_IP="127.0.0.1";
 <%- if master.p('bind') -%>
@@ -37,66 +36,66 @@ REDIS_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
 # Bind to Sentinel
 #
 <%- if !sentinel.nil? && master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) -%>
-REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
-REDIS_SENTINEL_CRED="";
+SENTINEL_PORT="<%= sentinel.p('port') %>";
+SENTINEL_CRED="";
 <%- sentinel.if_p('password') do |x|
     unless x.to_s.empty? -%>
-REDIS_SENTINEL_CRED="-a <%= x %>";
+SENTINEL_CRED="-a <%= x %>";
 <%- end
   end 
   if sentinel.p('tls') -%>
-REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
-REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
-REDIS_SENTINEL_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
-REDIS_SENTINEL_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
+SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
+SENTINEL_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
+SENTINEL_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
+SENTINEL_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
 <%- end
   master_port=master.p('port')
   if master.p('tls') && master.p('tls_replication')
     master_port=master.p('tls_port')
   end -%>
-REDIS_SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
+SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
 <%- master.if_p('sentinel_password') do |x|
     unless x.to_s.empty? -%>
-REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
+SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
 <%- end
   end -%>
-REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-USER <%= master.p('sentinel_user') %>\n";
-REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
-REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= master.p('parallel_syncs') %>\n";
-REDIS_SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
+SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-USER <%= master.p('sentinel_user') %>\n";
+SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
+SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= master.p('parallel_syncs') %>\n";
+SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
 
-REDIS_SENTINEL_ADDRESS="";
+SENTINEL_ADDRESS="";
 <%- sentinel_addresses=''
   sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   if !sentinel_slave.nil?
     sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   end -%>
-REDIS_SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
-REDIS_SENTINEL_DONE="";
-for x in ${REDIS_SENTINEL_ADDRESSES};
+SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
+SENTINEL_DONE="";
+for x in ${SENTINEL_ADDRESSES};
 do
-  MSG="$(echo -e "${REDIS_SENTINEL_CMD}" | \
-    "${REDIS_CLI}" \
+  MSG="$(echo -e "${SENTINEL_CMD}" | \
+    "${CLI}" \
       -h "${x}" \
-      -p "${REDIS_SENTINEL_PORT}" \
-      ${REDIS_SENTINEL_CRED})";
+      -p "${SENTINEL_PORT}" \
+      ${SENTINEL_CRED})";
   if [[ ! ${?} -eq 0 ]];
   then
     ERR=1;
     echo "ERROR: Commands failed with Sentinel \"${x}\": \"${MSG}\".";
     break;
   fi
-  REDIS_SENTINEL_DONE+="${x} ";
+  SENTINEL_DONE+="${x} ";
 done
 
 if [[ ${ERR} -eq 1 ]];
 then
-  for x in ${REDIS_SENTINEL_DONE};
+  for x in ${SENTINEL_DONE};
   do
-    "${REDIS_CLI}" \
+    "${CLI}" \
       -h "${x}" \
-      -p "${REDIS_SENTINEL_PORT}" \
-      ${REDIS_SENTINEL_CRED} \
+      -p "${SENTINEL_PORT}" \
+      ${SENTINEL_CRED} \
       SENTINEL REMOVE <%= spec.deployment %>;
   done
 fi
@@ -156,7 +155,7 @@ echo "Number of slaves: [${REDIS_SLAVE_INSTANCES}]";
 echo "Replicas per master: [${REPLICAS_PER_NODE}]";
 echo "Nodes port: [${NODE_PORT}]";
 
-MSG="$("${REDIS_CLI}" \
+MSG="$("${CLI}" \
   -h "${REDIS_IP}" \
   -p "${REDIS_PORT}" \
   ${REDIS_CRED} \
@@ -190,7 +189,7 @@ do
   AVAILABLE_NODES=0;
   for i in ${REDIS_ADDRESSES};
   do
-    PING="$("${REDIS_CLI}" \
+    PING="$("${CLI}" \
       -h "${i}" \
       -p "${REDIS_PORT}" \
       ${REDIS_CRED} \
@@ -209,7 +208,7 @@ then
   do
     REDIS_MASTER_NODES+=" ${i}:${NODE_PORT}";
   done
-  "${REDIS_CLI}" \
+  "${CLI}" \
     ${REDIS_CRED} \
     --cluster create ${REDIS_MASTER_NODES} <<< "yes";
   ERR=${?};
@@ -220,7 +219,7 @@ then
     for i in ${REDIS_MASTER_ADDRESSES};
     do
       echo "Associating replicas to [${i}]...";
-      MASTER_ID="$("${REDIS_CLI}" \
+      MASTER_ID="$("${CLI}" \
         -h "${i}" \
         -p "${REDIS_PORT}" \
         ${REDIS_CRED} \
@@ -231,7 +230,7 @@ then
         [[ ${j} -lt ${REPLICAS_PER_NODE} ]];
       do
         echo "Associate replica [${l%% *}] to [${i}]";
-        "${REDIS_CLI}" \
+        "${CLI}" \
           ${REDIS_CRED} \
           --cluster add-node ${l%% *}:${NODE_PORT} \
           ${i}:${NODE_PORT} \
@@ -249,13 +248,13 @@ then
       for i in ${REDIS_MASTER_ADDRESSES};
       do
         echo "Associate replica [${l%% *}] to [${i}]";
-        MASTER_ID="$("${REDIS_CLI}" \
+        MASTER_ID="$("${CLI}" \
           -h "${i}" \
           -p "${REDIS_PORT}" \
           ${REDIS_CRED} \
           CLUSTER MYID)";
         ERR=${?};
-        "${REDIS_CLI}" \
+        "${CLI}" \
           ${REDIS_CRED} \
           --cluster add-node ${l%% *}:${NODE_PORT} \
           ${i}:${NODE_PORT} \
@@ -275,7 +274,7 @@ then
   #
   # Check built cluster
   #
-  MSG="$("${REDIS_CLI}" \
+  MSG="$("${CLI}" \
     -h "${REDIS_IP}" \
     -p "${REDIS_PORT}" \
     ${REDIS_CRED} \

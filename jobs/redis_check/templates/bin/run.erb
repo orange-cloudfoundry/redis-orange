@@ -8,9 +8,7 @@
   if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } -%>
 
 ERR=0;
-
-REDIS_HOME="/var/vcap/packages/redis";
-REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
+CLI="/var/vcap/packages/redis/bin/redis-cli";
 
 REDIS_IP="127.0.0.1";
 <%- if master.p('bind') -%>
@@ -25,21 +23,42 @@ REDIS_CRED+=" --pass <%= x %>";
   end
   if master.p('tls') -%>
 REDIS_PORT="<%= master.p('tls_port') %>";
-REDIS_CLIENT_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-REDIS_CLIENT_TLS_CERT_FILE="${REDIS_CLIENT_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_CRED+=" --tls --cert ${REDIS_CLIENT_TLS_CERT_FILE}";
-REDIS_CLIENT_TLS_KEY_FILE="${REDIS_CLIENT_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_CRED+=" --key ${REDIS_CLIENT_TLS_KEY_FILE}";
-REDIS_CLIENT_TLS_CA_CERT_FILE="${REDIS_CLIENT_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-REDIS_CRED+=" --cacert ${REDIS_CLIENT_TLS_CA_CERT_FILE}";
-chown -R vcap:vcap "${REDIS_CLIENT_TLS_KEYS_DIR}";
-chmod -R g-rwx,o-rwx "${REDIS_CLIENT_TLS_KEYS_DIR}";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
+TLS_CA_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>";
+TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_CRED+=" --tls --cert ${TLS_CERT_FILE}";
+TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_CRED+=" --key ${TLS_KEY_FILE}";
+TLS_KEY_LENGTH="<%= p('tls_key_length') %>";
+TLS_CERT_DURATION="<%= p('tls_cert_duration') %>";
+rm -f \
+  ${TLS_KEY_FILE} \
+  ${TLS_CERT_FILE};
+openssl genrsa -out \
+  ${TLS_KEY_FILE} \
+  ${TLS_KEY_LENGTH};
+openssl req \
+  -new -sha256 \
+  -key ${TLS_KEY_FILE} \
+  -subj "/O=orange.com/OU=<%= spec.deployment %>/CN=Client" | \
+  openssl x509 \
+    -req -sha256 \
+    -CA ${TLS_CA_CERT_FILE} \
+    -CAkey ${TLS_CA_KEY_FILE} \
+    -CAserial ${TLS_KEYS_DIR}/ca.txt \
+    -CAcreateserial \
+    -days ${TLS_CERT_DURATION} \
+    -out ${TLS_CERT_FILE};
+chown -R vcap:vcap "${TLS_KEYS_DIR}";
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
 <%- end -%>
 
 #
 # Look up Redis instances
 #
-PING="$("${REDIS_CLI}" \
+PING="$("${CLI}" \
   -h "${REDIS_IP}" \
   -p "${REDIS_PORT}" \
   ${REDIS_CRED} \
@@ -59,58 +78,58 @@ fi
   if !sentinel_slave.nil?
     sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   end -%>
-REDIS_SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
-REDIS_SENTINEL_PORT="<%= sentinel.p('port') %>";
-REDIS_SENTINEL_CRED="";
+SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
+SENTINEL_PORT="<%= sentinel.p('port') %>";
+SENTINEL_CRED="";
 <%- sentinel.if_p('password') do |x|
     unless x.to_s.empty? -%>
-REDIS_SENTINEL_CRED="-a <%= x %>";
+SENTINEL_CRED="-a <%= x %>";
 <%- end
   end
   if sentinel.p('tls') -%>
-REDIS_SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
-REDIS_SENTINEL_CRED+=" --tls --cert ${REDIS_CLIENT_TLS_CERT_FILE}";
-REDIS_SENTINEL_CRED+=" --key ${REDIS_CLIENT_TLS_KEY_FILE}";
-REDIS_SENTINEL_CRED+=" --cacert ${REDIS_CLIENT_TLS_CA_CERT_FILE}";
+SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
+SENTINEL_CRED+=" --tls --cert ${TLS_CERT_FILE}";
+SENTINEL_CRED+=" --key ${TLS_KEY_FILE}";
+SENTINEL_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
 <%- end -%>
 
-for x in ${REDIS_SENTINEL_ADDRESSES};
+for x in ${SENTINEL_ADDRESSES};
 do
-  PING="$("${REDIS_CLI}" \
+  PING="$("${CLI}" \
     -h "${x}" \
-    -p "${REDIS_SENTINEL_PORT}" \
-    ${REDIS_SENTINEL_CRED} \
+    -p "${SENTINEL_PORT}" \
+    ${SENTINEL_CRED} \
     PING)";
   ERR=${?}
   if [[ ${ERR} -eq 0 ]] && [[ "${PING}" == "PONG" ]];
   then
-    echo "Redis Sentinel at address [${x}] and port [${REDIS_SENTINEL_PORT}] is available.";
+    echo "Redis Sentinel at address [${x}] and port [${SENTINEL_PORT}] is available.";
     if [[ ${ERR} -eq 0 ]];
     then
       echo "Available master for Sentinel at ${x}:"
-      "${REDIS_CLI}" \
+      "${CLI}" \
         -h "${x}" \
-        -p "${REDIS_SENTINEL_PORT}" \
-        ${REDIS_SENTINEL_CRED} \
+        -p "${SENTINEL_PORT}" \
+        ${SENTINEL_CRED} \
         SENTINEL master <%= spec.deployment %>;
       ERR=${?};
       if [[ ${ERR} -eq 0 ]];
       then
         echo "Available slaves for Sentinel at ${x}:"
-        "${REDIS_CLI}" \
+        "${CLI}" \
           -h "${x}" \
-          -p "${REDIS_SENTINEL_PORT}" \
-          ${REDIS_SENTINEL_CRED} \
+          -p "${SENTINEL_PORT}" \
+          ${SENTINEL_CRED} \
           SENTINEL slaves <%= spec.deployment %>;
         ERR=${?};
       fi
       if [[ ${ERR} -eq 0 ]];
       then
         echo "Available Sentinels for Sentinel at ${x}:"
-        "${REDIS_CLI}" \
+        "${CLI}" \
           -h "${x}" \
-          -p "${REDIS_SENTINEL_PORT}" \
-          ${REDIS_SENTINEL_CRED} \
+          -p "${SENTINEL_PORT}" \
+          ${SENTINEL_CRED} \
           SENTINEL sentinels <%= spec.deployment %>;
         ERR=${?};
       fi
@@ -122,10 +141,9 @@ done
 #
 # Look up Redis cluster
 #
-REDIS_CLI_CLUSTER_OPTS="";
-<%- if master.p('cluster_enabled').eql?('yes') -%>
-REDIS_CLI_CLUSTER_OPTS="-c";
-<%- node_port=master.p('port')
+CLI_CLUSTER_OPTS="";
+<%- if master.p('cluster_enabled').eql?('yes')
+  node_port=master.p('port')
   if master.p('tls') && master.p('tls_cluster')
     node_port=master.p('tls_port')
   end
@@ -172,7 +190,7 @@ echo "Number of slaves: [${REDIS_SLAVE_INSTANCES}]";
 echo "Replicas per master: [${REPLICAS_PER_NODE}]";
 echo "Nodes port: [${NODE_PORT}]";
 
-MSG="$("${REDIS_CLI}" \
+MSG="$("${CLI}" \
   -h "${REDIS_IP}" \
   -p "${REDIS_PORT}" \
   ${REDIS_CRED} \
@@ -222,6 +240,8 @@ else
   echo "ERROR: Redis CLUSTER NODES command failed." >&2;
   ERR=1;
 fi
+
+CLI_CLUSTER_OPTS="-c";
 <%- end -%>
 
 #
@@ -232,40 +252,40 @@ then
   KV="<%= spec.deployment+'_'+spec.name+'_'+spec.address.to_s %>";
   RESULT="";
 <%- if master.p('replication') && !sentinel.nil? -%>
-  for x in ${REDIS_SENTINEL_ADDRESSES};
+  for x in ${SENTINEL_ADDRESSES};
   do
-    REDIS_MASTER="$("${REDIS_CLI}" \
+    REDIS_MASTER="$("${CLI}" \
       -h "${x}" \
-      -p "${REDIS_SENTINEL_PORT}" \
-      ${REDIS_SENTINEL_CRED} \
+      -p "${SENTINEL_PORT}" \
+      ${SENTINEL_CRED} \
       SENTINEL get-master-addr-by-name <%= spec.deployment %>)";
     REDIS_IP="${REDIS_MASTER%%[[:space:]]*}";
     REDIS_PORT="${REDIS_MASTER#*[[:space:]]}";
 <%- end -%>
-    REDIS_CLI_OPTS="-h ${REDIS_IP} -p ${REDIS_PORT} ${REDIS_CRED} ${REDIS_CLI_CLUSTER_OPTS}";
-    "${REDIS_CLI}" \
-      ${REDIS_CLI_OPTS} \
+    CLI_OPTS="-h ${REDIS_IP} -p ${REDIS_PORT} ${REDIS_CRED} ${CLI_CLUSTER_OPTS}";
+    "${CLI}" \
+      ${CLI_OPTS} \
       SET ${KV} ${KV};
     ERR=${?};
     if [[ ${ERR} -eq 0 ]];
     then
       echo "Create operation: succeed";
-      RESULT="$("${REDIS_CLI}" \
-        ${REDIS_CLI_OPTS} \
+      RESULT="$("${CLI}" \
+        ${CLI_OPTS} \
         GET ${KV})";
       ERR=${?};
       if [[ ${ERR} -eq 0 ]] && [[ "${KV}" == "${RESULT}" ]];
       then
         echo "Read operation: succeed";
-        "${REDIS_CLI}" \
-          ${REDIS_CLI_OPTS} \
+        "${CLI}" \
+          ${CLI_OPTS} \
           APPEND ${KV} ${KV};
         ERR=${?};
         if [[ ${ERR} -eq 0 ]];
         then
           echo "Append operation: succeed";
-          RESULT="$("${REDIS_CLI}" \
-            ${REDIS_CLI_OPTS} \
+          RESULT="$("${CLI}" \
+            ${CLI_OPTS} \
             GET ${KV})";
           ERR=${?};
           if [[ ${ERR} -eq 0 ]] && [[ "${KV}${KV}" == "${RESULT}" ]];
@@ -280,8 +300,8 @@ then
       else
         echo "Read operation: failed";
       fi
-      "${REDIS_CLI}" \
-        ${REDIS_CLI_OPTS} \
+      "${CLI}" \
+        ${CLI_OPTS} \
         DEL ${KV};
       ERR=${?};
       if [[ ${ERR} -eq 0 ]];

@@ -1,6 +1,5 @@
 #!/bin/bash
-<%- master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x } -%>
+<%- master=link('redis_conn') -%>
 
 REDIS_HOME="/var/vcap/packages/redis";
 REDIS_SERVER="${REDIS_HOME}/bin/redis-server";

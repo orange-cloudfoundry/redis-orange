@@ -4,9 +4,8 @@ name: redis_exporter
 templates:
   bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
   config/script.erb: config/script
-  keys/exporter.crt.erb: keys/exporter.crt
-  keys/exporter.key.erb: keys/exporter.key
   keys/ca.crt.erb: keys/ca.crt
+  keys/ca.key.erb: keys/ca.key
 
 packages:
   - redis_exporter
@@ -14,6 +13,9 @@ packages:
 consumes:
 - name: redis_conn
   type: conn
+- name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
 
 properties:
   check_keys:
@@ -87,10 +89,7 @@ properties:
     default: "/metrics"
     description: |
       Path under which to expose metrics, defaults to "/metrics".
-  tls_keys:
-    description: |
-      Certificate materials for TLS connection.
-    type: certificate
+################################# TLS/SSL #####################################
   tls_keys_dir:
     default: "/var/vcap/jobs/redis_exporter/keys"
     description: |
@@ -98,7 +97,19 @@ properties:
   tls_ca_cert_file:
     default: "ca.crt"
     description: |
-      Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL clients and peers. Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_key_length:
+    default: "2048"
+    description: |
+      Private key length for TLS connection.
+  tls_cert_duration:
+    default: "365"
+    description: |
+      Certificate duration for TLS connection.
   tls_cert_file:
     default: "exporter.crt"
     description: |

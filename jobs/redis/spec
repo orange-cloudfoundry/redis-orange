@@ -2,14 +2,13 @@
 name: redis
 
 templates:
+  keys/ca.crt.erb: keys/ca.crt
+  keys/ca.key.erb: keys/ca.key
   config/redis.conf.erb: config/redis.conf
   config/users.acl.erb: config/users.acl
-  keys/redis.crt.erb: keys/redis.crt
-  keys/redis.key.erb: keys/redis.key
-  keys/ca.crt.erb: keys/ca.crt
   bin/pre-start.erb: bin/pre-start
-  bin/redis_ctl.erb: bin/redis_ctl
   bin/post-deploy.erb: bin/post-deploy
+  bin/redis_ctl.erb: bin/redis_ctl
 
 packages:
 - redis
@@ -37,6 +36,8 @@ provides:
 # TLS/SSL
   - tls
   - tls_port
+  - tls_ca_certificate
+  - tls_ca_private_key
   - tls_auth_clients
   - tls_replication
   - tls_cluster
@@ -113,18 +114,32 @@ properties:
     default: "6379"
     description: |
       The TLS/SSL port to use.
-  tls_keys:
-    description: |
-      Certificate materials for TLS connection.
-    type: certificate
   tls_keys_dir:
     default: "/var/vcap/jobs/redis/keys"
     description: |
       The directory where TLS keys are stored.
+  tls_ca_certificate:
+    description: |
+      Authority certificate for TLS connection.
+  tls_ca_private_key:
+    description: |
+      Authority private key for TLS connection.
   tls_ca_cert_file:
     default: "ca.crt"
     description: |
-      Configure a CA certificate(s) bundle or directory to authenticate TLS/SSL clients and peers. Redis requires an explicit configuration of at least one of these, and will not implicitly use the system wide configuration.
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_key_length:
+    default: "2048"
+    description: |
+      Private key length for TLS connection.
+  tls_cert_duration:
+    default: "365"
+    description: |
+      Certificate duration for TLS connection.
   tls_cert_file:
     default: "redis.crt"
     description: |
