@@ -26,7 +26,7 @@ openssl req \
     -CAkey ${TLS_CA_KEY_FILE} \
     -CAserial ${TLS_KEYS_DIR}/ca.txt \
     -CAcreateserial \
-    -days ${TLS_KEY_DURATION} \
+    -days ${TLS_CERT_DURATION} \
     -out ${TLS_CERT_FILE};
 openssl dhparam -out \
   ${TLS_DH_PARAMS_FILE} \

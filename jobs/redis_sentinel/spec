@@ -20,7 +20,8 @@ provides:
   - password
   - tls
   - tls_port
-  - tls_ca_keys
+  - tls_ca_certificate
+  - tls_ca_private_key
   - tls_auth_clients
   - tls_replication
   - tls_protocols
@@ -78,15 +79,12 @@ properties:
     default: "/var/vcap/jobs/redis_sentinel/keys"
     description: |
       The directory where TLS keys are stored.
-  tls_ca_keys:
+  tls_ca_certificate:
     description: |
-      Authority certificate materials for TLS connection.
-    certificate:
-      description: |
-        Authority certificate for TLS connection.
-    private_key:
-      description: |
-        Authority private key for TLS connection.
+      Authority certificate for TLS connection.
+  tls_ca_private_key:
+    description: |
+      Authority private key for TLS connection.
   tls_ca_cert_file:
     default: "ca.crt"
     description: |
