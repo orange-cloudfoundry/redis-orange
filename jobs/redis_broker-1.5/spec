@@ -55,62 +55,6 @@ properties:
     default: "8080"
     description: |
       The port that this Redis broker instance will run on.
-  ip_key:
-    default: "hostname"
-    description: |
-      Redis servers IP property's key for client
-  port_key:
-    default: "port"
-    description: |
-      Redis servers port property's key for client
-  password_key:
-    default: "password"
-    description: |
-      Redis default user's password property's key for client
-  admin_user_key:
-    default: "admin_user"
-    description: |
-      Redis admin's name property's key for client
-  admin_password_key:
-    default: "admin_password"
-    description: |
-      Redis admin's password property's key for client
-  ha_master_name_key:
-    default: "ha_master_name"
-    description: |
-      Redis Sentinels IP property's key for client
-  ha_port_key:
-    default: "ha_port"
-    description: |
-      Redis Sentinels port property's key for client
-  ha_password_key:
-    default: "ha_password"
-    description: |
-      Redis Sentinels password property's key for client
-  tls_keys:
-    description: |
-      Certificate materials for TLS connection.
-    type: certificate
-  tls_port_key:
-    default: "tls_port"
-    description: |
-      Redis TLS/SSL port property's key for client
-  tls_ha_port_key:
-    default: "tls_ha_port"
-    description: |
-      Redis Sentinel TLS/SSL port property's key for client
-  tls_certificate_key:
-    default: "tls_certificate"
-    description: |
-      Redis TLS/SSL certificate property's key for client
-  tls_private_key_key:
-    default: "tls_private_key"
-    description: |
-      Redis TLS/SSL key property's key for client
-  tls_ca_key:
-    default: "tls_ca"
-    description: |
-      Redis TLS/SSL CA certificate property's key for client
 ################################# TLS/SSL #####################################
   tls:
     default: false
@@ -174,3 +118,56 @@ properties:
     default: "365"
     description: |
       Certificate duration for TLS connection.
+################################# Client's keys #####################################
+  ip_key:
+    default: "hostname"
+    description: |
+      Redis servers IP property's key for client
+  port_key:
+    default: "port"
+    description: |
+      Redis servers port property's key for client
+  password_key:
+    default: "password"
+    description: |
+      Redis default user's password property's key for client
+  admin_user_key:
+    default: "admin_user"
+    description: |
+      Redis admin's name property's key for client
+  admin_password_key:
+    default: "admin_password"
+    description: |
+      Redis admin's password property's key for client
+  ha_master_name_key:
+    default: "ha_master_name"
+    description: |
+      Redis Sentinels IP property's key for client
+  ha_port_key:
+    default: "ha_port"
+    description: |
+      Redis Sentinels port property's key for client
+  ha_password_key:
+    default: "ha_password"
+    description: |
+      Redis Sentinels password property's key for client
+  tls_port_key:
+    default: "tls_port"
+    description: |
+      Redis TLS/SSL port property's key for client
+  tls_ha_port_key:
+    default: "tls_ha_port"
+    description: |
+      Redis Sentinel TLS/SSL port property's key for client
+  tls_certificate_key:
+    default: "tls_certificate"
+    description: |
+      Redis TLS/SSL certificate property's key for client
+  tls_private_key_key:
+    default: "tls_private_key"
+    description: |
+      Redis TLS/SSL key property's key for client
+  tls_ca_key:
+    default: "tls_ca"
+    description: |
+      Redis TLS/SSL CA certificate property's key for client
