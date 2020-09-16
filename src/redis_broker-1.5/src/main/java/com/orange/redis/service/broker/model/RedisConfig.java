@@ -399,7 +399,15 @@ public class RedisConfig {
       String cert_filename = null;
       private_key_filename = prefix.concat(".key");
       cert_filename = prefix.concat(".crt");
-      builder.command("bash", "-c", new String("openssl genrsa -out "+private_key_filename+" "+String.valueOf(tls.getClient_key_length())+" && "+"openssl req -new -sha256 -key "+private_key_filename+" -subj "+subject+" | "+"openssl x509 -req -sha256 -CA "+ca_cert_filename+" -CAkey "+ca_private_key_filename+" -CAserial "+ca_serial_file+" -CAcreateserial -days "+String.valueOf(tls.getClient_cert_duration())+" -out "+cert_filename));
+      builder.command("bash", "-c",
+          new String("openssl genrsa -out " + private_key_filename + " "
+              + String.valueOf(tls.getClient_key_length()) + " && "
+              + "openssl req -new -sha256 -key " + private_key_filename
+              + " -subj " + subject + " | " + "openssl x509 -req -sha256 -CA "
+              + ca_cert_filename + " -CAkey " + ca_private_key_filename
+              + " -CAserial " + ca_serial_file + " -CAcreateserial -days "
+              + String.valueOf(tls.getClient_cert_duration()) + " -out "
+              + cert_filename));
       try {
         process = builder.start();
         streamGobbler = new StreamGobbler(process.getInputStream(),
