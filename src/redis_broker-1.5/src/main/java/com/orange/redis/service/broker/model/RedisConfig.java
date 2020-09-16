@@ -396,20 +396,10 @@ public class RedisConfig {
       String prefix = tls.getKeys_dir().concat("/client-")
           .concat(String.valueOf(ThreadLocalRandom.current().nextInt()));
       String private_key_filename = null;
-      String req_cert_filname = null;
       String cert_filename = null;
       private_key_filename = prefix.concat(".key");
-      req_cert_filname = prefix.concat(".req");
       cert_filename = prefix.concat(".crt");
-      builder.command("openssl", "genrsa", "-out", private_key_filename,
-          String.valueOf(tls.getClient_key_length()));
-      builder.command("openssl", "req", "-new", "-sha256", "-key",
-          private_key_filename, "-subj", subject, "-out", req_cert_filname);
-      builder.command("openssl", "x509", "-req", "-sha256", "-CA",
-          ca_cert_filename, "-CAkey", ca_private_key_filename, "-CAserial",
-          ca_serial_file, "-CAcreateserial", "-days",
-          String.valueOf(tls.getClient_cert_duration()), "-in",
-          req_cert_filname, "-out", cert_filename);
+      builder.command("bash", "-c", new String("openssl genrsa -out "+private_key_filename+" "+String.valueOf(tls.getClient_key_length())+" && "+"openssl req -new -sha256 -key "+private_key_filename+" -subj "+subject+" | "+"openssl x509 -req -sha256 -CA "+ca_cert_filename+" -CAkey "+ca_private_key_filename+" -CAserial "+ca_serial_file+" -CAcreateserial -days "+String.valueOf(tls.getClient_cert_duration())+" -out "+cert_filename));
       try {
         process = builder.start();
         streamGobbler = new StreamGobbler(process.getInputStream(),
@@ -422,7 +412,6 @@ public class RedisConfig {
           keyPair.setCertificate(Files.readString(Paths.get(cert_filename)));
         }
         Files.deleteIfExists(Paths.get(private_key_filename));
-        Files.deleteIfExists(Paths.get(req_cert_filname));
         Files.deleteIfExists(Paths.get(cert_filename));
       } catch (IOException e) {
         // TODO Auto-generated catch block
