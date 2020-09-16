@@ -87,37 +87,39 @@ properties:
   tls_server_key_length:
     default: "2048"
     description: |
-      Private key length for TLS connection.
+      Broker server private key length for TLS connection.
   tls_server_cert_duration:
     default: "365"
     description: |
-      Certificate duration for TLS connection.
+      Broker server certificate duration for TLS connection.
   tls_server_cert_file:
     default: "broker.crt"
     description: |
-      Configure a X.509 certificate and private key to use for authenticating the server to connected clients, masters or cluster peers. These files should be PEM formatted.
+      Broker server certificate file name.
   tls_server_key_file:
     default: "broker.key"
     description: |
-      See tls_cert_file.
+      Broker server private key file name.
   tls_server_key_alias:
     default: "broker"
+    description: |
+      Broker server alias in keystore.
   tls_server_p12_file:
     default: "broker.p12"
     description: |
-      File where tls_cert_file and tls_key_file are bundled.
+      Broker server certificate and private key bundle file name.
   tls_server_jks_file:
     default: "broker.jks"
     description: |
-      Keystore where tls_p12_file is imported.
+      Broker server keystore.
   tls_client_key_length:
     default: "2048"
     description: |
-      Private key length for TLS connection.
+      Redis client's private key length for TLS connection.
   tls_client_cert_duration:
     default: "365"
     description: |
-      Certificate duration for TLS connection.
+      Redis client's certificate duration for TLS connection.
 ################################# Client's keys #####################################
   ip_key:
     default: "hostname"

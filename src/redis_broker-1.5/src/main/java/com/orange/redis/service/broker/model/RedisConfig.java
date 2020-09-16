@@ -4,6 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.net.InetAddress;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -221,11 +230,8 @@ public class RedisConfig {
   }
 
   public static class Sentinel {
-
     private String master_name = null;
-
     private Integer port = null;
-
     private String password = null;
 
     public String getMaster_name() {
@@ -258,16 +264,14 @@ public class RedisConfig {
   }
 
   public static class TLS {
-
     private Integer port = null;
-
     private Integer ha_port = null;
-
-    private String certificate = null;
-
-    private String private_key = null;
-
-    private String ca = null;
+    private String keys_dir = null;
+    private String ca_cert_file = null;
+    private String ca_key_file = null;
+    private Integer client_key_length = null;
+    private String client_cert_ou = null;
+    private Integer client_cert_duration = null;
 
     public Integer getPort() {
       return port;
@@ -285,32 +289,149 @@ public class RedisConfig {
       this.ha_port = ha_port;
     }
 
-    public String getCertificate() {
-      return certificate;
+    public String getKeys_dir() {
+      return keys_dir;
     }
 
-    public void setCertificate(String certificate) {
-      this.certificate = certificate;
+    public void setKeys_dir(String keys_dir) {
+      this.keys_dir = keys_dir;
     }
 
-    public String getPrivate_key() {
-      return private_key;
+    public String getCa_cert_file() {
+      return ca_cert_file;
     }
 
-    public void setPrivate_key(String private_key) {
-      this.private_key = private_key;
+    public void setCa_cert_file(String ca_cert_file) {
+      this.ca_cert_file = ca_cert_file;
     }
 
-    public String getCa() {
-      return ca;
+    public String getCa_key_file() {
+      return ca_key_file;
     }
 
-    public void setCa(String ca) {
-      this.ca = ca;
+    public void setCa_key_file(String ca_key_file) {
+      this.ca_key_file = ca_key_file;
+    }
+
+    public Integer getClient_key_length() {
+      return client_key_length;
+    }
+
+    public void setClient_key_length(Integer client_key_length) {
+      this.client_key_length = client_key_length;
+    }
+
+    public String getClient_cert_ou() {
+      return client_cert_ou;
+    }
+
+    public void setClient_cert_ou(String client_cert_ou) {
+      this.client_cert_ou = client_cert_ou;
+    }
+
+    public Integer getClient_cert_duration() {
+      return client_cert_duration;
+    }
+
+    public void setClient_cert_duration(Integer client_cert_duration) {
+      this.client_cert_duration = client_cert_duration;
     }
 
     public boolean isEmpty() {
-      return (port == null || ha_port == null) && certificate == null && private_key == null && ca == null;
+      return (port == null || ha_port == null) && keys_dir == null
+          && ca_cert_file == null && ca_key_file == null
+          && client_key_length == null && client_cert_ou == null
+          && client_cert_duration == null;
+    }
+
+    public static class KeyPair {
+      public String certificate = null;
+      public String private_key = null;
+
+      public String getCertificate() {
+        return certificate;
+      }
+
+      public void setCertificate(String certificate) {
+        this.certificate = certificate;
+      }
+
+      public String getPrivate_key() {
+        return private_key;
+      }
+
+      public void setPrivate_key(String private_key) {
+        this.private_key = private_key;
+      }
+    }
+
+    private static class StreamGobbler implements Runnable {
+      private InputStream inputStream;
+      private Consumer<String> consumer;
+
+      public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
+        this.inputStream = inputStream;
+        this.consumer = consumer;
+      }
+
+      @Override
+      public void run() {
+        new BufferedReader(new InputStreamReader(inputStream)).lines()
+            .forEach(consumer);
+      }
+    }
+
+    public static KeyPair generateKeyPair(final TLS tls) {
+      KeyPair keyPair = null;
+      ProcessBuilder builder = new ProcessBuilder();
+      Process process = null;
+      StreamGobbler streamGobbler = null;
+      String ca_cert_filename = tls.getKeys_dir().concat("/")
+          .concat(tls.getCa_cert_file());
+      String ca_private_key_filename = tls.getKeys_dir().concat("/")
+          .concat(tls.getCa_key_file());
+      String ca_serial_file = tls.getKeys_dir().concat("/").concat("ca.txt");
+      String subject = new String("/O=orange.com/OU=")
+          .concat(tls.getClient_cert_ou()).concat("/CN=Redis Client");
+      String prefix = tls.getKeys_dir().concat("/client-")
+          .concat(String.valueOf(ThreadLocalRandom.current().nextInt()));
+      String private_key_filename = null;
+      String req_cert_filname = null;
+      String cert_filename = null;
+      private_key_filename = prefix.concat(".key");
+      req_cert_filname = prefix.concat(".req");
+      cert_filename = prefix.concat(".crt");
+      builder.command("openssl", "genrsa", "-out", private_key_filename,
+          String.valueOf(tls.getClient_key_length()));
+      builder.command("openssl", "req", "-new", "-sha256", "-key",
+          private_key_filename, "-subj", subject, "-out", req_cert_filname);
+      builder.command("openssl", "x509", "-req", "-sha256", "-CA",
+          ca_cert_filename, "-CAkey", ca_private_key_filename, "-CAserial",
+          ca_serial_file, "-CAcreateserial", "-days",
+          String.valueOf(tls.getClient_cert_duration()), "-in",
+          req_cert_filname, "-out", cert_filename);
+      try {
+        process = builder.start();
+        streamGobbler = new StreamGobbler(process.getInputStream(),
+            System.out::println);
+        Executors.newSingleThreadExecutor().submit(streamGobbler);
+        if (process.waitFor() == 0) {
+          keyPair = new KeyPair();
+          keyPair.setPrivate_key(
+              Files.readString(Paths.get(private_key_filename)));
+          keyPair.setCertificate(Files.readString(Paths.get(cert_filename)));
+        }
+        Files.deleteIfExists(Paths.get(private_key_filename));
+        Files.deleteIfExists(Paths.get(req_cert_filname));
+        Files.deleteIfExists(Paths.get(cert_filename));
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      return keyPair;
     }
   }
 
@@ -329,28 +450,45 @@ public class RedisConfig {
     credentials.put(getAdmin_user_key(), getAdmin_user());
     logger.info(getAdmin_user_key().concat(" ").concat(getAdmin_user()));
     credentials.put(getAdmin_password_key(), getAdmin_password());
-    logger.info(getAdmin_password_key().concat(" ").concat(getAdmin_password()));
+    logger
+        .info(getAdmin_password_key().concat(" ").concat(getAdmin_password()));
     if (!getSentinel().isEmpty()) {
       credentials.put(getHa_master_name_key(), getSentinel().getMaster_name());
-      logger.info(getHa_master_name_key().concat(" ").concat(getSentinel().getMaster_name()));
+      logger.info(getHa_master_name_key().concat(" ")
+          .concat(getSentinel().getMaster_name()));
       credentials.put(getHa_port_key(), getSentinel().getPort().toString());
-      logger.info(getHa_port_key().concat(" ").concat(getSentinel().getPort().toString()));
+      logger.info(getHa_port_key().concat(" ")
+          .concat(getSentinel().getPort().toString()));
       credentials.put(getHa_password_key(), getSentinel().getPassword());
-      logger.info(getHa_password_key().concat(" ").concat(getSentinel().getPassword()));
+      logger.info(
+          getHa_password_key().concat(" ").concat(getSentinel().getPassword()));
     }
     if (!getTls().isEmpty()) {
       credentials.put(getTls_port_key(), getTls().getPort().toString());
-      logger.info(getTls_port_key().concat(" ").concat(getTls().getPort().toString()));
+      logger.info(
+          getTls_port_key().concat(" ").concat(getTls().getPort().toString()));
       if (getTls().getHa_port() != null) {
         credentials.put(getTls_ha_port_key(), getTls().getHa_port().toString());
-        logger.info(getTls_ha_port_key().concat(" ").concat(getTls().getHa_port().toString()));
+        logger.info(getTls_ha_port_key().concat(" ")
+            .concat(getTls().getHa_port().toString()));
       }
-      credentials.put(getTls_certificate_key(), getTls().getCertificate());
-      logger.info(getTls_certificate_key().concat(" ").concat(getTls().getCertificate()));
-      credentials.put(getTls_private_key_key(), getTls().getPrivate_key());
-      logger.info(getTls_private_key_key().concat(" ").concat(getTls().getPrivate_key()));
-      credentials.put(getTls_ca_key(), getTls().getCa());
-      logger.info(getTls_ca_key().concat(" ").concat(getTls().getCa()));
+      TLS.KeyPair keyPair = TLS.generateKeyPair(getTls());
+      String ca = null;
+      credentials.put(getTls_certificate_key(), keyPair.getCertificate());
+      logger.info(getTls_certificate_key().concat(" ")
+          .concat(keyPair.getCertificate()));
+      credentials.put(getTls_private_key_key(), keyPair.getPrivate_key());
+      logger.info(getTls_private_key_key().concat(" ")
+          .concat(keyPair.getPrivate_key()));
+      try {
+        ca = Files.readString(
+            Paths.get(getTls().getKeys_dir(), getTls().getCa_cert_file()));
+        credentials.put(getTls_ca_key(), ca);
+        logger.info(getTls_ca_key().concat(" ").concat(ca));
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     }
     return credentials;
   }

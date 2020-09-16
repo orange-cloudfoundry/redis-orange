@@ -79,6 +79,7 @@ orange:
       ca_cert_file: <%= p('tls_ca_cert_file') %>
       ca_key_file: <%= p('tls_ca_key_file') %>
       client_key_length: <%= p('tls_client_key_length') %>
+      client_cert_ou: <%= spec.deployment %>
       client_cert_duration: <%= p('tls_client_cert_duration') %>
 <%- end -%>
 
