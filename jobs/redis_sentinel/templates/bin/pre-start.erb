@@ -1,4 +1,5 @@
 #!/bin/bash
+ERR=0;
 <%- if link('redis_sentinel_conn').p('tls') -%>
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
@@ -12,10 +13,10 @@ TLS_DH_LENGTH="<%= p('tls_dh_length') %>";
 rm -f \
   ${TLS_KEY_FILE} \
   ${TLS_CERT_FILE} \
-  ${TLS_DH_PARAMS_FILE};
+  ${TLS_DH_PARAMS_FILE} && \
 openssl genrsa -out \
   ${TLS_KEY_FILE} \
-  ${TLS_KEY_LENGTH};
+  ${TLS_KEY_LENGTH} && \
 openssl req \
   -new -sha256 \
   -key ${TLS_KEY_FILE} \
@@ -27,9 +28,10 @@ openssl req \
     -CAserial ${TLS_KEYS_DIR}/ca.txt \
     -CAcreateserial \
     -days ${TLS_CERT_DURATION} \
-    -out ${TLS_CERT_FILE};
+    -out ${TLS_CERT_FILE} && \
 openssl dhparam -out \
   ${TLS_DH_PARAMS_FILE} \
   ${TLS_DH_LENGTH};
+ERR=${?};
 <%- end -%>
-exit 0;
+exit ${ERR};

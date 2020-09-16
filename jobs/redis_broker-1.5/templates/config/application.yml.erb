@@ -5,16 +5,6 @@
   if_link('redis_sentinel_conn') { |x| sentinel=x }
   sentinel_slave=nil
   if_link('sentinel_slave_conn') { |x| sentinel_slave=x } -%>
-logging:
-  config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
-
-server:
-<%- if p('bind') -%>
-  address: <%= spec.ip %>
-<%- else -%>
-  address: 127.0.0.1
-<%- end -%>
-  port: <%= p('port') %>
 
 orange:
   redis:
@@ -98,6 +88,27 @@ orange:
         <%= x -%>
 <%- end
   end -%>
+
+logging:
+  config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
+
+server:
+<%- if p('bind') -%>
+  address: <%= spec.ip %>
+<%- else -%>
+  address: 127.0.0.1
+<%- end -%>
+<%- if p('tls') -%>
+  port: <%= p('tls_port') %>
+
+  ssl:
+    enabled: true
+    key-alias: <%= p('tls_key_alias') %>
+    key-store-type: JKS
+    key-store: <%= p('tls_keys_dir')+'/'+p('tls_jks_file') %>
+<%- else -%>
+  port: <%= p('port') %>
+<%- end -%>
 
 security:
   user:

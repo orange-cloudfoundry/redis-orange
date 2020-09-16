@@ -21,6 +21,8 @@ provides:
   - password
   - bind
   - port
+  - tls
+  - tls_port
 
 consumes:
 - name: redis_conn
@@ -114,6 +116,10 @@ properties:
     default: false
     description: |
       To enable/disable TLS/SSL.
+  tls_port:
+    default: "8443"
+    description: |
+      The TLS/SSL port to use.
   tls_keys_dir:
     default: "/var/vcap/jobs/redis_broker-1.5/keys"
     description: |
@@ -130,6 +136,10 @@ properties:
     default: "4096"
     description: |
       Certificate authority's private key length for TLS connection.
+  tls_ca_cert_duration:
+    default: "3650"
+    description: |
+      Certificate authority's duration for TLS connection.
   tls_key_length:
     default: "2048"
     description: |
@@ -146,3 +156,13 @@ properties:
     default: "broker.key"
     description: |
       See tls_cert_file.
+  tls_key_alias:
+    default: "broker"
+  tls_p12_file:
+    default: "broker.p12"
+    description: |
+      File where tls_cert_file and tls_key_file are bundled.
+  tls_jks_file:
+    default: "broker.jks"
+    description: |
+      Keystore where tls_p12_file is imported.

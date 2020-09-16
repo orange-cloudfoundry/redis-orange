@@ -1,18 +1,40 @@
 #!/bin/bash
-<%- if link('redis_conn').p('tls') || p('tls') -%>
+ERR=0;
+<%- p('tls') -%>
+export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
+export PATH=${JAVA_HOME}/bin:${PATH};
+
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 TLS_CA_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>";
 TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+TLS_P12_FILE="${TLS_KEYS_DIR}/<%= p('tls_p12_file') %>";
+TLS_JKS_FILE="${TLS_KEYS_DIR}/<%= p('tls_jks_file') %>";
+TLS_CA_KEY_LENGTH="<%= p('tls_ca_key_length') %>";
+TLS_CA_CERT_DURATION="<%= p('tls_ca_cert_duration') %>";
 TLS_KEY_LENGTH="<%= p('tls_key_length') %>";
 TLS_CERT_DURATION="<%= p('tls_cert_duration') %>";
+TLS_KEY_ALIAS="<%= p('tls_key_alias') %>";
+
+<%- if !link('redis_conn').p('tls') -%>
+rm -f \
+  ${TLS_CA_KEY_FILE} \
+  ${TLS_CA_CERT_FILE} && \
+openssl genrsa -out ${TLS_CA_KEY_FILE} ${TLS_CA_KEY_LENGTH} && \
+openssl req \
+  -x509 -new -nodes -sha256 \
+  -key ${TLS_CA_KEY_FILE} \
+  -days ${TLS_CA_CERT_DURATION} \
+  -subj "/O=orange.com/CN=<%= spec.deployment %>" \
+  -out ${TLS_CA_CERT_FILE} && \
+<%- end -%>
 rm -f \
   ${TLS_KEY_FILE} \
   ${TLS_CERT_FILE};
 openssl genrsa -out \
   ${TLS_KEY_FILE} \
-  ${TLS_KEY_LENGTH};
+  ${TLS_KEY_LENGTH} && \
 openssl req \
   -new -sha256 \
   -key ${TLS_KEY_FILE} \
@@ -24,9 +46,20 @@ openssl req \
     -CAserial ${TLS_KEYS_DIR}/ca.txt \
     -CAcreateserial \
     -days ${TLS_CERT_DURATION} \
-    -out ${TLS_CERT_FILE};
-
-export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
-export PATH=${JAVA_HOME}/bin:${PATH};
+    -out ${TLS_CERT_FILE} && \
+rm -f \
+  ${TLS_P12_FILE} \
+  ${TLS_JKS_FILE} && \
+openssl pkcs12 -export \
+  -name ${TLS_KEY_ALIAS} \
+  -inkey ${TLS_KEY_FILE} \
+  -in ${TLS_CERT_FILE} \
+  -out ${TLS_P12_FILE} && \
+keytool -importkeystore \
+  -srcstoretype PKCS12 \
+  -srckeystore ${TLS_P12_FILE} \
+  -deststoretype JKS \
+  -destkeystore ${TLS_JKS_FILE};
+ERR=${?};
 <%- end -%>
-exit 0;
+exit ${ERR};

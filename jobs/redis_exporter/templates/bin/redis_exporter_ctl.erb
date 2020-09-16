@@ -18,62 +18,62 @@ REDIS_IP="127.0.0.1";
 REDIS_IP="<%= spec.ip %>";
 <%- end -%>
 REDIS_PORT="<%= master.p('port') %>";
-REDIS_EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
+EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
 <%- master.if_p('exporter_password') do |x|
     unless x.to_s.empty? -%>
-REDIS_EXPORTER_ARGS+=" -redis.password <%= x %>";
+EXPORTER_ARGS+=" -redis.password <%= x %>";
 <%- end
   end
   if master.p('tls') -%>
 REDIS_PROTOCOLE="rediss";
 REDIS_PORT="<%= master.p('tls_port') %>";
-REDIS_EXPORTER_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-REDIS_EXPORTER_ARGS+=" -tls-client-cert-file ${REDIS_EXPORTER_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_EXPORTER_ARGS+=" -tls-client-key-file ${REDIS_EXPORTER_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_EXPORTER_ARGS+=" -tls-ca-cert-file ${REDIS_EXPORTER_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-chown -R vcap:vcap "${REDIS_EXPORTER_TLS_KEYS_DIR}";
-chmod -R g-rwx,o-rwx "${REDIS_EXPORTER_TLS_KEYS_DIR}";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+EXPORTER_ARGS+=" -tls-client-cert-file ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+EXPORTER_ARGS+=" -tls-client-key-file ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+EXPORTER_ARGS+=" -tls-ca-cert-file ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+chown -R vcap:vcap "${TLS_KEYS_DIR}";
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
 <%- end -%>
-REDIS_EXPORTER_ARGS+=" -redis.addr=${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
+EXPORTER_ARGS+=" -redis.addr=${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
 <%- if_p('check_keys') do |x| -%>
-REDIS_EXPORTER_ARGS+=" -check-keys <%= x %>";
+EXPORTER_ARGS+=" -check-keys <%= x %>";
 <%- end -%>
 <%- if_p('check_single_keys') do |x| -%>
-REDIS_EXPORTER_ARGS+=" -check-single-keys <%= x %>";
+EXPORTER_ARGS+=" -check-single-keys <%= x %>";
 <%- end -%>
 <%- if_p('check_streams') do |x| -%>
-REDIS_EXPORTER_ARGS+=" -check-streams <%= x %>";
+EXPORTER_ARGS+=" -check-streams <%= x %>";
 <%- end -%>
 <%- if_p('check_single_streams') do |x| -%>
-REDIS_EXPORTER_ARGS+=" -check-single-streams <%= x %>";
+EXPORTER_ARGS+=" -check-single-streams <%= x %>";
 <%- end -%>
 <%- if_p('config_command') do |x| -%>
-REDIS_EXPORTER_ARGS+=" -config-command <%= x %>";
+EXPORTER_ARGS+=" -config-command <%= x %>";
 <%- end -%>
-REDIS_EXPORTER_ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
+EXPORTER_ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
 <%- if p('debug') -%>
-REDIS_EXPORTER_ARGS+=" -debug";
+EXPORTER_ARGS+=" -debug";
 <%- end -%>
 <%- if p('export_client_list') -%>
-REDIS_EXPORTER_ARGS+=" -export-client-list";
+EXPORTER_ARGS+=" -export-client-list";
 <%- end -%>
 <%- if p('include_system_metrics') -%>
-REDIS_EXPORTER_ARGS+=" -include-system-metrics";
+EXPORTER_ARGS+=" -include-system-metrics";
 <%- end -%>
 <%- if p('is_tile38') -%>
-REDIS_EXPORTER_ARGS+=" -is-tile38";
+EXPORTER_ARGS+=" -is-tile38";
 <%- end -%>
 <%- if p('ping_on_connect') -%>
-REDIS_EXPORTER_ARGS+=" -ping-on-connect";
+EXPORTER_ARGS+=" -ping-on-connect";
 <%- end -%>
 <%- if p('redis_only_metrics') -%>
-REDIS_EXPORTER_ARGS+=" -redis-only-metrics";
+EXPORTER_ARGS+=" -redis-only-metrics";
 <%- end -%>
 <%- if p('set_client_name') -%>
-REDIS_EXPORTER_ARGS+=" -set-client-name";
+EXPORTER_ARGS+=" -set-client-name";
 <%- end -%>
 <%- if p('skip_tls_verification') -%>
-REDIS_EXPORTER_ARGS+=" -skip-tls-verification";
+EXPORTER_ARGS+=" -skip-tls-verification";
 <%- end -%>
 
 source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
@@ -91,7 +91,7 @@ case $1 in
     echo $$ > "${PIDFILE}";
 
     exec chpst -u vcap:vcap "${PROGNAME}" \
-      ${REDIS_EXPORTER_ARGS} \
+      ${EXPORTER_ARGS} \
       -log-format <%= p('log_format') %> \
       -namespace <%= p('namespace') %> \
       -web.listen-address <%= spec.ip+':'+p('web_port') %> \
