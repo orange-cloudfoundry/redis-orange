@@ -6,6 +6,9 @@ set -u # report the usage of uninitialized variables
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 export HOME="/var/vcap"
 
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+cp -a common/gen-certs.sh ${BOSH_INSTALL_TARGET}/bin/.
+
 tar xf redis/redis-*.tar.gz
 cd redis-*
 make BUILD_TLS=yes PREFIX="${BOSH_INSTALL_TARGET}" install

@@ -1,5 +1,6 @@
 ---
 name: redis_exporter
 files:
+- common/gen-cert.sh
 - common/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
 - redis_exporter/redis_exporter-*.linux-amd64.tar.gz # From https://github.com/oliver006/redis_exporter/releases/

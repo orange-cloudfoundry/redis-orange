@@ -9,6 +9,7 @@ export HOME="/var/vcap"
 PROGNAME="redis_broker-1.5"
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
+cp -a common/gen-certs.sh ${BOSH_INSTALL_TARGET}/bin/.
 cd ${PROGNAME}
 #
 # Build redis_broker's JAR

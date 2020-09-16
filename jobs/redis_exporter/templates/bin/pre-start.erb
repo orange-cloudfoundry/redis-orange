@@ -1,31 +1,18 @@
 #!/bin/bash
 ERR=0;
 <%- if link('redis_conn').p('tls') -%>
+source /var/vcap/packages/redis_exporter/bin/gen-certs.sh;
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-TLS_CA_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>";
-TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-TLS_KEY_LENGTH="<%= p('tls_key_length') %>";
-TLS_CERT_DURATION="<%= p('tls_cert_duration') %>";
-rm -f \
-  ${TLS_KEY_FILE} \
-  ${TLS_CERT_FILE} && \
-openssl genrsa -out \
-  ${TLS_KEY_FILE} \
-  ${TLS_KEY_LENGTH} && \
-openssl req \
-  -new -sha256 \
-  -key ${TLS_KEY_FILE} \
-  -subj "/O=orange.com/OU=<%= spec.deployment %>/CN=Exporter" | \
-  openssl x509 \
-    -req -sha256 \
-    -CA ${TLS_CA_CERT_FILE} \
-    -CAkey ${TLS_CA_KEY_FILE} \
-    -CAserial ${TLS_KEYS_DIR}/ca.txt \
-    -CAcreateserial \
-    -days ${TLS_CERT_DURATION} \
-    -out ${TLS_CERT_FILE};
+gen_signed_cert \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>" \
+  "${TLS_KEYS_DIR}/ca.txt" \
+  "${TLS_KEYS_DIR}/<%= p('tls_key_file') %>" \
+  "${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>" \
+  "<%= p('tls_key_length') %>" \
+  "<%= p('tls_cert_duration') %>" \
+  "<%= spec.deployment %>" \
+  "Redis Exporter";
 ERR=${?};
 <%- end -%>
 exit ${ERR};
