@@ -92,9 +92,10 @@ server:
   if p('tls') -%>
   ssl:
     enabled: true
-    key-alias: <%= p('tls_key_alias') %>
-    key-store-type: JKS
-    key-store: <%= p('tls_keys_dir')+'/'+p('tls_jks_file') %>
+    key-alias: <%= p('tls_server_key_alias') %>
+    key-store-type: PKCS12
+    key-store-password: <%= p('tls_server_pkcs12_password') %>
+    key-store: file:<%= p('tls_keys_dir')+'/'+p('tls_server_pkcs12_file') %>
   port: <%= p('tls_port') %>
 <%- else -%>
   port: <%= p('port') %>

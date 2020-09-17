@@ -391,8 +391,8 @@ public class RedisConfig {
       String ca_private_key_filename = tls.getKeys_dir().concat("/")
           .concat(tls.getCa_key_file());
       String ca_serial_file = tls.getKeys_dir().concat("/").concat("ca.txt");
-      String subject = new String("/O=orange.com/OU=")
-          .concat(tls.getClient_cert_ou()).concat("/CN=Redis Client");
+      String subject = new String("\"/O=orange.com/OU=")
+          .concat(tls.getClient_cert_ou()).concat("/CN=Redis Client\"");
       String prefix = tls.getKeys_dir().concat("/client-")
           .concat(String.valueOf(ThreadLocalRandom.current().nextInt()));
       String private_key_filename = null;

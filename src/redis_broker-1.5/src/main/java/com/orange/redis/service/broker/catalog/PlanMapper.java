@@ -9,13 +9,11 @@ import java.util.List;
  */
 public class PlanMapper {
 
-  public static org.springframework.cloud.servicebroker.model.Plan toServiceBrokerPlan(Plan plan) {
+  public static org.springframework.cloud.servicebroker.model.Plan toServiceBrokerPlan(
+      Plan plan) {
 
-    return new org.springframework.cloud.servicebroker.model.Plan(
-        plan.getId(),
-        plan.getName(),
-        plan.getDescription(),
-        plan.getMetadata(),
+    return new org.springframework.cloud.servicebroker.model.Plan(plan.getId(),
+        plan.getName(), plan.getDescription(), plan.getMetadata(),
         plan.getFree());
   }
 
@@ -23,7 +21,8 @@ public class PlanMapper {
       List<Plan> planProperties) {
     List<org.springframework.cloud.servicebroker.model.Plan> planList = new ArrayList<>();
     for (Plan pp : planProperties) {
-      org.springframework.cloud.servicebroker.model.Plan plan = toServiceBrokerPlan(pp);
+      org.springframework.cloud.servicebroker.model.Plan plan = toServiceBrokerPlan(
+          pp);
       planList.add(plan);
     }
     return planList;

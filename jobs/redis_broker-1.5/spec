@@ -104,14 +104,13 @@ properties:
     default: "broker"
     description: |
       Broker server alias in keystore.
-  tls_server_p12_file:
-    default: "broker.p12"
+  tls_server_pkcs12_file:
+    default: "broker.pkcs12"
     description: |
       Broker server certificate and private key bundle file name.
-  tls_server_jks_file:
-    default: "broker.jks"
+  tls_server_pkcs12_password:
     description: |
-      Broker server keystore.
+      Broker server certificate and private key bundle password.
   tls_client_key_length:
     default: "2048"
     description: |

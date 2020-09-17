@@ -71,6 +71,7 @@ public class Plan {
     this.free = free;
   }
 
-  public Plan() {}
+  public Plan() {
+  }
 
 }

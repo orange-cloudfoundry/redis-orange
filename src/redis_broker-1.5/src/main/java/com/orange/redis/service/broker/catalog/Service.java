@@ -96,6 +96,7 @@ public class Service {
     this.requires = requires;
   }
 
-  public Service() {}
+  public Service() {
+  }
 
 }
