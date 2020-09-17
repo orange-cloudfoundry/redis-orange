@@ -109,6 +109,7 @@ properties:
     description: |
       Broker server certificate and private key bundle file name.
   tls_server_pkcs12_password:
+    default: "azerty"
     description: |
       Broker server certificate and private key bundle password.
   tls_client_key_length:

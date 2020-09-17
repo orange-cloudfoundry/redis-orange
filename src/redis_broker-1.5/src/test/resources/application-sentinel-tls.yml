@@ -34,6 +34,9 @@ orange:
       client_cert_ou: redis-sentinel-tls
       client_cert_duration: 365
 
+logging:
+  config: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker-1.5/src/test/resources/log4j2.xml
+
 server:
   address: localhost
   port: 8443
@@ -42,15 +45,12 @@ server:
     key-alias: broker
     key-store-type: PKCS12
     key-store-password: azerty
-    key-store: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker-1.5/src/test/resources/broker.pkcs12
+    key-store: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker-1.5/src/test/keys/broker.pkcs12
 
 security:
   user:
     name: broker
     password: broker
-
-logging:
-  config: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker-1.5/src/test/resources/log4j2.xml
 
 catalog_yml: |
   services:

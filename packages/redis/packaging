@@ -13,4 +13,4 @@ tar xf redis/redis-*.tar.gz
 cd redis-*
 make BUILD_TLS=yes PREFIX="${BOSH_INSTALL_TARGET}" install
 cd ${BOSH_INSTALL_TARGET}/bin
-strip -s ./*
+strip -s ./redis-*

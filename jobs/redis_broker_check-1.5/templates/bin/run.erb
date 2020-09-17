@@ -4,8 +4,8 @@
 BROKER_IP="127.0.0.1";
 <%- if broker.p('bind') -%>
 BROKER_IP="<%= spec.ip %>";
-<%- end -%>
-<%- if broker.p('tls') -%>
+<%- end
+  if broker.p('tls') -%>
 PROTOCOLE="https";
 BROKER_PORT="<%= broker.p('tls_port') %>";
 <%- else -%>
@@ -13,10 +13,7 @@ PROTOCOLE="http";
 BROKER_PORT="<%= broker.p('port') %>";
 <%- end -%>
 
-BROKER_USER="<%= broker.p('user') %>";
-BROKER_PASSWORD="<%= broker.p('password') %>";
-
-BASE_URI="${PROTOCOLE}://${BROKER_USER}:${BROKER_PASSWORD}@${BROKER_IP}:${BROKER_PORT}";
+BASE_URI="${PROTOCOLE}://<%= broker.p('user') %>:<%= broker.p('password') %>@${BROKER_IP}:${BROKER_PORT}";
 
 ERR_CATALOG=1;
 if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \

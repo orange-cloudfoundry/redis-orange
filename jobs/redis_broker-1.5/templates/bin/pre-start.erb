@@ -1,6 +1,6 @@
 #!/bin/bash
 ERR=0;
-<%- p('tls') -%>
+<%- if link('redis_conn').p('tls') || p('tls') -%>
 export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
 export PATH=${JAVA_HOME}/bin:${PATH};
 source /var/vcap/packages/redis_broker-1.5/bin/gen-certs.sh;
@@ -23,6 +23,7 @@ gen_signed_cert \
   "<%= p('tls_server_cert_duration') %>" \
   "<%= spec.deployment %>" \
   "Redis Broker Server" && \
+<%- if p('tls') -%>
 rm -f \
   "${TLS_KEYS_DIR}/<%= p('tls_server_pkcs12_file') %>" && \
 openssl pkcs12 -export \
@@ -31,6 +32,7 @@ openssl pkcs12 -export \
   -in "${TLS_KEYS_DIR}/<%= p('tls_server_cert_file') %>" \
   -passout pass:<%= p('tls_server_pkcs12_password') %> \
   -out "${TLS_KEYS_DIR}/<%= p('tls_server_pkcs12_file') %>";
+<%- end -%>
 ERR=${?};
 <%- end -%>
 exit ${ERR};

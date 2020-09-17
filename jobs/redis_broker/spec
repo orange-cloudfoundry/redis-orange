@@ -6,11 +6,12 @@ templates:
   keys/ca.key.erb: keys/ca.key
   config/application.yml.erb: config/application.yml
   config/log4j2.xml.erb: config/log4j2.xml
+  bin/pre-start.erb: bin/pre-start
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
 - openjdk
-- redis_broker
+- redis_broker-1.5
 
 provides:
 - name: redis_broker_conn
@@ -20,6 +21,8 @@ provides:
   - password
   - bind
   - port
+  - tls
+  - tls_port
 
 consumes:
 - name: redis_conn
@@ -52,6 +55,72 @@ properties:
     default: "8080"
     description: |
       The port that this Redis broker instance will run on.
+################################# TLS/SSL #####################################
+  tls:
+    default: false
+    description: |
+      To enable/disable TLS/SSL.
+  tls_port:
+    default: "8443"
+    description: |
+      The TLS/SSL port to use.
+  tls_keys_dir:
+    default: "/var/vcap/jobs/redis_broker-1.5/keys"
+    description: |
+      The directory where TLS keys are stored.
+  tls_ca_cert_file:
+    default: "ca.crt"
+    description: |
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_ca_key_length:
+    default: "4096"
+    description: |
+      Certificate authority's private key length for TLS connection.
+  tls_ca_cert_duration:
+    default: "3650"
+    description: |
+      Certificate authority's duration for TLS connection.
+  tls_server_key_length:
+    default: "2048"
+    description: |
+      Broker server private key length for TLS connection.
+  tls_server_cert_duration:
+    default: "365"
+    description: |
+      Broker server certificate duration for TLS connection.
+  tls_server_cert_file:
+    default: "broker.crt"
+    description: |
+      Broker server certificate file name.
+  tls_server_key_file:
+    default: "broker.key"
+    description: |
+      Broker server private key file name.
+  tls_server_key_alias:
+    default: "broker"
+    description: |
+      Broker server alias in keystore.
+  tls_server_pkcs12_file:
+    default: "broker.pkcs12"
+    description: |
+      Broker server certificate and private key bundle file name.
+  tls_server_pkcs12_password:
+    default: "azerty"
+    description: |
+      Broker server certificate and private key bundle password.
+  tls_client_key_length:
+    default: "2048"
+    description: |
+      Redis client's private key length for TLS connection.
+  tls_client_cert_duration:
+    default: "365"
+    description: |
+      Redis client's certificate duration for TLS connection.
+################################# Client's keys #####################################
   ip_key:
     default: "hostname"
     description: |
@@ -84,10 +153,6 @@ properties:
     default: "ha_password"
     description: |
       Redis Sentinels password property's key for client
-  tls_keys:
-    description: |
-      Certificate materials for TLS connection.
-    type: certificate
   tls_port_key:
     default: "tls_port"
     description: |

@@ -5,16 +5,6 @@
   if_link('redis_sentinel_conn') { |x| sentinel=x }
   sentinel_slave=nil
   if_link('sentinel_slave_conn') { |x| sentinel_slave=x } -%>
-logging:
-  config: file:/var/vcap/jobs/redis_broker/config/log4j2.xml
-
-server:
-<%- if p('bind') -%>
-  address: <%= spec.ip %>
-<%- else -%>
-  address: 127.0.0.1
-<%- end -%>
-  port: <%= p('port') %>
 
 orange:
   redis:
@@ -85,19 +75,34 @@ orange:
       ha_port: <%= sentinel.p('tls_port') %>
 <%- end
   end -%>
-      certificate: |
-<%- p('tls_keys.certificate').lines.each do |x| -%>
-        <%= x -%>
+      keys_dir: <%= p('tls_keys_dir') %>
+      ca_cert_file: <%= p('tls_ca_cert_file') %>
+      ca_key_file: <%= p('tls_ca_key_file') %>
+      client_key_length: <%= p('tls_client_key_length') %>
+      client_cert_ou: <%= spec.deployment %>
+      client_cert_duration: <%= p('tls_client_cert_duration') %>
 <%- end -%>
-      private_key: |
-<%- p('tls_keys.private_key').lines.each do |x| -%>
-        <%= x -%>
-<%- end -%>
-      ca: |
-<%- p('tls_keys.ca').lines.each do |x| -%>
-        <%= x -%>
+
+server:
+<%- if p('bind') -%>
+  address: <%= spec.ip %>
+<%- else -%>
+  address: 127.0.0.1
 <%- end
-  end -%>
+  if p('tls') -%>
+  ssl:
+    enabled: true
+    key-alias: <%= p('tls_server_key_alias') %>
+    key-store-type: PKCS12
+    key-store-password: <%= p('tls_server_pkcs12_password') %>
+    key-store: file:<%= p('tls_keys_dir')+'/'+p('tls_server_pkcs12_file') %>
+  port: <%= p('tls_port') %>
+<%- else -%>
+  port: <%= p('port') %>
+<%- end -%>
+
+logging:
+  config: file:/var/vcap/jobs/redis_broker/config/log4j2.xml
 
 spring:
   security:

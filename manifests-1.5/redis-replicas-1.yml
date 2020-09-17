@@ -14,6 +14,7 @@ instance_groups:
   - name: redis
     release: redis-service
     consumes:
+      slave_conn: nil
       redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
       sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
     properties:

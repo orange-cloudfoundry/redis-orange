@@ -2,10 +2,11 @@
 name: redis_exporter
 
 templates:
-  bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
   config/script.erb: config/script
   keys/ca.crt.erb: keys/ca.crt
   keys/ca.key.erb: keys/ca.key
+  bin/pre-start.erb: bin/pre-start
+  bin/redis_exporter_ctl.erb: bin/redis_exporter_ctl
 
 packages:
   - redis_exporter

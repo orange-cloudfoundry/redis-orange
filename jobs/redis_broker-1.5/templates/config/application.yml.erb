@@ -101,13 +101,13 @@ server:
   port: <%= p('port') %>
 <%- end -%>
 
+logging:
+  config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
+
 security:
   user:
     name: <%= p('user') %>
     password: <%= p('password') %>
-
-logging:
-  config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
 
 catalog_yml: |
   services:
