@@ -178,19 +178,19 @@ CLI_CLUSTER_OPTS="";
       replicas_per_node=0
     end
   end -%>
-REDIS_MASTER_ADDRESSES="<%= master_addresses %>";
-REDIS_MASTER_INSTANCES="<%= master_instances %>";
-REDIS_SLAVE_ADDRESSES="<%= slaves_addresses %>";
-REDIS_SLAVE_INSTANCES="<%= slave_instances %>";
-REDIS_ADDRESSES="${REDIS_MASTER_ADDRESSES} ${REDIS_SLAVE_ADDRESSES}";
+MASTER_ADDRESSES="<%= master_addresses %>";
+MASTER_INSTANCES="<%= master_instances %>";
+SLAVE_ADDRESSES="<%= slaves_addresses %>";
+SLAVE_INSTANCES="<%= slave_instances %>";
+REDIS_ADDRESSES="${MASTER_ADDRESSES} ${SLAVE_ADDRESSES}";
 REDIS_INSTANCES="<%= master_instances+slave_instances %>";
 REPLICAS_PER_NODE="<%= replicas_per_node %>";
 NODE_PORT="<%= node_port %>";
 
-echo "Initial masters addresses: [${REDIS_MASTER_ADDRESSES}]";
-echo "Number of masters: [${REDIS_MASTER_INSTANCES}]";
-echo "Initial slaves addresses: [${REDIS_SLAVE_ADDRESSES}]";
-echo "Number of slaves: [${REDIS_SLAVE_INSTANCES}]";
+echo "Initial masters addresses: [${MASTER_ADDRESSES}]";
+echo "Number of masters: [${MASTER_INSTANCES}]";
+echo "Initial slaves addresses: [${SLAVE_ADDRESSES}]";
+echo "Number of slaves: [${SLAVE_INSTANCES}]";
 echo "Replicas per master: [${REPLICAS_PER_NODE}]";
 echo "Nodes port: [${NODE_PORT}]";
 
@@ -219,21 +219,21 @@ then
   then
     echo "All requested Redis nodes [${REDIS_INSTANCES}] are available the cluster";
     AVAILABLE_NODES=$(echo "${MSG}" | awk '$3~/master/{print $2;}' | wc -l);
-    if [[ ${REDIS_MASTER_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+    if [[ ${MASTER_INSTANCES} -eq ${AVAILABLE_NODES} ]];
     then
-      echo "All requested Redis master nodes [${REDIS_MASTER_INSTANCES}] are available";
+      echo "All requested Redis master nodes [${MASTER_INSTANCES}] are available";
       ERR=0;
     else
-      echo "WARNING: The requested Redis master nodes [${REDIS_MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
+      echo "WARNING: The requested Redis master nodes [${MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
     AVAILABLE_NODES=$(echo "${MSG}" | awk '$3~/slave/{print $2;}' | wc -l);
-    if [[ ${REDIS_SLAVE_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+    if [[ ${SLAVE_INSTANCES} -eq ${AVAILABLE_NODES} ]];
     then
-      echo "All requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] are available";
+      echo "All requested Redis slave nodes [${SLAVE_INSTANCES}] are available";
       ERR=0;
     else
-      echo "WARNING: The requested Redis slave nodes [${REDIS_SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
+      echo "WARNING: The requested Redis slave nodes [${SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
   else

@@ -139,19 +139,19 @@ fi
   if replicas_per_node>0 && master_instances*replicas_per_node>slave_instances
     STDERR.puts "WARNING: Not enough slave: masters [#{master_instances}], slaves [#{slave_instances}], slaves per master [#{replicas_per_node}]"
   end -%>
-REDIS_MASTER_ADDRESSES="<%= master_addresses %>";
-REDIS_MASTER_INSTANCES="<%= master_instances %>";
-REDIS_SLAVE_ADDRESSES="<%= slaves_addresses %>";
-REDIS_SLAVE_INSTANCES="<%= slave_instances %>";
-REDIS_ADDRESSES="${REDIS_MASTER_ADDRESSES} ${REDIS_SLAVE_ADDRESSES}";
+MASTER_ADDRESSES="<%= master_addresses %>";
+MASTER_INSTANCES="<%= master_instances %>";
+SLAVE_ADDRESSES="<%= slaves_addresses %>";
+SLAVE_INSTANCES="<%= slave_instances %>";
+REDIS_ADDRESSES="${MASTER_ADDRESSES} ${SLAVE_ADDRESSES}";
 REDIS_INSTANCES="<%= master_instances+slave_instances %>";
 REPLICAS_PER_NODE="<%= replicas_per_node %>";
 NODE_PORT="<%= node_port %>";
 
-echo "Masters addresses: [${REDIS_MASTER_ADDRESSES}]";
-echo "Number of masters: [${REDIS_MASTER_INSTANCES}]";
-echo "Slaves addresses: [${REDIS_SLAVE_ADDRESSES}]";
-echo "Number of slaves: [${REDIS_SLAVE_INSTANCES}]";
+echo "Masters addresses: [${MASTER_ADDRESSES}]";
+echo "Number of masters: [${MASTER_INSTANCES}]";
+echo "Slaves addresses: [${SLAVE_ADDRESSES}]";
+echo "Number of slaves: [${SLAVE_INSTANCES}]";
 echo "Replicas per master: [${REPLICAS_PER_NODE}]";
 echo "Nodes port: [${NODE_PORT}]";
 
@@ -203,20 +203,20 @@ done
 
 if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
 then
-  REDIS_MASTER_NODES="";
-  for i in ${REDIS_MASTER_ADDRESSES};
+  MASTER_NODES="";
+  for i in ${MASTER_ADDRESSES};
   do
-    REDIS_MASTER_NODES+=" ${i}:${NODE_PORT}";
+    MASTER_NODES+=" ${i}:${NODE_PORT}";
   done
   "${CLI}" \
     ${REDIS_CRED} \
-    --cluster create ${REDIS_MASTER_NODES} <<< "yes";
+    --cluster create ${MASTER_NODES} <<< "yes";
   ERR=${?};
   if [[ ${ERR} -eq 0 ]] && [[ ${REPLICAS_PER_NODE} -gt 0 ]];
   then
-    k=${REDIS_SLAVE_INSTANCES};
-    l="${REDIS_SLAVE_ADDRESSES}";
-    for i in ${REDIS_MASTER_ADDRESSES};
+    k=${SLAVE_INSTANCES};
+    l="${SLAVE_ADDRESSES}";
+    for i in ${MASTER_ADDRESSES};
     do
       echo "Associating replicas to [${i}]...";
       MASTER_ID="$("${CLI}" \
@@ -245,7 +245,7 @@ then
 
     while [[ ${ERR} -eq 0 ]] && [[ ${k} -gt 0 ]];
     do
-      for i in ${REDIS_MASTER_ADDRESSES};
+      for i in ${MASTER_ADDRESSES};
       do
         echo "Associate replica [${l%% *}] to [${i}]";
         MASTER_ID="$("${CLI}" \
