@@ -18,10 +18,10 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Packages versions summary
 
-- Redis [*6.0.7*](http://download.redis.io/releases/redis-6.0.7.tar.gz)
+- Redis [*6.0.8*](http://download.redis.io/releases/redis-6.0.8.tar.gz)
 - [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.11.1*](https://github.com/oliver006/redis_exporter/releases/download/v1.11.1/redis_exporter-v1.11.1.linux-amd64.tar.gz)
 - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.6.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.6.0/redis_sentinel_exporter-1.6.0.linux-amd64.tar.gz)
-- [*OpenJDK*](https://openjdk.java.net/) [*14.0.2*](https://download.java.net/java/GA/jdk14.0.2/205943a0976c4ed48cb16f1043c5c647/12/GPL/openjdk-14.0.2_linux-x64_bin.tar.gz)
+- [*OpenJDK*](https://openjdk.java.net/) [*15*](https://download.java.net/java/GA/jdk15/779bf45e88a44cbd9ea6621d33e33db1/36/GPL/openjdk-15_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
 ## Memory Management
