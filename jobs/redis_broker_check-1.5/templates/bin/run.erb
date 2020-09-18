@@ -1,19 +1,19 @@
 #!/bin/bash
 <% broker=link('redis_broker_conn') %>
 
-BROKER_IP="127.0.0.1";
+IP="127.0.0.1";
 <%- if broker.p('bind') -%>
-BROKER_IP="<%= spec.ip %>";
+IP="<%= spec.ip %>";
 <%- end
   if broker.p('tls') -%>
 PROTOCOLE="https";
-BROKER_PORT="<%= broker.p('tls_port') %>";
+PORT="<%= broker.p('tls_port') %>";
 <%- else -%>
 PROTOCOLE="http";
-BROKER_PORT="<%= broker.p('port') %>";
+PORT="<%= broker.p('port') %>";
 <%- end -%>
 
-BASE_URI="${PROTOCOLE}://<%= broker.p('user') %>:<%= broker.p('password') %>@${BROKER_IP}:${BROKER_PORT}";
+BASE_URI="${PROTOCOLE}://<%= broker.p('user') %>:<%= broker.p('password') %>@${IP}:${PORT}";
 
 ERR_CATALOG=1;
 if [[ "$(curl -k -s -o /dev/null -I -w "%{http_code}" \
