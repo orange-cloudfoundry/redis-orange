@@ -2,57 +2,55 @@
 <%- master=link('redis_conn') -%>
 
 REDIS_HOME="/var/vcap/packages/redis";
-REDIS_SERVER="${REDIS_HOME}/bin/redis-server";
-REDIS_CLI="${REDIS_HOME}/bin/redis-cli";
-REDIS_RUN_DIR="<%= p('run_dir') %>";
-REDIS_LOG_DIR="<%= p('log_dir') %>";
-REDIS_LOG_FILE="${REDIS_LOG_DIR}/<%= p('logfile') %>";
-REDIS_STORE_DIR="<%= p('dir') %>";
-REDIS_PID_FILE="${REDIS_RUN_DIR}/<%= p('pidfile') %>";
-REDIS_CONF="/var/vcap/jobs/redis/config/redis.conf";
+SERVER="${REDIS_HOME}/bin/redis-server";
+CLI="${REDIS_HOME}/bin/redis-cli";
+RUN_DIR="<%= p('run_dir') %>";
+LOG_DIR="<%= p('log_dir') %>";
+LOG_FILE="${LOG_DIR}/<%= p('logfile') %>";
+STORE_DIR="<%= p('dir') %>";
+PID_FILE="${RUN_DIR}/<%= p('pidfile') %>";
+CONF_FILE="/var/vcap/jobs/redis/config/redis.conf";
 
-REDIS_IP="127.0.0.1";
+IP="127.0.0.1";
 <%- if master.p('bind') -%>
-REDIS_IP="<%= spec.ip %>";
+IP="<%= spec.ip %>";
 <%- end -%>
 
-REDIS_PORT="<%= master.p('port') %>";
-REDIS_CRED="--user <%= master.p('admin_user') %>";
+PORT="<%= master.p('port') %>";
+CRED="--user <%= master.p('admin_user') %>";
 <%- master.if_p('admin_password') do |x|
     unless x.to_s.empty? -%>
-REDIS_CRED+=" --pass <%= x %>";
+CRED+=" --pass <%= x %>";
 <%- end
   end
   if master.p('tls') -%>
-REDIS_PORT="<%= master.p('tls_port') %>";
-REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-REDIS_CRED+=" --tls --cert ${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_CRED+=" --key ${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_CRED+=" --cacert ${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-chown -R vcap:vcap "${REDIS_TLS_KEYS_DIR}";
-chmod -R g-rwx,o-rwx "${REDIS_TLS_KEYS_DIR}";
+PORT="<%= master.p('tls_port') %>";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+CRED+=" --tls --cert ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+CRED+=" --key ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+CRED+=" --cacert ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 <%- end -%>
 
 case "${1}" in
   start)
     mkdir -p \
-      "${REDIS_RUN_DIR}" \
-      "${REDIS_LOG_DIR}" \
-      "${REDIS_STORE_DIR}";
+      "${RUN_DIR}" \
+      "${LOG_DIR}" \
+      "${STORE_DIR}";
 
     chown vcap:vcap \
-      "${REDIS_RUN_DIR}" \
-      "${REDIS_LOG_DIR}" \
-      "${REDIS_STORE_DIR}";
+      "${RUN_DIR}" \
+      "${LOG_DIR}" \
+      "${STORE_DIR}";
 
-    chmod 750 "${REDIS_STORE_DIR}";
-    touch "${REDIS_LOG_FILE}";
-    chown vcap:vcap "${REDIS_LOG_FILE}";
-    chmod 660 "${REDIS_CONF}";
+    chmod 750 "${STORE_DIR}";
+    touch "${LOG_FILE}";
+    chown vcap:vcap "${LOG_FILE}";
+    chmod 660 "${CONF_FILE}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted BGSAVE, just to save space
-    rm -f "${REDIS_STORE_DIR}"/temp-*.rdb
+    rm -f "${STORE_DIR}"/temp-*.rdb
 
     ulimit -n 10032
 
@@ -70,9 +68,9 @@ case "${1}" in
     # (https://www.pivotaltracker.com/story/show/74949514)
     sysctl vm.overcommit_memory=1;
 
-    if [[ -f "${REDIS_PID_FILE}" ]];
+    if [[ -f "${PID_FILE}" ]];
     then
-      echo "${REDIS_PID_FILE} exists, process is already running or crashed";
+      echo "${PID_FILE} exists, process is already running or crashed";
     else
       echo "Starting Redis server...";
 <%- if master.p('replication') || master.p('cluster_enabled').eql?('yes')
@@ -94,30 +92,30 @@ case "${1}" in
       end
     end
   end -%>
-      exec chpst -u vcap:vcap "${REDIS_SERVER}" "${REDIS_CONF}" \
-        >> "${REDIS_LOG_FILE}" 2>&1;
+      exec chpst -u vcap:vcap "${SERVER}" "${CONF_FILE}" \
+        >> "${LOG_FILE}" 2>&1;
     fi
     ;;
   stop)
-    if [[ -f "${REDIS_PID_FILE}" ]];
+    if [[ -f "${PID_FILE}" ]];
     then
-      REDIS_PID="$(cat "${REDIS_PID_FILE}")";
+      PID="$(cat "${PID_FILE}")";
       echo "Stopping ...";
       exec chpst -u vcap:vcap \
-        "${REDIS_CLI}" \
-          -h ${REDIS_IP} \
-          -p ${REDIS_PORT} \
-          ${REDIS_CRED} \
+        "${CLI}" \
+          -h ${IP} \
+          -p ${PORT} \
+          ${CRED} \
           SHUTDOWN;
-      while [[ -x "/proc/${REDIS_PID}" ]];
+      while [[ -x "/proc/${PID}" ]];
       do
         echo "Waiting for Redis to shutdown ...";
         sleep 1;
       done
-      rm -f "${REDIS_PID_FILE}"
+      rm -f "${PID_FILE}"
       echo "Redis stopped";
     else
-      echo "${REDIS_PID_FILE} does not exist, process is not running";
+      echo "${PID_FILE} does not exist, process is not running";
     fi
     ;;
   *)

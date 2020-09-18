@@ -12,7 +12,9 @@ gen_signed_cert \
   "<%= p('tls_key_length') %>" \
   "<%= p('tls_cert_duration') %>" \
   "<%= spec.deployment %>" \
-  "Redis Exporter";
+  "Redis Exporter" && \
+chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
 ERR=${?};
 <%- end -%>
 exit ${ERR};

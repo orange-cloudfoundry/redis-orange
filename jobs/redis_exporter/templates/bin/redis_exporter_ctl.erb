@@ -8,16 +8,16 @@ RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
 LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
 TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
 STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
-PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
+PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
 mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
-REDIS_PROTOCOLE="redis";
-REDIS_IP="127.0.0.1";
+PROTOCOLE="redis";
+IP="127.0.0.1";
 <%- if master.p('bind') -%>
-REDIS_IP="<%= spec.ip %>";
+IP="<%= spec.ip %>";
 <%- end -%>
-REDIS_PORT="<%= master.p('port') %>";
+PORT="<%= master.p('port') %>";
 EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
 <%- master.if_p('exporter_password') do |x|
     unless x.to_s.empty? -%>
@@ -25,16 +25,14 @@ EXPORTER_ARGS+=" -redis.password <%= x %>";
 <%- end
   end
   if master.p('tls') -%>
-REDIS_PROTOCOLE="rediss";
-REDIS_PORT="<%= master.p('tls_port') %>";
+PROTOCOLE="rediss";
+PORT="<%= master.p('tls_port') %>";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 EXPORTER_ARGS+=" -tls-client-cert-file ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 EXPORTER_ARGS+=" -tls-client-key-file ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 EXPORTER_ARGS+=" -tls-ca-cert-file ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-chown -R vcap:vcap "${TLS_KEYS_DIR}";
-chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
 <%- end -%>
-EXPORTER_ARGS+=" -redis.addr=${REDIS_PROTOCOLE}://${REDIS_IP}:${REDIS_PORT}";
+EXPORTER_ARGS+=" -redis.addr=${PROTOCOLE}://${IP}:${PORT}";
 <%- if_p('check_keys') do |x| -%>
 EXPORTER_ARGS+=" -check-keys <%= x %>";
 <%- end -%>
@@ -87,8 +85,8 @@ export PATH="/var/vcap/packages/${PROGNAME}/bin":${PATH};
 
 case $1 in
   start)
-    pid_guard "${PIDFILE}" "${PROGNAME}";
-    echo $$ > "${PIDFILE}";
+    pid_guard "${PID_FILE}" "${PROGNAME}";
+    echo $$ > "${PID_FILE}";
 
     exec chpst -u vcap:vcap "${PROGNAME}" \
       ${EXPORTER_ARGS} \
@@ -101,7 +99,7 @@ case $1 in
     ;;
 
   stop)
-    kill_and_wait "${PIDFILE}";
+    kill_and_wait "${PID_FILE}";
     ;;
 
   *)

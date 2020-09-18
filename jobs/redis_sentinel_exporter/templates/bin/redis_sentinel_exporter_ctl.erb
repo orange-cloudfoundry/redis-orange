@@ -8,22 +8,22 @@ RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
 LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
 TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
 STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
-PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
+PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
 mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
-REDIS_SENTINEL_IP="127.0.0.1";
+IP="127.0.0.1";
 <%- if sentinel.p('bind') -%>
-REDIS_SENTINEL_IP="<%= spec.ip %>";
+IP="<%= spec.ip %>";
 <%- end -%>
-REDIS_SENTINEL_EXPORTER_ARGS="-sentinel.addr redis://${REDIS_SENTINEL_IP}:<%= sentinel.p('port') %>";
+ARGS="-sentinel.addr redis://${IP}:<%= sentinel.p('port') %>";
 <%- sentinel.if_p('password') do |x|
     unless x.to_s.empty? -%>
-REDIS_SENTINEL_EXPORTER_ARGS+=" -sentinel.password <%= x %>";
+ARGS+=" -sentinel.password <%= x %>";
 <%- end
   end -%>
 <%- if p('debug') -%>
-REDIS_SENTINEL_EXPORTER_ARGS+=" -debug";
+ARGS+=" -debug";
 <%- end -%>
 
 source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
@@ -37,11 +37,11 @@ export PATH="/var/vcap/packages/${PROGNAME}/bin":${PATH};
 
 case $1 in
   start)
-    pid_guard "${PIDFILE}" "${PROGNAME}";
-    echo $$ > "${PIDFILE}";
+    pid_guard "${PID_FILE}" "${PROGNAME}";
+    echo $$ > "${PID_FILE}";
 
     exec chpst -u vcap:vcap "${PROGNAME}" \
-      ${REDIS_SENTINEL_EXPORTER_ARGS} \
+      ${ARGS} \
       -log-format <%= p('log_format') %> \
       -namespace <%= p('namespace') %> \
       -web.listen-address <%= spec.ip+':'+p('web.port') %> \
@@ -51,7 +51,7 @@ case $1 in
     ;;
 
   stop)
-    kill_and_wait "${PIDFILE}";
+    kill_and_wait "${PID_FILE}";
     ;;
 
   *)

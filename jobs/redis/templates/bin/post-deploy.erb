@@ -23,13 +23,13 @@ REDIS_CRED+=" --pass <%= x %>";
   end
   if master.p('tls') -%>
 REDIS_PORT="<%= master.p('tls_port') %>";
-REDIS_TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-REDIS_TLS_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-REDIS_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
-REDIS_TLS_KEY_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-REDIS_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
-REDIS_TLS_CA_CERT_FILE="${REDIS_TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
-REDIS_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_CRED+=" --tls --cert ${TLS_CERT_FILE}";
+TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_CRED+=" --key ${TLS_KEY_FILE}";
+TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
 <%- end -%>
 
 #
@@ -45,9 +45,9 @@ SENTINEL_CRED="-a <%= x %>";
   end 
   if sentinel.p('tls') -%>
 SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
-SENTINEL_CRED+=" --tls --cert ${REDIS_TLS_CERT_FILE}";
-SENTINEL_CRED+=" --key ${REDIS_TLS_KEY_FILE}";
-SENTINEL_CRED+=" --cacert ${REDIS_TLS_CA_CERT_FILE}";
+SENTINEL_CRED+=" --tls --cert ${TLS_CERT_FILE}";
+SENTINEL_CRED+=" --key ${TLS_KEY_FILE}";
+SENTINEL_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
 <%- end
   master_port=master.p('port')
   if master.p('tls') && master.p('tls_replication')

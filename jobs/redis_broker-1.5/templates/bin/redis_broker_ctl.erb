@@ -10,7 +10,7 @@ STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
 mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
 
-PIDFILE="${RUN_DIR}/${PROGNAME}.pid";
+PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
 
 source /var/vcap/packages/${PROGNAME}/bin/utils.sh;
 exec 1>> ${LOG_DIR}/${PROGNAME}.stdout.log;
@@ -24,8 +24,8 @@ export PATH=${JAVA_HOME}/bin:${PATH};
 
 case $1 in
   start)
-    pid_guard ${PIDFILE} "${PROGNAME}";
-    echo $$ > ${PIDFILE};
+    pid_guard ${PID_FILE} "${PROGNAME}";
+    echo $$ > ${PID_FILE};
 
     exec chpst -u vcap:vcap java \
       -Dspring.config.location="file:/var/vcap/jobs/${PROGNAME}/config/application.yml" \
@@ -36,7 +36,7 @@ case $1 in
     ;;
 
   stop)
-    kill_and_wait ${PIDFILE};
+    kill_and_wait ${PID_FILE};
     ;;
 
   *)

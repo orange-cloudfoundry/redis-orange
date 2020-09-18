@@ -22,8 +22,8 @@ instance_groups:
       port: '0'
       password: ((redis_sentinel_password))
       tls: true
-      tls_ca_certificate: ((shared_sentinel_ca_certificate))
-      tls_ca_private_key: ((shared_sentinel_ca_private_key))
+      tls_ca_certificate: ((sentinel_ca_certificate))
+      tls_ca_private_key: ((sentinel_ca_private_key))
       tls_dh_length: ((redis_dh_length))
       tls_replication: true
 - name: sentinel-slave

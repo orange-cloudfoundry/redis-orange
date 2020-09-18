@@ -15,7 +15,9 @@ gen_signed_cert \
   "Redis Sentinel" && \
 gen_dh \
   "${TLS_KEYS_DIR}/<%= p('tls_dh_params_file') %>" \
-  "<%= p('tls_dh_length') %>";
+  "<%= p('tls_dh_length') %>" && \
+chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
 ERR=${?};
 <%- end -%>
 exit ${ERR};

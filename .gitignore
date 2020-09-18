@@ -1,5 +1,7 @@
 src/openjdk
 src/redis
+src/redis_broker/src/test/keys/ca.txt
+src/redis_broker-1.5/src/test/keys/ca.txt
 src/redis_broker/*.jar
 src/redis_broker-1.5/*.jar
 src/redis_exporter

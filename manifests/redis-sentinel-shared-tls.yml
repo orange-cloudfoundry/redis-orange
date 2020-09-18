@@ -22,7 +22,8 @@ instance_groups:
       port: '0'
       password: ((redis_sentinel_password))
       tls: true
-      tls_keys: ((redis_sentinel_master_keys))
+      tls_ca_certificate: ((sentinel_ca_certificate))
+      tls_ca_private_key: ((sentinel_ca_private_key))
       tls_dh_length: ((redis_dh_length))
       tls_replication: true
 - name: sentinel-slave
@@ -41,7 +42,6 @@ instance_groups:
     consumes:
       redis_sentinel_conn: {from: ((shared_sentinel_master))}
     properties:
-      tls_keys: ((redis_sentinel_slave_keys))
       tls_dh_length: ((redis_dh_length))
 
 variables:
@@ -49,33 +49,6 @@ variables:
   type: password
   parameters:
     length: ((password_length))
-- name: ((shared_sentinel_ca))
-  type: certificate
-  options:
-    common_name: ((deployment_name))
-    organization: 'orange.com'
-    key_length: ((ca_key_length))
-    duration: ((certificate_duration))
-    is_ca: true
-    self_sign: true
-- name: redis_sentinel_master_keys
-  type: certificate
-  options:
-    ca: ((shared_sentinel_ca))
-    common_name: 'Sentinel'
-    organization: 'orange.com'
-    organization_unit: ((deployment_name))
-    key_length: ((private_key_length))
-    duration: ((certificate_duration))
-- name: redis_sentinel_slave_keys
-  type: certificate
-  options:
-    ca: ((shared_sentinel_ca))
-    common_name: 'Sentinel'
-    organization: 'orange.com'
-    organization_unit: ((deployment_name))
-    key_length: ((private_key_length))
-    duration: ((certificate_duration))
 
 stemcells:
 - alias: default

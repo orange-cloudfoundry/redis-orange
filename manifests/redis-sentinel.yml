@@ -14,6 +14,7 @@ instance_groups:
   - name: redis
     release: redis-service
     consumes:
+      slave_conn: nil
       sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
@@ -28,6 +29,7 @@ instance_groups:
   - name: redis_check
     release: redis-service
     consumes:
+      slave_conn: nil
       sentinel_slave_conn: nil
   - name: redis_exporter
     release: redis-service
@@ -50,6 +52,7 @@ instance_groups:
   - name: redis_broker
     release: redis-service
     consumes:
+      slave_conn: nil
       sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))

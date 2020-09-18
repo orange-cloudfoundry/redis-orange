@@ -29,21 +29,18 @@ instance_groups:
       replica_password: ((redis_replica_password))
       sentinel_password: ((redis_sentinel_user_password))
       tls: true
-      tls_keys: ((redis_keys))
       tls_dh_length: ((redis_dh_length))
       tls_replication: true
   - name: redis_check
     release: redis-service
     consumes:
+      slave_conn: nil
       redis_sentinel_conn: {from: sentinel_master}
       sentinel_slave_conn: {from: sentinel_slave}
-    properties:
-      tls_keys: ((redis_check_keys))
   - name: redis_exporter
     release: redis-service
     properties:
       skip_tls_verification: true
-      tls_keys: ((redis_exporter_keys))
   - name: redis_sentinel
     release: redis-service
     provides:
@@ -55,7 +52,8 @@ instance_groups:
       port: '0'
       password: ((redis_sentinel_password))
       tls: true
-      tls_keys: ((redis_sentinel_master_keys))
+      tls_ca_certificate: ((sentinel_ca_certificate))
+      tls_ca_private_key: ((sentinel_ca_private_key))
       tls_dh_length: ((redis_dh_length))
       tls_replication: true
 - name: sentinel-slave
@@ -74,7 +72,6 @@ instance_groups:
     consumes:
       redis_sentinel_conn: {from: sentinel_master}
     properties:
-      tls_keys: ((redis_sentinel_master_keys))
       tls_dh_length: ((redis_dh_length))
 - name: broker
   azs: [((default_az))]
@@ -88,12 +85,13 @@ instance_groups:
   - name: redis_broker-1.5
     release: redis-service
     consumes:
+      slave_conn: nil
       redis_sentinel_conn: {from: sentinel_master}
       sentinel_slave_conn: nil
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-      tls_keys: ((redis_broker_keys))
+      tls: true
   - name: redis_broker_check-1.5
     release: redis-service
 
