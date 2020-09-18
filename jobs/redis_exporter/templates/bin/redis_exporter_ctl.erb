@@ -18,60 +18,60 @@ IP="127.0.0.1";
 IP="<%= spec.ip %>";
 <%- end -%>
 PORT="<%= master.p('port') %>";
-EXPORTER_ARGS="-redis.user <%= master.p('exporter_user') %>";
+ARGS="-redis.user <%= master.p('exporter_user') %>";
 <%- master.if_p('exporter_password') do |x|
     unless x.to_s.empty? -%>
-EXPORTER_ARGS+=" -redis.password <%= x %>";
+ARGS+=" -redis.password <%= x %>";
 <%- end
   end
   if master.p('tls') -%>
 PROTOCOLE="rediss";
 PORT="<%= master.p('tls_port') %>";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
-EXPORTER_ARGS+=" -tls-client-cert-file ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
-EXPORTER_ARGS+=" -tls-client-key-file ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
-EXPORTER_ARGS+=" -tls-ca-cert-file ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+ARGS+=" -tls-client-cert-file ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+ARGS+=" -tls-client-key-file ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+ARGS+=" -tls-ca-cert-file ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 <%- end -%>
-EXPORTER_ARGS+=" -redis.addr=${PROTOCOLE}://${IP}:${PORT}";
+ARGS+=" -redis.addr=${PROTOCOLE}://${IP}:${PORT}";
 <%- if_p('check_keys') do |x| -%>
-EXPORTER_ARGS+=" -check-keys <%= x %>";
+ARGS+=" -check-keys <%= x %>";
 <%- end -%>
 <%- if_p('check_single_keys') do |x| -%>
-EXPORTER_ARGS+=" -check-single-keys <%= x %>";
+ARGS+=" -check-single-keys <%= x %>";
 <%- end -%>
 <%- if_p('check_streams') do |x| -%>
-EXPORTER_ARGS+=" -check-streams <%= x %>";
+ARGS+=" -check-streams <%= x %>";
 <%- end -%>
 <%- if_p('check_single_streams') do |x| -%>
-EXPORTER_ARGS+=" -check-single-streams <%= x %>";
+ARGS+=" -check-single-streams <%= x %>";
 <%- end -%>
 <%- if_p('config_command') do |x| -%>
-EXPORTER_ARGS+=" -config-command <%= x %>";
+ARGS+=" -config-command <%= x %>";
 <%- end -%>
-EXPORTER_ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
+ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
 <%- if p('debug') -%>
-EXPORTER_ARGS+=" -debug";
+ARGS+=" -debug";
 <%- end -%>
 <%- if p('export_client_list') -%>
-EXPORTER_ARGS+=" -export-client-list";
+ARGS+=" -export-client-list";
 <%- end -%>
 <%- if p('include_system_metrics') -%>
-EXPORTER_ARGS+=" -include-system-metrics";
+ARGS+=" -include-system-metrics";
 <%- end -%>
 <%- if p('is_tile38') -%>
-EXPORTER_ARGS+=" -is-tile38";
+ARGS+=" -is-tile38";
 <%- end -%>
 <%- if p('ping_on_connect') -%>
-EXPORTER_ARGS+=" -ping-on-connect";
+ARGS+=" -ping-on-connect";
 <%- end -%>
 <%- if p('redis_only_metrics') -%>
-EXPORTER_ARGS+=" -redis-only-metrics";
+ARGS+=" -redis-only-metrics";
 <%- end -%>
 <%- if p('set_client_name') -%>
-EXPORTER_ARGS+=" -set-client-name";
+ARGS+=" -set-client-name";
 <%- end -%>
 <%- if p('skip_tls_verification') -%>
-EXPORTER_ARGS+=" -skip-tls-verification";
+ARGS+=" -skip-tls-verification";
 <%- end -%>
 
 source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
@@ -89,7 +89,7 @@ case $1 in
     echo $$ > "${PID_FILE}";
 
     exec chpst -u vcap:vcap "${PROGNAME}" \
-      ${EXPORTER_ARGS} \
+      ${ARGS} \
       -log-format <%= p('log_format') %> \
       -namespace <%= p('namespace') %> \
       -web.listen-address <%= spec.ip+':'+p('web_port') %> \
