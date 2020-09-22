@@ -39,6 +39,8 @@ instance_groups:
       sentinel_slave_conn: {from: sentinel_slave}
   - name: redis_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
     properties:
       skip_tls_verification: true
   - name: redis_sentinel

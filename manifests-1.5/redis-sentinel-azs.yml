@@ -35,6 +35,8 @@ instance_groups:
       sentinel_slave_conn: {from: sentinel_slave}
   - name: redis_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_sentinel
     release: redis-service
     provides:
