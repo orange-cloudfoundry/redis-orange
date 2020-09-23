@@ -39,6 +39,8 @@ instance_groups:
       sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
   - name: redis_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
     properties:
       skip_tls_verification: true
 - name: broker

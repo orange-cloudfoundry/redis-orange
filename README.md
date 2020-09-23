@@ -12,7 +12,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## TODO
 
-- Tests for [*persistence*](https://redis.io/topics/persistence),
+- Adding a better random number generator for TLS/SSL, for example [*haveged*](http://www.issihosts.com/haveged/),
 - Backup/restore,
 - Logging.
 
