@@ -1,0 +1,5 @@
+check process haveged
+  with pidfile /var/vcap/sys/run/haveged/haveged.pid
+  start program "/var/vcap/jobs/haveged/bin/haveged_ctl start"
+  stop program "/var/vcap/jobs/haveged/bin/haveged_ctl stop"
+  group root
