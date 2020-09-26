@@ -1,21 +1,11 @@
-set -e # exit immediately if a simple command exits with a non-zero status
-set -u # report the usage of uninitialized variables
+set -eu
 
 # Available variables
 # $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
-export HOME="/var/vcap"
 
 PROGNAME="redis_broker-1.5"
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
 cp -a common/gen-certs.sh ${BOSH_INSTALL_TARGET}/bin/.
-cd ${PROGNAME}
-#
-# Build redis_broker's JAR
-#. ../common/proxy-env.sh
-#export JAVA_HOME=/var/vcap/packages/openjdk/jdk
-#./mvnw clean package
-# cd target
-#
-cp -a broker-1.5-*.jar ${BOSH_INSTALL_TARGET}/bin/${PROGNAME}.jar
+cp -a ${PROGNAME}/broker-1.5-*.jar ${BOSH_INSTALL_TARGET}/bin/${PROGNAME}.jar
