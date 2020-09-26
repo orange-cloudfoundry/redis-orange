@@ -22,43 +22,30 @@ REDIS_CRED+=" --pass <%= x %>";
 <%- end
   end
   if master.p('tls') -%>
+source /var/vcap/packages/redis/bin/gen-certs.sh;
 REDIS_PORT="<%= master.p('tls_port') %>";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 REDIS_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
-TLS_CA_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>";
 TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 REDIS_CRED+=" --tls --cert ${TLS_CERT_FILE}";
 TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 REDIS_CRED+=" --key ${TLS_KEY_FILE}";
-TLS_KEY_LENGTH="<%= p('tls_key_length') %>";
-TLS_CERT_DURATION="<%= p('tls_cert_duration') %>";
-if [[ ! -f "${TLS_KEY_FILE}" ]] || [[ ! -f "${TLS_CERT_FILE}" ]];
+gen_signed_cert \
+  "${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>" \
+  "${TLS_CA_CERT_FILE}" \
+  "${TLS_KEYS_DIR}/ca.txt" \
+  "${TLS_KEY_FILE}" \
+  "${TLS_CERT_FILE}" \
+  "<%= p('tls_key_length') %>" \
+  "<%= p('tls_cert_duration') %>" \
+  "<%= spec.deployment %>" \
+  "Redis Client" && \
+chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
+chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
+if [[ ! ${?} -eq 0 ]];
 then
-  rm -f \
-    "${TLS_KEY_FILE}" \
-    "${TLS_CERT_FILE}" && \
-  openssl genrsa -out \
-    "${TLS_KEY_FILE}" \
-    "${TLS_KEY_LENGTH}" && \
-  openssl req \
-    -new -sha256 \
-    -key "${TLS_KEY_FILE}" \
-    -subj "/O=orange.com/OU=<%= spec.deployment %>/CN=Redis Client" | \
-    openssl x509 \
-      -req -sha256 \
-      -CA "${TLS_CA_CERT_FILE}" \
-      -CAkey "${TLS_CA_KEY_FILE}" \
-      -CAserial "${TLS_KEYS_DIR}/ca.txt" \
-      -CAcreateserial \
-      -days "${TLS_CERT_DURATION}" \
-      -out "${TLS_CERT_FILE}" && \
-  chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
-  chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
-  if [[ ! ${?} -eq 0 ]];
-  then
-    exit 1;
-  fi
+  exit 1;
 fi
 <%- end -%>
 
