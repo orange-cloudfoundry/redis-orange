@@ -404,11 +404,11 @@ public class RedisConfig {
       cert_filename = prefix.concat(".crt");
       processBuilder.command("bash", "-c",
           new String("dd if=/dev/random of=$RANDFILE bs="
-              + String.valueOf(tls.getClient_key_length() / 8) + " count=32 && "
+              + String.valueOf(tls.getClient_key_length() / 8) + " count=1 && "
               + "openssl genrsa -out " + private_key_filename + " "
               + String.valueOf(tls.getClient_key_length()) + " && "
               + "dd if=/dev/random of=$RANDFILE bs="
-              + String.valueOf(tls.getClient_key_length() / 8) + " count=32 && "
+              + String.valueOf(tls.getClient_key_length() / 8) + " count=1 && "
               + "openssl req -new -sha256 -key " + private_key_filename
               + " -subj " + subject + " | " + "openssl x509 -req -sha256 -CA "
               + ca_cert_filename + " -CAkey " + ca_private_key_filename

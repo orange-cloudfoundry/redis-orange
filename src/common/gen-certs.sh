@@ -5,7 +5,7 @@ CERTIFICATE_ORGANIZATION="orange.com";
 
 function gen_seed() {
   local private_key_length="${1:?"Missing private key length"}";
-  dd if=/dev/random of=$RANDFILE bs=$((private_key_length/8)) count=32;
+  dd if=/dev/random of=$RANDFILE bs=$((private_key_length/8)) count=1;
   return ${?};
 }
 
