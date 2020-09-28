@@ -8,7 +8,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 - [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability,
 - Multi-zone for high availability by Redis Sentinel and Redis cluster with high availability,
 - Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/),
-- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.3 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
+- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.4 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
 
 ## TODO
 
@@ -21,6 +21,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 - [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.11.1*](https://github.com/oliver006/redis_exporter/releases/download/v1.11.1/redis_exporter-v1.11.1.linux-amd64.tar.gz)
 - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.6.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.6.0/redis_sentinel_exporter-1.6.0.linux-amd64.tar.gz)
 - [*OpenJDK*](https://openjdk.java.net/) [*15*](https://download.java.net/java/GA/jdk15/779bf45e88a44cbd9ea6621d33e33db1/36/GPL/openjdk-15_linux-x64_bin.tar.gz)
+- [*havegd*](https://www.issihosts.com/haveged/) [*1.9.13*](https://github.com/jirka-h/haveged/releases/tag/v1.9.13)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
 ## Memory Management
