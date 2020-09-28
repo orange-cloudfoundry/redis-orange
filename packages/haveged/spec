@@ -2,4 +2,4 @@
 name: haveged
 files:
 - common/utils.sh # From https://github.com/bosh-prometheus/
-- haveged/v*.tar.gz # From https://github.com/jirka-h/haveged/releases
+- haveged/haveged-*.tar.gz # From https://github.com/jirka-h/haveged/releases
