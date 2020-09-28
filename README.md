@@ -180,9 +180,9 @@ With the following example variables file: [redis-sentinel-shared-tls.yml](secre
 
 ###### Redis deployment manifest using shared Redis Sentinel
 
-A deployment example manifest is: [redis-replicas-tls.yml](manifests-1.5/redis-replicas-tls.yml)
+A deployment example manifest is: [redis-replicas-tls.yml](manifests-1.5/redis-replicas-1-tls.yml)
 
-With the following example variables file: [redis-replicas-tls.yml](secrets/redis-replicas-tls.yml)
+With the following example variables file: [redis-replicas-tls.yml](secrets/redis-replicas-1-tls.yml)
 
 #### Redis Cluster with High Availability
 
