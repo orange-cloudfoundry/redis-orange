@@ -1,0 +1,77 @@
+---
+name: ((deployment_name))
+
+instance_groups:
+- name: redis
+  azs: [((default_az))]
+  instances: ((node_count))
+  vm_type: ((default_vm_type))
+  stemcell: default
+  persistent_disk_type: ((default_persistent_disk_type))
+  networks:
+  - name: ((default_network))
+  jobs:
+  - name: haveged
+    release: redis-service
+  - name: redis
+    release: redis-service
+    properties:
+      bind: ((redis_bind))
+      port: '0'
+      password: ((redis_password))
+      admin_password: ((redis_admin_password))
+      exporter_password: ((redis_exporter_password))
+      maxmemory: ((redis_maxmemory))
+      maxmemory_policy: ((redis_maxmemory_policy))
+      tls: true
+      tls_ca_certificate: ((redis_ca_certificate))
+      tls_ca_private_key: ((redis_ca_private_key))
+      tls_dh_length: ((redis_dh_length))
+  - name: redis_check
+    release: redis-service
+  - name: redis_broker-1.5
+    release: redis-service
+    properties:
+      bind: ((redis_bind))
+      password: ((redis_broker_password))
+      tls: true
+  - name: redis_broker_check-1.5
+    release: redis-service
+  - name: redis_exporter
+    release: redis-service
+    properties:
+      skip_tls_verification: true
+
+variables:
+- name: redis_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_admin_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_exporter_password
+  type: password
+  parameters:
+    length: ((password_length))
+- name: redis_broker_password
+  type: password
+  parameters:
+    length: ((password_length))
+
+stemcells:
+- alias: default
+  os: ((stemcell_os))
+  version: "((stemcell_version))"
+
+releases:
+- name: redis-service
+  version: latest
+
+update:
+  canaries: 2
+  canary_watch_time: 30000-60000
+  max_in_flight: 2
+  update_watch_time: 30000-60000
+  serial: false

@@ -1,0 +1,5 @@
+---
+name: redis_sentinel_exporter
+files:
+- common/utils.sh # From https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh
+- redis_sentinel_exporter/redis_sentinel_exporter-*.linux-amd64.tar.gz # From https://github.com/leominov/redis_sentinel_exporter

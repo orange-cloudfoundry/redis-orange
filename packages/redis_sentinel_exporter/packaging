@@ -1,0 +1,12 @@
+set -eu
+
+# Available variables
+# $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
+# $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
+
+# Extract redis_sentinel_exporter package
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
+tar xf redis_sentinel_exporter/redis_sentinel_exporter-*.linux-amd64.tar.gz -C ${BOSH_INSTALL_TARGET}/bin
+cd ${BOSH_INSTALL_TARGET}/bin
+ln -sf redis_sentinel_exporter-*.linux-amd64/redis_sentinel_exporter redis_sentinel_exporter

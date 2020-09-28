@@ -11,20 +11,15 @@ import java.util.List;
 public class ServiceMapper {
 
   public static ServiceDefinition toServiceDefinition(Service service) {
-    return new ServiceDefinition(
-        service.getId().toString(),
-        service.getName(),
-        service.getDescription(),
-        service.getBindable(),
+    return new ServiceDefinition(service.getId().toString(), service.getName(),
+        service.getDescription(), service.getBindable(),
         service.getPlanUpdateable(),
-        PlanMapper.toServiceBrokerPlans(service.getPlans()),
-        service.getTags(),
-        service.getMetadata(),
-        service.getRequires(),
-        null);
+        PlanMapper.toServiceBrokerPlans(service.getPlans()), service.getTags(),
+        service.getMetadata(), service.getRequires(), null);
   }
 
-  public static List<ServiceDefinition> toServiceDefinitions(List<Service> service) {
+  public static List<ServiceDefinition> toServiceDefinitions(
+      List<Service> service) {
     List<ServiceDefinition> serviceDefinitionList = new ArrayList<>();
     for (Service sp : service) {
       ServiceDefinition serviceDefinition = toServiceDefinition(sp);

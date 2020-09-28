@@ -2,13 +2,16 @@
 name: redis_broker
 
 templates:
+  keys/ca.crt.erb: keys/ca.crt
+  keys/ca.key.erb: keys/ca.key
   config/application.yml.erb: config/application.yml
   config/log4j2.xml.erb: config/log4j2.xml
+  bin/pre-start.erb: bin/pre-start
   bin/redis_broker_ctl.erb: bin/redis_broker_ctl
 
 packages:
 - openjdk
-- redis_broker
+- redis_broker-1.5
 
 provides:
 - name: redis_broker_conn
@@ -18,23 +21,19 @@ provides:
   - password
   - bind
   - port
+  - tls
+  - tls_port
 
 consumes:
 - name: redis_conn
   type: conn
-- name: master_conn
-  type: conn
-  optional: true
 - name: slave_conn
   type: conn
   optional: true
 - name: redis_sentinel_conn
   type: sentinel_conn
   optional: true
-- name: redis_sentinel_master_conn
-  type: sentinel_conn
-  optional: true
-- name: redis_sentinel_slave_conn
+- name: sentinel_slave_conn
   type: sentinel_conn
   optional: true
 
@@ -56,27 +55,121 @@ properties:
     default: "8080"
     description: |
       The port that this Redis broker instance will run on.
-  ip_property_key:
+################################# TLS/SSL #####################################
+  tls:
+    default: false
+    description: |
+      To enable/disable TLS/SSL.
+  tls_port:
+    default: "8443"
+    description: |
+      The TLS/SSL port to use.
+  tls_keys_dir:
+    default: "/var/vcap/jobs/redis_broker-1.5/keys"
+    description: |
+      The directory where TLS keys are stored.
+  tls_ca_cert_file:
+    default: "ca.crt"
+    description: |
+      Certificate authority's certificate file name.
+  tls_ca_key_file:
+    default: "ca.key"
+    description: |
+      Certificate authority's private key file name.
+  tls_ca_key_length:
+    default: "4096"
+    description: |
+      Certificate authority's private key length for TLS connection.
+  tls_ca_cert_duration:
+    default: "3650"
+    description: |
+      Certificate authority's duration for TLS connection.
+  tls_server_key_length:
+    default: "2048"
+    description: |
+      Broker server private key length for TLS connection.
+  tls_server_cert_duration:
+    default: "365"
+    description: |
+      Broker server certificate duration for TLS connection.
+  tls_server_cert_file:
+    default: "broker.crt"
+    description: |
+      Broker server certificate file name.
+  tls_server_key_file:
+    default: "broker.key"
+    description: |
+      Broker server private key file name.
+  tls_server_key_alias:
+    default: "broker"
+    description: |
+      Broker server alias in keystore.
+  tls_server_pkcs12_file:
+    default: "broker.pkcs12"
+    description: |
+      Broker server certificate and private key bundle file name.
+  tls_server_pkcs12_password:
+    default: "azerty"
+    description: |
+      Broker server certificate and private key bundle password.
+  tls_client_key_length:
+    default: "2048"
+    description: |
+      Redis client's private key length for TLS connection.
+  tls_client_cert_duration:
+    default: "365"
+    description: |
+      Redis client's certificate duration for TLS connection.
+################################# Client's keys #####################################
+  ip_key:
     default: "hostname"
     description: |
       Redis servers IP property's key for client
-  port_property_key:
+  port_key:
     default: "port"
     description: |
       Redis servers port property's key for client
-  password_property_key:
+  password_key:
     default: "password"
     description: |
-      Redis servers password property's key for client
-  high_avaibility_ip_property_key:
-    default: "ha_hostname"
+      Redis default user's password property's key for client
+  admin_user_key:
+    default: "admin_user"
+    description: |
+      Redis admin's name property's key for client
+  admin_password_key:
+    default: "admin_password"
+    description: |
+      Redis admin's password property's key for client
+  ha_master_name_key:
+    default: "ha_master_name"
     description: |
       Redis Sentinels IP property's key for client
-  high_avaibility_port_property_key:
+  ha_port_key:
     default: "ha_port"
     description: |
       Redis Sentinels port property's key for client
-  high_avaibility_password_property_key:
+  ha_password_key:
     default: "ha_password"
     description: |
       Redis Sentinels password property's key for client
+  tls_port_key:
+    default: "tls_port"
+    description: |
+      Redis TLS/SSL port property's key for client
+  tls_ha_port_key:
+    default: "tls_ha_port"
+    description: |
+      Redis Sentinel TLS/SSL port property's key for client
+  tls_certificate_key:
+    default: "tls_certificate"
+    description: |
+      Redis TLS/SSL certificate property's key for client
+  tls_private_key_key:
+    default: "tls_private_key"
+    description: |
+      Redis TLS/SSL key property's key for client
+  tls_ca_key:
+    default: "tls_ca"
+    description: |
+      Redis TLS/SSL CA certificate property's key for client

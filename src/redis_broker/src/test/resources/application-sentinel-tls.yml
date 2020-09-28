@@ -1,0 +1,130 @@
+orange:
+  redis:
+    ip_key: hostname
+    port_key: port
+    password_key: password
+    admin_user_key: admin_user
+    admin_password_key: admin_password
+    ha_master_name_key: ha_master_name
+    ha_port_key: ha_port
+    ha_password_key: ha_password
+    tls_port_key: tls_port
+    tls_ha_port_key: tls_ha_port
+    tls_certificate_key: tls_certificate
+    tls_private_key_key: tls_private_key
+    tls_ca_key: tls_ca
+    servers:
+      - 192.168.56.101
+      - 192.168.56.102
+    port: 0
+    password: redis_secret
+    admin_user: admin
+    admin_password: admin_secret
+    sentinel:
+      master_name: master
+      port: 0
+      password: redis_sentinel_secret
+    tls:
+      port: 6379
+      ha_port: 26379
+      keys_dir: /home/attu7372/src/bosh/redis-orange/src/redis_broker/src/test/keys
+      ca_cert_file: ca.crt
+      ca_key_file: ca.key
+      client_key_length: 2048
+      client_cert_ou: redis-sentinel-tls
+      client_cert_duration: 365
+
+logging:
+  config: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker/src/test/resources/log4j2.xml
+
+server:
+  address: localhost
+  port: 8443
+  ssl:
+    enabled: true
+    key-alias: broker
+    key-store-type: PKCS12
+    key-store-password: azerty
+    key-store: file:/home/attu7372/src/bosh/redis-orange/src/redis_broker/src/test/keys/broker.pkcs12
+
+spring:
+  security:
+    user:
+      name: broker
+      password: broker
+  cloud:
+    openservicebroker:
+      catalog:
+        services:
+        - description: Redis Service
+          id: redis-service
+          name: Redis Service
+          bindable: true
+          bindingsRetrievable: true
+          instancesRetrievable: true
+          planUpdateable: false
+          metadata:
+            displayName: Redis
+            imageUrl: https://redis.io/
+            longDescription: Creating a Redis service. Binding applications provisions unique credentials for each application to access a Redis server/cluster.
+            providerDisplayName: Orange
+            documentationUrl: https://redis.io/documentation
+            supportUrl: https://contact-us/
+          tags:
+            - Redis
+            - Redis Sentinel
+            - Redis Cluster
+            - High Avaibility
+          plans:
+          - description: Redis Single Server
+            id: redis
+            name: Redis
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Single Redis Server
+          - description: Highly Available with Redis Sentinel
+            id: redis-sentinel
+            name: Redis Sentinel
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Highly Available Redis Server with Redis Sentinel
+          - description: Redis Cluster
+            id: redis-cluster
+            name: Redis Cluster
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Redis Cluster
+          - description: Highly Available Redis Cluster
+            id: redis-cluster-ha
+            name: High Available Redis Cluster
+            free: true
+            metadata:
+              bullets:
+              - 100 MB Storage (not enforced)
+              - 40 concurrent connections (not enforced)
+              costs:
+                amount:
+                  eur: 10.0
+                unit: MONTHLY
+              displayName: Dedicated Highly Available Redis Cluster

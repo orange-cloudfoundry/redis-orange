@@ -31,30 +31,18 @@ public class RedisCatalogService {
   public Catalog catalog() {
     Catalog catalog;
     if (catalogYml == null) { // hard coded catalog is returned
-      catalog =
-          new Catalog(
-              Collections
-                  .singletonList(
-                      new ServiceDefinition(
-                          "redis-service",
-                          "Redis for Cloud Foundry",
-                          "Redis on demand on dedicated cluster",
-                          true,
-                          false,
-                          Collections
-                              .singletonList(
-                                  new Plan(
-                                      "redis-plan",
-                                      "default",
-                                      "This is a default Redis plan. All services are created equally.",
-                                      getPlanMetadata())),
-                          asList("Redis", "document"),
-                          getServiceDefinitionMetadata(),
-                          null,
-                          null)));
+      catalog = new Catalog(Collections.singletonList(new ServiceDefinition(
+          "redis-service", "Redis for Cloud Foundry",
+          "Redis on demand on dedicated cluster", true, false,
+          Collections.singletonList(new Plan("redis-plan", "default",
+              "This is a default Redis plan. All services are created equally.",
+              getPlanMetadata())),
+          asList("Redis", "document"), getServiceDefinitionMetadata(), null,
+          null)));
     } else {
       CatalogYmlReader catalogYmlReader = new CatalogYmlReader();
-      List<ServiceDefinition> serviceDefinitions = catalogYmlReader.getServiceDefinitions(catalogYml);
+      List<ServiceDefinition> serviceDefinitions = catalogYmlReader
+          .getServiceDefinitions(catalogYml);
       catalog = new Catalog(serviceDefinitions);
     }
     return catalog;
@@ -66,13 +54,12 @@ public class RedisCatalogService {
     Map<String, Object> sdMetadata = new HashMap<>();
     sdMetadata.put("displayName", "Redis");
     sdMetadata.put("imageUrl", "https://redis.io/images/redis-white.png");
-    sdMetadata
-        .put(
-            "longDescription",
-            "Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes with radius queries and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.");
+    sdMetadata.put("longDescription",
+        "Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker. It supports data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyperloglogs, geospatial indexes with radius queries and streams. Redis has built-in replication, Lua scripting, LRU eviction, transactions and different levels of on-disk persistence, and provides high availability via Redis Sentinel and automatic partitioning with Redis Cluster.");
     sdMetadata.put("providerDisplayName", "Orange");
     sdMetadata.put("documentationUrl", "https://redis.io/documentation");
-    sdMetadata.put("supportUrl", "https://cap.nd-cfapi.itn.ftgroup/contact-us/");
+    sdMetadata.put("supportUrl",
+        "https://cap.nd-cfapi.itn.ftgroup/contact-us/");
     return sdMetadata;
   }
 
@@ -93,7 +80,8 @@ public class RedisCatalogService {
   }
 
   private List<String> getBullets() {
-    return Arrays
-        .asList("Shared cassandra server", "100 MB Storage (not enforced)", "40 concurrent connections (not enforced)");
+    return Arrays.asList("Shared cassandra server",
+        "100 MB Storage (not enforced)",
+        "40 concurrent connections (not enforced)");
   }
 }

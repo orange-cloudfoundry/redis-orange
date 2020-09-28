@@ -11,7 +11,8 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindin
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
 
 @Service
-public class RedisServiceInstanceBindingService implements ServiceInstanceBindingService {
+public class RedisServiceInstanceBindingService
+    implements ServiceInstanceBindingService {
   private final RedisConfig redisConfig;
 
   public RedisServiceInstanceBindingService(final RedisConfig redisConfig) {
@@ -21,9 +22,12 @@ public class RedisServiceInstanceBindingService implements ServiceInstanceBindin
   @Override
   public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
       CreateServiceInstanceBindingRequest request) {
-    return new CreateServiceInstanceAppBindingResponse().withCredentials(redisConfig.toMap());
+    return new CreateServiceInstanceAppBindingResponse()
+        .withCredentials(redisConfig.toMap());
   }
 
   @Override
-  public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {}
+  public void deleteServiceInstanceBinding(
+      DeleteServiceInstanceBindingRequest request) {
+  }
 }

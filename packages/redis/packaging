@@ -1,13 +1,12 @@
-set -e # exit immediately if a simple command exits with a non-zero status
-set -u # report the usage of uninitialized variables
+set -eu
 
 # Available variables
 # $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
-export HOME="/var/vcap"
 
-tar xfv redis/redis-*.tar.gz
+tar xf redis/redis-*.tar.gz
 cd redis-*
-make PREFIX="${BOSH_INSTALL_TARGET}" install
-cd ${BOSH_INSTALL_TARGET}/bin
-strip -s ./*
+make BUILD_TLS=yes PREFIX="${BOSH_INSTALL_TARGET}" install
+strip -s ${BOSH_INSTALL_TARGET}/bin/*
+cd -
+cp -a common/gen-certs.sh ${BOSH_INSTALL_TARGET}/bin/.
