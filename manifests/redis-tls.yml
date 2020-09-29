@@ -11,6 +11,8 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
+  - name: haveged
+    release: redis-service
   - name: redis
     release: redis-service
     properties:
@@ -27,13 +29,13 @@ instance_groups:
       tls_dh_length: ((redis_dh_length))
   - name: redis_check
     release: redis-service
-  - name: redis_broker
+  - name: redis_brokerARGS
     release: redis-service
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls: true
-  - name: redis_broker_check
+  - name: redis_broker_checkARGS
     release: redis-service
   - name: redis_exporter
     release: redis-service

@@ -1,9 +1,9 @@
 #!/bin/bash
 ERR=0;
 <%- if link('redis_conn').p('tls') || p('tls') -%>
-export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
-export PATH=${JAVA_HOME}/bin:${PATH};
-source /var/vcap/packages/redis_broker/bin/gen-certs.sh;
+export JAVA_HOME="/var/vcap/packages/openjdk/jdk";
+export PATH="${JAVA_HOME}/bin:${PATH}";
+source "/var/vcap/packages/redis_broker/bin/gen-certs.sh";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 <%- if !link('redis_conn').p('tls') -%>
 gen_ca \

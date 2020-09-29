@@ -11,6 +11,8 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
+  - name: haveged
+    release: redis-service
   - name: redis_sentinel
     release: redis-service
     provides:
@@ -35,6 +37,8 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
+  - name: haveged
+    release: redis-service
   - name: redis_sentinel
     release: redis-service
     provides:

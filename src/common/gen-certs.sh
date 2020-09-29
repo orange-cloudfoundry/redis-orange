@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-export RANDFILE=$HOME/.rnd
+export RANDFILE=$HOME/.rnd;
+HAVEGED_HOME="/var/vcap/packages/haveged";
 
 CERTIFICATE_ORGANIZATION="orange.com";
 
 function gen_seed() {
   local private_key_length="${1:?"Missing private key length"}";
-  dd if=/dev/random of=$RANDFILE bs=$((private_key_length/8)) count=1;
+  local length="$((private_key_length/8))";
+  ${HAVEGED_HOME}/sbin/haveged -n "${length}" -f - | dd of=$RANDFILE bs="${length}" count=1;
   return ${?};
 }
 
@@ -17,7 +19,6 @@ function gen_ca() {
   local certificate_cn="${5:?"Missing certificate common name"}";
   rm -f "${private_key_file}" \
     "${certificate_file}" && \
-  gen_seed "${private_key_length}" && \
   openssl genrsa -out "${private_key_file}" "${private_key_length}" && \
   gen_seed "${private_key_length}" && \
   openssl req \
@@ -41,7 +42,6 @@ function gen_signed_cert() {
   local certificate_cn="${9:?"Missing certificate common name"}";
   rm -f "${private_key_file}" \
     "${certificate_file}" && \
-  gen_seed "${private_key_length}" && \
   openssl genrsa -out "${private_key_file}" "${private_key_length}" && \
   gen_seed "${private_key_length}" && \
   openssl req \

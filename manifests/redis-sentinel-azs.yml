@@ -35,6 +35,8 @@ instance_groups:
       sentinel_slave_conn: {from: sentinel_slave}
   - name: redis_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
   - name: redis_sentinel
     release: redis-service
     provides:
@@ -76,7 +78,7 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: redis_brokerARGS
     release: redis-service
     consumes:
       slave_conn: nil
@@ -85,7 +87,7 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-  - name: redis_broker_check
+  - name: redis_broker_checkARGS
     release: redis-service
 
 variables:

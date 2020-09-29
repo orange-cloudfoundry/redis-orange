@@ -11,6 +11,8 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
+  - name: haveged
+    release: redis-service
   - name: redis
     release: redis-service
     consumes:
@@ -39,6 +41,8 @@ instance_groups:
       sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
   - name: redis_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
     properties:
       skip_tls_verification: true
 - name: broker
@@ -50,7 +54,9 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: haveged
+    release: redis-service
+  - name: redis_brokerARGS
     release: redis-service
     consumes:
       slave_conn: nil
@@ -60,7 +66,7 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls: true
-  - name: redis_broker_check
+  - name: redis_broker_checkARGS
     release: redis-service
 
 variables:

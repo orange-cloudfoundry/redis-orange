@@ -11,6 +11,8 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
+  - name: haveged
+    release: redis-service
   - name: redis
     release: redis-service
     consumes:
@@ -59,7 +61,9 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: haveged
+    release: redis-service
+  - name: redis_brokerARGS
     release: redis-service
     consumes:
       slave_conn: nil
@@ -68,7 +72,7 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls: true
-  - name: redis_broker_check
+  - name: redis_broker_checkARGS
     release: redis-service
 
 variables:
