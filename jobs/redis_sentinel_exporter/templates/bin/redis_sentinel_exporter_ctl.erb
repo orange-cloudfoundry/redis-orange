@@ -33,7 +33,7 @@ chown vcap:vcap \
   "${LOG_DIR}/${PROGNAME}.stdout.log" \
   "${LOG_DIR}/${PROGNAME}.stderr.log";
 
-export PATH="/var/vcap/packages/${PROGNAME}/bin":${PATH};
+export PATH="/var/vcap/packages/${PROGNAME}/bin:${PATH}";
 
 case $1 in
   start)

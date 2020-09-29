@@ -35,6 +35,8 @@ instance_groups:
       sentinel_slave_conn: {from: ((shared_sentinel_slave)), deployment: ((shared_sentinel_deployment))}
   - name: redis_exporter
     release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: ((shared_sentinel_master)), deployment: ((shared_sentinel_deployment))}
 - name: broker
   azs: [((default_az))]
   instances: 1
@@ -44,7 +46,7 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_broker
+  - name: redis_brokerARGS
     release: redis-service
     consumes:
       slave_conn: nil
@@ -53,7 +55,7 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-  - name: redis_broker_check
+  - name: redis_broker_checkARGS
     release: redis-service
 
 variables:

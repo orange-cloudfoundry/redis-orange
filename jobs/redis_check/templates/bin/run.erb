@@ -22,7 +22,7 @@ REDIS_CRED+=" --pass <%= x %>";
 <%- end
   end
   if master.p('tls') -%>
-source /var/vcap/packages/redis/bin/gen-certs.sh;
+source "/var/vcap/packages/redis/bin/gen-certs.sh";
 REDIS_PORT="<%= master.p('tls_port') %>";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";

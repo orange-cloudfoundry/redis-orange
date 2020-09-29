@@ -22,12 +22,12 @@ instance_groups:
       maxmemory_policy: ((redis_maxmemory_policy))
   - name: redis_check
     release: redis-service
-  - name: redis_broker
+  - name: redis_brokerARGS
     release: redis-service
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-  - name: redis_broker_check
+  - name: redis_broker_checkARGS
     release: redis-service
   - name: redis_exporter
     release: redis-service

@@ -9,7 +9,7 @@ packages:
 
 properties:
   write_wakeup_threshold:
-    default: "2048"
+    default: "4096"
     description: |
       Set write_wakeup_threshold of daemon interface to nnn bits.
   loglevel:

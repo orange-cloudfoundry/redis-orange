@@ -1,7 +1,7 @@
 #!/bin/bash
 ERR=0;
 <%- if link('redis_sentinel_conn').p('tls') -%>
-source /var/vcap/packages/redis/bin/gen-certs.sh;
+source "/var/vcap/packages/redis/bin/gen-certs.sh";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 gen_signed_cert \
   "${TLS_KEYS_DIR}/<%= p('tls_ca_key_file') %>" \
