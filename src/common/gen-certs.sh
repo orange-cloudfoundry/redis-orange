@@ -19,7 +19,6 @@ function gen_ca() {
   local certificate_cn="${5:?"Missing certificate common name"}";
   rm -f "${private_key_file}" \
     "${certificate_file}" && \
-  gen_seed "${private_key_length}" && \
   openssl genrsa -out "${private_key_file}" "${private_key_length}" && \
   gen_seed "${private_key_length}" && \
   openssl req \
@@ -43,7 +42,6 @@ function gen_signed_cert() {
   local certificate_cn="${9:?"Missing certificate common name"}";
   rm -f "${private_key_file}" \
     "${certificate_file}" && \
-  gen_seed "${private_key_length}" && \
   openssl genrsa -out "${private_key_file}" "${private_key_length}" && \
   gen_seed "${private_key_length}" && \
   openssl req \
