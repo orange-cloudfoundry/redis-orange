@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 export RANDFILE=$HOME/.rnd;
-HAVEGED_HOME="/var/vcap/packages/haveged";
 
 CERTIFICATE_ORGANIZATION="orange.com";
 
 function gen_seed() {
   local private_key_length="${1:?"Missing private key length"}";
-  local length="$((private_key_length/8))";
-  ${HAVEGED_HOME}/sbin/haveged -n "${length}" -f - | dd of=$RANDFILE bs="${length}" count=1;
+  dd if=/dev/random of=$RANDFILE bs="$((private_key_length/8))" count=1;
   return ${?};
 }
 

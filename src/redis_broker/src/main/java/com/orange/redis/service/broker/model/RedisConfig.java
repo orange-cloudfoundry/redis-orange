@@ -398,7 +398,7 @@ public class RedisConfig {
           .concat("ca.txt");
       String subject = new String("\"/O=orange.com/OU=")
           .concat(tls.getClient_cert_ou()).concat("/CN=Redis Client\"");
-      String prefix = tls.getKeys_dir().concat("/client-")
+      String prefix = tls.getKeys_dir().concat(File.separator).concat("client-")
           .concat(String.valueOf(ThreadLocalRandom.current().nextInt()));
       String private_key_filename = null;
       String cert_filename = null;
@@ -406,9 +406,8 @@ public class RedisConfig {
       cert_filename = prefix.concat(".crt");
       processBuilder.command("bash", "-c",
           new String("openssl genrsa -out " + private_key_filename + " "
-              + String.valueOf(tls.getClient_key_length()) + " && "
-              + "haveged -n " + String.valueOf(tls.getClient_key_length() / 8)
-              + " -f - | dd of=$RANDFILE bs="
+              + String.valueOf(tls.getClient_key_length())
+              + " && dd if=/dev/random of=$RANDFILE bs="
               + String.valueOf(tls.getClient_key_length() / 8) + " count=1 && "
               + "openssl req -new -sha256 -key " + private_key_filename
               + " -subj " + subject + " | " + "openssl x509 -req -sha256 -CA "

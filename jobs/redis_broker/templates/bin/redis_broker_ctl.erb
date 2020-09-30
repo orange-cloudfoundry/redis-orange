@@ -20,8 +20,7 @@ chown vcap:vcap \
   "${LOG_DIR}/${PROGNAME}.stderr.log";
 
 export JAVA_HOME="/var/vcap/packages/openjdk/jdk";
-HAVEGED_HOME="/var/vcap/packages/haveged";
-export PATH="${JAVA_HOME}/bin:${HAVEGED_HOME}/sbin:${PATH}";
+export PATH="${JAVA_HOME}/bin:${PATH}";
 
 case $1 in
   start)
