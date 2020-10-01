@@ -34,39 +34,57 @@ public class RedisBindingServiceTest {
 
   @Test
   public void getServiceInstanceBinding() {
-    service.getServiceInstanceBinding(GetServiceInstanceBindingRequest.builder().build())
+    service
+        .getServiceInstanceBinding(
+            GetServiceInstanceBindingRequest.builder().build())
         .subscribe((GetServiceInstanceBindingResponse x) -> {
           String servers = new String();
           for (InetAddress address : redisConfig.getServers())
             servers = servers.concat(address.getHostAddress()).concat(" ");
           servers = servers.trim();
-          for (Map.Entry<String, Object> credentials : ((GetServiceInstanceAppBindingResponse) x).getCredentials()
-              .entrySet()) {
+          for (Map.Entry<String, Object> credentials : ((GetServiceInstanceAppBindingResponse) x)
+              .getCredentials().entrySet()) {
             if (credentials.getKey().compareTo(redisConfig.getIp_key()) == 0)
               Assert.assertEquals(servers, credentials.getValue());
             if (credentials.getKey().compareTo(redisConfig.getPort_key()) == 0)
-              Assert.assertEquals(redisConfig.getPort().toString(), credentials.getValue());
-            if (credentials.getKey().compareTo(redisConfig.getPassword_key()) == 0)
-              Assert.assertEquals(redisConfig.getPassword(), credentials.getValue());
-            if (credentials.getKey().compareTo(redisConfig.getAdmin_user_key()) == 0)
-              Assert.assertEquals(redisConfig.getAdmin_user(), credentials.getValue());
-            if (credentials.getKey().compareTo(redisConfig.getAdmin_password_key()) == 0)
-              Assert.assertEquals(redisConfig.getAdmin_password(), credentials.getValue());
+              Assert.assertEquals(redisConfig.getPort().toString(),
+                  credentials.getValue());
+            if (credentials.getKey()
+                .compareTo(redisConfig.getPassword_key()) == 0)
+              Assert.assertEquals(redisConfig.getPassword(),
+                  credentials.getValue());
+            if (credentials.getKey()
+                .compareTo(redisConfig.getAdmin_user_key()) == 0)
+              Assert.assertEquals(redisConfig.getAdmin_user(),
+                  credentials.getValue());
+            if (credentials.getKey()
+                .compareTo(redisConfig.getAdmin_password_key()) == 0)
+              Assert.assertEquals(redisConfig.getAdmin_password(),
+                  credentials.getValue());
             if (!redisConfig.getSentinel().isEmpty()) {
-              if (credentials.getKey().compareTo(redisConfig.getHa_master_name_key()) == 0)
-                Assert.assertEquals(redisConfig.getSentinel().getMaster_name(), credentials.getValue());
-              if (credentials.getKey().compareTo(redisConfig.getHa_port_key()) == 0)
-                Assert.assertEquals(redisConfig.getSentinel().getPort().toString(), credentials.getValue());
-              if (credentials.getKey().compareTo(redisConfig.getHa_password_key()) == 0)
-                Assert.assertEquals(redisConfig.getSentinel().getPassword(), credentials.getValue());
+              if (credentials.getKey()
+                  .compareTo(redisConfig.getHa_master_name_key()) == 0)
+                Assert.assertEquals(redisConfig.getSentinel().getMaster_name(),
+                    credentials.getValue());
+              if (credentials.getKey()
+                  .compareTo(redisConfig.getHa_port_key()) == 0)
+                Assert.assertEquals(
+                    redisConfig.getSentinel().getPort().toString(),
+                    credentials.getValue());
+              if (credentials.getKey()
+                  .compareTo(redisConfig.getHa_password_key()) == 0)
+                Assert.assertEquals(redisConfig.getSentinel().getPassword(),
+                    credentials.getValue());
             }
             if (!redisConfig.getTls().isEmpty()) {
-              if (credentials.getKey().compareTo(redisConfig.getTls_port_key()) == 0)
+              if (credentials.getKey()
+                  .compareTo(redisConfig.getTls_port_key()) == 0)
                 Assert.assertEquals(redisConfig.getTls().getPort().toString(),
                     credentials.getValue());
               if (credentials.getKey()
                   .compareTo(redisConfig.getTls_ha_port_key()) == 0)
-                Assert.assertEquals(redisConfig.getTls().getHa_port().toString(),
+                Assert.assertEquals(
+                    redisConfig.getTls().getHa_port().toString(),
                     credentials.getValue());
               if (credentials.getKey()
                   .compareTo(redisConfig.getTls_certificate_key()) == 0)
@@ -74,7 +92,8 @@ public class RedisBindingServiceTest {
               if (credentials.getKey()
                   .compareTo(redisConfig.getTls_private_key_key()) == 0)
                 Assert.assertNotNull(credentials.getValue());
-              if (credentials.getKey().compareTo(redisConfig.getTls_ca_key()) == 0)
+              if (credentials.getKey()
+                  .compareTo(redisConfig.getTls_ca_key()) == 0)
                 Assert.assertNotNull(credentials.getValue());
             }
           }

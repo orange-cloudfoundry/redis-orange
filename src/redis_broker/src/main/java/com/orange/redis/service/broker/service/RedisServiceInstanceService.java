@@ -20,17 +20,21 @@ public class RedisServiceInstanceService implements ServiceInstanceService {
   }
 
   @Override
-  public Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
+  public Mono<CreateServiceInstanceResponse> createServiceInstance(
+      CreateServiceInstanceRequest request) {
     return Mono.just(CreateServiceInstanceResponse.builder().build());
   }
 
   @Override
-  public Mono<GetServiceInstanceResponse> getServiceInstance(GetServiceInstanceRequest request) {
-    return Mono.just(GetServiceInstanceResponse.builder().parameters(redisConfig.toMap()).build());
+  public Mono<GetServiceInstanceResponse> getServiceInstance(
+      GetServiceInstanceRequest request) {
+    return Mono.just(GetServiceInstanceResponse.builder()
+        .parameters(redisConfig.toMap()).build());
   }
 
   @Override
-  public Mono<DeleteServiceInstanceResponse> deleteServiceInstance(DeleteServiceInstanceRequest request) {
+  public Mono<DeleteServiceInstanceResponse> deleteServiceInstance(
+      DeleteServiceInstanceRequest request) {
     return Mono.just(DeleteServiceInstanceResponse.builder().build());
   }
 }

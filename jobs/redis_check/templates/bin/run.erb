@@ -210,31 +210,31 @@ then
   done
   if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
   then
-    echo "All requested Redis nodes [${REDIS_INSTANCES}] are available the cluster";
+    echo "All required Redis nodes [${REDIS_INSTANCES}] are available in the cluster";
     AVAILABLE_NODES=$(echo "${MSG}" | awk '$3~/master/{print $2;}' | wc -l);
     if [[ ${MASTER_INSTANCES} -eq ${AVAILABLE_NODES} ]];
     then
-      echo "All requested Redis master nodes [${MASTER_INSTANCES}] are available";
+      echo "All required Redis master nodes [${MASTER_INSTANCES}] are available";
       ERR=0;
     else
-      echo "WARNING: The requested Redis master nodes [${MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
+      echo "ERROR: The required Redis master nodes [${MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
     AVAILABLE_NODES=$(echo "${MSG}" | awk '$3~/slave/{print $2;}' | wc -l);
     if [[ ${SLAVE_INSTANCES} -eq ${AVAILABLE_NODES} ]];
     then
-      echo "All requested Redis slave nodes [${SLAVE_INSTANCES}] are available";
+      echo "All required Redis slave nodes [${SLAVE_INSTANCES}] are available";
       ERR=0;
     else
-      echo "WARNING: The requested Redis slave nodes [${SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
+      echo "ERROR: The required Redis slave nodes [${SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
   else
-    echo "ERROR: The requested Redis nodes [${REDIS_INSTANCES}] is not equal to the available nodes [${AVAILABLE_NODES}]" >&2;
+    echo "ERROR: The required Redis nodes [${REDIS_INSTANCES}] is not equal to the available nodes [${AVAILABLE_NODES}]" >&2;
     ERR=1;
   fi
 else
-  echo "ERROR: Redis CLUSTER NODES command failed." >&2;
+  echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
   ERR=1;
 fi
 
@@ -260,9 +260,9 @@ then
     REDIS_PORT="${REDIS_MASTER#*[[:space:]]}";
 <%- end -%>
     CLI_OPTS="-h ${REDIS_IP} -p ${REDIS_PORT} ${REDIS_CRED} ${CLI_CLUSTER_OPTS}";
-    "${CLI}" \
+    RESULT="$("${CLI}" \
       ${CLI_OPTS} \
-      SET ${KV} ${KV};
+      SET ${KV} ${KV})";
     ERR=${?};
     if [[ ${ERR} -eq 0 ]];
     then
@@ -274,9 +274,9 @@ then
       if [[ ${ERR} -eq 0 ]] && [[ "${KV}" == "${RESULT}" ]];
       then
         echo "Read operation: succeed";
-        "${CLI}" \
+         RESULT="$("${CLI}" \
           ${CLI_OPTS} \
-          APPEND ${KV} ${KV};
+          APPEND ${KV} ${KV})";
         ERR=${?};
         if [[ ${ERR} -eq 0 ]];
         then
@@ -289,26 +289,26 @@ then
           then
             echo "Update operation: succeed";
           else
-            echo "Update operation: failed";
+            echo "Update operation: failed: \"${RESULT}\".";
           fi
         else
-          echo "Append operation: failed";
+          echo "Append operation: failed: \"${RESULT}\".";
         fi
       else
-        echo "Read operation: failed";
+        echo "Read operation: failed: \"${RESULT}\".";
       fi
-      "${CLI}" \
+      RESULT="$("${CLI}" \
         ${CLI_OPTS} \
-        DEL ${KV};
+        DEL ${KV})";
       ERR=${?};
       if [[ ${ERR} -eq 0 ]];
       then
         echo "Delete operation: succeed";
       else
-        echo "Delete operation: failed";
+        echo "Delete operation: failed: \"${RESULT}\".";
       fi
     else
-      echo "Create operation: failed";
+      echo "Create operation: failed: \"${RESULT}\".";
     fi
 <%- if master.p('replication') && !sentinel.nil? -%>
   done

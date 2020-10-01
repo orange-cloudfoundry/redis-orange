@@ -181,6 +181,8 @@ then
     echo "ERROR: All requested nodes are already in a cluster." >&2;
     exit 0;
   fi
+else
+  echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
 fi
 
 AVAILABLE_NODES=0;
@@ -274,6 +276,68 @@ then
   #
   # Check built cluster
   #
+  AVAILABLE_NODES=0;
+  AVAILABLE_MASTER_NODES=0;
+  AVAILABLE_SLAVE_NODES=0;
+  while [[ ${REDIS_INSTANCES} -gt ${AVAILABLE_NODES} ]] \
+    || [[ ${MASTER_INSTANCES} -gt ${AVAILABLE_MASTER_NODES} ]] \
+    || [[ ${SLAVE_INSTANCES} -gt ${AVAILABLE_SLAVE_NODES} ]];
+  do
+    MSG="$("${CLI}" \
+      -h "${REDIS_IP}" \
+      -p "${REDIS_PORT}" \
+      ${REDIS_CRED} \
+      CLUSTER NODES)";
+    ERR=${?};
+    if [[ ${ERR} -eq 0 ]];
+    then
+      #
+      # Check all nodes
+      #
+      AVAILABLE_NODES=0;
+      for i in $(echo "${MSG}" | awk '{print $2;}');
+      do
+        for j in ${REDIS_ADDRESSES};
+        do
+          if [[ "${i%%@*}" == "${j}:${NODE_PORT}" ]];
+          then
+            ((AVAILABLE_NODES++));
+          fi
+        done
+      done
+      #
+      # Check master nodes
+      #
+      AVAILABLE_MASTER_NODES=0;
+      for i in $(echo "${MSG}" | awk '$3~/master/{print $2;}');
+      do
+        for j in ${MASTER_ADDRESSES};
+        do
+          if [[ "${i%%@*}" == "${j}:${NODE_PORT}" ]];
+          then
+            ((AVAILABLE_MASTER_NODES++));
+          fi
+        done
+      done
+      #
+      # Check slave nodes
+      #
+      AVAILABLE_SLAVE_NODES=0;
+      for i in $(echo "${MSG}" | awk '$3~/slave/{print $2;}');
+      do
+        for j in ${SLAVE_ADDRESSES};
+        do
+          if [[ "${i%%@*}" == "${j}:${NODE_PORT}" ]];
+          then
+            ((AVAILABLE_SLAVE_NODES++));
+          fi
+        done
+      done
+    else
+      echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
+      exit ${ERR};
+    fi
+  done
   MSG="$("${CLI}" \
     -h "${REDIS_IP}" \
     -p "${REDIS_PORT}" \
@@ -297,13 +361,31 @@ then
     done
     if [[ ${REDIS_INSTANCES} -eq ${AVAILABLE_NODES} ]];
     then
-      echo "All requested Redis nodes [${REDIS_INSTANCES}] are available the cluster";
+      echo "All required Redis nodes [${REDIS_INSTANCES}] are available in the cluster";
+      AVAILABLE_NODES=$(echo "${MSG}" | awk '$3~/master/{print $2;}' | wc -l);
+      if [[ ${MASTER_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+      then
+        echo "All required Redis master nodes [${MASTER_INSTANCES}] are available";
+        ERR=0;
+      else
+        echo "ERROR: The required Redis master nodes [${MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
+        ERR=1;
+      fi
+      AVAILABLE_NODES=$(echo "${MSG}" | awk '$3~/slave/{print $2;}' | wc -l);
+      if [[ ${SLAVE_INSTANCES} -eq ${AVAILABLE_NODES} ]];
+      then
+        echo "All required Redis slave nodes [${SLAVE_INSTANCES}] are available";
+        ERR=0;
+      else
+        echo "ERROR: The required Redis slave nodes [${SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
+        ERR=1;
+      fi
     else
-      echo "ERROR: The requested Redis nodes [${REDIS_INSTANCES}] is not equal to the available nodes [${AVAILABLE_NODES}]" >&2;
+      echo "ERROR: The required Redis nodes [${REDIS_INSTANCES}] is not equal to the available nodes [${AVAILABLE_NODES}]" >&2;
       ERR=1;
     fi
   else
-    echo "ERROR: Redis CLUSTER NODES command failed." >&2;
+    echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
   fi
 fi
 <%- end -%>
