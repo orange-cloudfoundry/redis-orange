@@ -181,6 +181,8 @@ then
     echo "ERROR: All requested nodes are already in a cluster." >&2;
     exit 0;
   fi
+else
+  echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
 fi
 
 AVAILABLE_NODES=0;
@@ -332,7 +334,7 @@ then
         done
       done
     else
-      echo "ERROR: Redis CLUSTER NODES command failed." >&2;
+      echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
       exit ${ERR};
     fi
   done
@@ -383,7 +385,7 @@ then
       ERR=1;
     fi
   else
-    echo "ERROR: Redis CLUSTER NODES command failed." >&2;
+    echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
   fi
 fi
 <%- end -%>

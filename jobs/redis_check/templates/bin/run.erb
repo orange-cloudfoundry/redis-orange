@@ -234,7 +234,7 @@ then
     ERR=1;
   fi
 else
-  echo "ERROR: Redis CLUSTER NODES command failed: ${MSG}" >&2;
+  echo "ERROR: Redis CLUSTER NODES command failed: \"${MSG}\"." >&2;
   ERR=1;
 fi
 
@@ -289,13 +289,13 @@ then
           then
             echo "Update operation: succeed";
           else
-            echo "Update operation: failed: ${RESULT}";
+            echo "Update operation: failed: \"${RESULT}\".";
           fi
         else
-          echo "Append operation: failed: ${RESULT}";
+          echo "Append operation: failed: \"${RESULT}\".";
         fi
       else
-        echo "Read operation: failed: ${RESULT}";
+        echo "Read operation: failed: \"${RESULT}\".";
       fi
       RESULT="$("${CLI}" \
         ${CLI_OPTS} \
@@ -305,10 +305,10 @@ then
       then
         echo "Delete operation: succeed";
       else
-        echo "Delete operation: failed: ${RESULT}";
+        echo "Delete operation: failed: \"${RESULT}\".";
       fi
     else
-      echo "Create operation: failed: ${RESULT}";
+      echo "Create operation: failed: \"${RESULT}\".";
     fi
 <%- if master.p('replication') && !sentinel.nil? -%>
   done
