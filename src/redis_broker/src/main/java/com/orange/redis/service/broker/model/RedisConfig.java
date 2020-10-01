@@ -407,7 +407,7 @@ public class RedisConfig {
       processBuilder.command("bash", "-c",
           new String("openssl genrsa -out " + private_key_filename + " "
               + String.valueOf(tls.getClient_key_length())
-              + " && dd if=/dev/random of=$RANDFILE bs="
+              + " && dd if=/dev/urandom of=$RANDFILE bs="
               + String.valueOf(tls.getClient_key_length() / 8) + " count=1 && "
               + "openssl req -new -sha256 -key " + private_key_filename
               + " -subj " + subject + " | " + "openssl x509 -req -sha256 -CA "
