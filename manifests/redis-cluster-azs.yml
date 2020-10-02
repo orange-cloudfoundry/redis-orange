@@ -71,7 +71,7 @@ instance_groups:
   networks:
   - name: ((default_network))
   jobs:
-  - name: redis_brokerARGS
+  - name: redis_broker
     release: redis-service
     consumes:
       redis_conn: {from: master}
@@ -79,7 +79,7 @@ instance_groups:
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
-  - name: redis_broker_checkARGS
+  - name: redis_broker_check
     release: redis-service
 
 variables:

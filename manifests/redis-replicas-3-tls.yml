@@ -56,7 +56,7 @@ instance_groups:
   jobs:
   - name: haveged
     release: redis-service
-  - name: redis_brokerARGS
+  - name: redis_broker
     release: redis-service
     consumes:
       slave_conn: nil
@@ -66,7 +66,7 @@ instance_groups:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls: true
-  - name: redis_broker_checkARGS
+  - name: redis_broker_check
     release: redis-service
 
 variables:

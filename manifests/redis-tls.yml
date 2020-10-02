@@ -29,13 +29,13 @@ instance_groups:
       tls_dh_length: ((redis_dh_length))
   - name: redis_check
     release: redis-service
-  - name: redis_brokerARGS
+  - name: redis_broker
     release: redis-service
     properties:
       bind: ((redis_bind))
       password: ((redis_broker_password))
       tls: true
-  - name: redis_broker_checkARGS
+  - name: redis_broker_check
     release: redis-service
   - name: redis_exporter
     release: redis-service
