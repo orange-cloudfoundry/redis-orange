@@ -1,0 +1,125 @@
+name: redis-service
+version: "4"
+commit_hash: a1e88f6
+uncommitted_changes: false
+jobs:
+- name: haveged
+  version: 29b494cbf541eaf046b15721bfe53a4f95d6aa99417145959cea1b559b1b8011
+  fingerprint: 29b494cbf541eaf046b15721bfe53a4f95d6aa99417145959cea1b559b1b8011
+  sha1: sha256:e2a370362835286005dd9d687f15ed297246dce217c2cd18c422cf9097bd625c
+  packages:
+  - haveged
+- name: redis
+  version: 9747b8e4b97b88865318f9f590fb263d41ef8944edbf440185285d0d6bacb5ec
+  fingerprint: 9747b8e4b97b88865318f9f590fb263d41ef8944edbf440185285d0d6bacb5ec
+  sha1: sha256:7fd02194deddab9a268ce516a451951696ef1f130b88dcd72ab90e518981b38b
+  packages:
+  - redis
+- name: redis_alerts
+  version: 24597e2579e0eb79bde26b76ab933fef8dd468715a31f3e9892813680f13ca7e
+  fingerprint: 24597e2579e0eb79bde26b76ab933fef8dd468715a31f3e9892813680f13ca7e
+  sha1: sha256:83ff63c1bf426ee0e28a1e7de049f9229d0a659607f8f0948261f4ddcf4db7d9
+  packages: []
+- name: redis_broker
+  version: fea8c75a6c1db828b29ed675daa4b7c4046254c47beb16a23d8087c0ac8dd503
+  fingerprint: fea8c75a6c1db828b29ed675daa4b7c4046254c47beb16a23d8087c0ac8dd503
+  sha1: sha256:2796a28a6f7e90fc8d34d24aac71aea0677ebd8aaba0324f12da003bcbc3cbb6
+  packages:
+  - openjdk
+  - redis_broker-1.5
+- name: redis_broker-1.5
+  version: c803408c9139d49d5a72a7a03ed0f030b3201882613a77a73fc496b7ccffd75b
+  fingerprint: c803408c9139d49d5a72a7a03ed0f030b3201882613a77a73fc496b7ccffd75b
+  sha1: sha256:6fb0b660123a4a4448e5780ddff4812f2995a4b972ab5db3c8807cdf3c7f7194
+  packages:
+  - openjdk
+  - redis_broker-1.5
+- name: redis_broker_check
+  version: 7ea8d6de4c5e68a7a09a6b505dac766a66d1dfaf51bf58a9198970c9f8e77090
+  fingerprint: 7ea8d6de4c5e68a7a09a6b505dac766a66d1dfaf51bf58a9198970c9f8e77090
+  sha1: sha256:36c1ff620fb941fa26f0ad3218ba53abef7de5206b9c1e4ebd800dcf2676a136
+  packages: []
+- name: redis_broker_check-1.5
+  version: 1fa3cad831e145525c55ebd3dd5f4f2c97cab7dd07c6340b6d36ab483fee4997
+  fingerprint: 1fa3cad831e145525c55ebd3dd5f4f2c97cab7dd07c6340b6d36ab483fee4997
+  sha1: sha256:e4d8dda156d9b05ede5db76d5add8ce2c5ba6e3b9ca60da9c92e76eb3bc9e974
+  packages: []
+- name: redis_check
+  version: 0f02972836b35ea5d2de7675eb063c2b2cd2ba2e506a6346cb4deaf92849a7ca
+  fingerprint: 0f02972836b35ea5d2de7675eb063c2b2cd2ba2e506a6346cb4deaf92849a7ca
+  sha1: sha256:6c44f60e890d19d1890037eba46dd1be9fa3ea8dc5a9295c7d1ca529cec7273a
+  packages:
+  - redis
+- name: redis_dashboards
+  version: 0161234d37b97b02b885f4d6ceac755808c852d6fbdce3b1bb2561b2eb5835a4
+  fingerprint: 0161234d37b97b02b885f4d6ceac755808c852d6fbdce3b1bb2561b2eb5835a4
+  sha1: sha256:9d6f27b2f59cd3071ef78cdbbcf571af7a86dec55f842dfb24b15ae684eebbd2
+  packages: []
+- name: redis_exporter
+  version: f3b7ce1d1db7f16c8b16b0a71ddfd34991214125d19f6877f5e192310145ea51
+  fingerprint: f3b7ce1d1db7f16c8b16b0a71ddfd34991214125d19f6877f5e192310145ea51
+  sha1: sha256:5808634b3b74e41c475b657330c6400ba6bb6ff1978ba67e1a86b8cae3e64de0
+  packages:
+  - redis_exporter
+- name: redis_sentinel
+  version: 177af3702dc877ab755281bff008150c67b7acac0876af9e5bbd44ad2d9c5ab3
+  fingerprint: 177af3702dc877ab755281bff008150c67b7acac0876af9e5bbd44ad2d9c5ab3
+  sha1: sha256:55865e5371134acebc41c0461ca10aa52e9a385842f5109ff178a741640c083a
+  packages:
+  - redis
+- name: redis_sentinel_alerts
+  version: b7455ab8cbc86ac01569f87ea87bed6b347fe471874f5a23308fc2f284a37abb
+  fingerprint: b7455ab8cbc86ac01569f87ea87bed6b347fe471874f5a23308fc2f284a37abb
+  sha1: sha256:a6d80eddcbe1951877319ba6b76fcec3bc1d8644c9cdc123070dfe18812327ff
+  packages: []
+- name: redis_sentinel_dashboards
+  version: aaa4d64ee0eced4a894bb6c6de13165e856597ab3a71c3f28acad3cc593e54e1
+  fingerprint: aaa4d64ee0eced4a894bb6c6de13165e856597ab3a71c3f28acad3cc593e54e1
+  sha1: sha256:8e3817bbc201cd85db872fe04b59fa9fe92a0f06d3c76be30bf5babd958fbd85
+  packages: []
+- name: redis_sentinel_exporter
+  version: cfe7f2dec8665872b67301cba791f2c00405b9294c00b7906e2c272d602308da
+  fingerprint: cfe7f2dec8665872b67301cba791f2c00405b9294c00b7906e2c272d602308da
+  sha1: sha256:b6c377796b401e18a7ed6204181a57758dae23fa16ddb55d02de6d182fd1088c
+  packages:
+  - redis_sentinel_exporter
+packages:
+- name: haveged
+  version: 4cdb765966c2c560f1c65f66718435065cd510e2490351d4ac7a7a99f5c892f0
+  fingerprint: 4cdb765966c2c560f1c65f66718435065cd510e2490351d4ac7a7a99f5c892f0
+  sha1: sha256:f3968863cb6f57b6738363652d73982238ea3b8dbecefa91a6f0636b898a903f
+  dependencies: []
+- name: openjdk
+  version: 3e883467a49e6636228c7f0e7a01324dccb1ea07241d4dcad93293896be7f001
+  fingerprint: 3e883467a49e6636228c7f0e7a01324dccb1ea07241d4dcad93293896be7f001
+  sha1: sha256:9ed42656ed2345659b18c8d10a9b21f62ee0a8decd916083cbc5370808de550b
+  dependencies: []
+- name: redis
+  version: 927df843704ab2ce298968b501ef98e74f3696301551b1106338026e97a0d8ba
+  fingerprint: 927df843704ab2ce298968b501ef98e74f3696301551b1106338026e97a0d8ba
+  sha1: sha256:2cb78ee97988aac350065d1fe4b2324682ae10a03dc6651aaaac3ea32a076977
+  dependencies: []
+- name: redis_broker
+  version: 11ba86111105cce2b415503eb163743945e35edb91c8b59b99e50142dcef2da2
+  fingerprint: 11ba86111105cce2b415503eb163743945e35edb91c8b59b99e50142dcef2da2
+  sha1: sha256:6db75daa98f32fb769e759d958edb5042f8aa041636a2fcb6b8cc00e2624726d
+  dependencies: []
+- name: redis_broker-1.5
+  version: 935af630301feb0ae16ae6bcf3290a605c04acb9dbf193110954f3fe0faf6d82
+  fingerprint: 935af630301feb0ae16ae6bcf3290a605c04acb9dbf193110954f3fe0faf6d82
+  sha1: sha256:dd0d4b1bd302d91274b2b27a82359e4ed6ad71cec112fec2dc931f8eb8a2833e
+  dependencies: []
+- name: redis_exporter
+  version: abacb7d18122a8d8fcbcdc09d99c16ffa58c3f27a852a36c4c69958b8f22c78a
+  fingerprint: abacb7d18122a8d8fcbcdc09d99c16ffa58c3f27a852a36c4c69958b8f22c78a
+  sha1: sha256:029629f8c491bd14ac03bc3e5527e5666d50c77139da385f608d069ac34a18e0
+  dependencies: []
+- name: redis_sentinel_exporter
+  version: 98af6b9fe27ea8b3bfae624c67e69e0302d687df560154b65c823b5ebed754cb
+  fingerprint: 98af6b9fe27ea8b3bfae624c67e69e0302d687df560154b65c823b5ebed754cb
+  sha1: sha256:99fc11ce0716af05e9f2e4a47d79f5f3d5cf0f190e1ea4aeca7667ceb3a2f1c5
+  dependencies: []
+license:
+  version: eefa533b44473426f0d39cb7de4a5de1342863955201ca83ddaefe4a0c96d174
+  fingerprint: eefa533b44473426f0d39cb7de4a5de1342863955201ca83ddaefe4a0c96d174
+  sha1: sha256:7c3ca86bfcc75f910f58f8d38e06ae6fa72544c98f52d6b80d4a18e9dd23bb58
