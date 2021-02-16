@@ -3,7 +3,9 @@ name: redis_sentinel
 
 templates:
   config/redis_sentinel.conf.erb: config/redis_sentinel.conf
+  bin/pre-start.erb: bin/pre-start
   bin/redis_sentinel_ctl.erb: bin/redis_sentinel_ctl
+  bin/pre-stop.erb: bin/pre-stop
 
 packages:
 - redis
@@ -15,6 +17,7 @@ provides:
   - bind
   - port
   - password
+  - max_detected_failures
   - down_after_milliseconds
   - parallel_syncs
   - failover_timeout
@@ -24,15 +27,6 @@ consumes:
   type: conn
 - name: redis_sentinel_conn
   type: sentinel_conn
-- name: master_conn
-  type: conn
-  optional: true
-- name: slave_conn
-  type: conn
-  optional: true
-- name: sentinel_master_conn
-  type: sentinel_conn
-  optional: true
 
 properties:
   bind:
@@ -67,6 +61,11 @@ properties:
     default: "/var/vcap/store/redis_sentinel"
     description: |
       Every long running process should have a well-defined working directory. For Redis Sentinel to chdir to /tmp at startup is the simplest thing for the process to do not interfere with administrative tasks such as unmounting filesystems.
+  max_detected_failures:
+    default: "2"
+    description: |      
+      The max_detected_failures is the number of Sentinels that need to agree about the fact the master is not reachable, in order to really mark the master as failing, and eventually start a failover procedure if possible.
+      However the max_detected_failures is only used to detect the failure. In order to actually perform a failover, one of the Sentinels need to be elected leader for the failover and be authorized to proceed. This only happens with the vote of the majority of the Sentinel processes.
   down_after_milliseconds:
     default: "30000"
     description: |

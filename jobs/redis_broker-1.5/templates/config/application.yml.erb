@@ -1,24 +1,20 @@
-<%
-  master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
+<%- master=link('redis_conn')
   slave=nil
   if_link('slave_conn'){ |x| slave=x }
-  sentinel_master=nil
-  if_link('redis_sentinel_conn'){ |x| sentinel_master=x }
-  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
+  sentinel=nil
+  if_link('redis_sentinel_conn'){ |x| sentinel=x }
   sentinel_slave=nil
-  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x }
-%>
+  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } -%>
 logging:
   config: file:/var/vcap/jobs/redis_broker-1.5/config/log4j2.xml
 
 
 server:
-<% if p('bind') %>
+<%- if p('bind') -%>
   address: <%= spec.ip %>
-<% else %>
+<%- else -%>
   address: 127.0.0.1
-<% end %>
+<%- end -%>
   port: <%= p('port') %>
 
 orange:
@@ -30,49 +26,45 @@ orange:
     HAPortKey: <%= p('high_avaibility_port_property_key') %>
     HAPasswordKey: <%= p('high_avaibility_password_property_key') %>
     servers:
-<%
-  if !sentinel_master.nil?
-    sentinel_master.instances.each do |x| %>
+<%- if !sentinel.nil?
+    sentinel.instances.each do |x| -%>
       - <%= x.address %>
-<%  end
+<%- end
     if !sentinel_slave.nil?
-      if !sentinel_slave.instances[0].name.eql?(sentinel_master.instances[0].name)
-        sentinel_slave.instances.each do |x| %>
+      if !sentinel_slave.instances[0].name.eql?(sentinel.instances[0].name)
+        sentinel_slave.instances.each do |x| -%>
       - <%= x.address %>
-<%      end
+<%-     end
       end
     end
   else
-    master.instances.each do |x| %>
+    master.instances.each do |x| -%>
       - <%= x.address %>
-<%  end
+<%- end
     if !slave.nil?
       if !slave.instances[0].name.eql?(master.instances[0].name)
-        slave.instances.each do |x| %>
+        slave.instances.each do |x| -%>
       - <%= x.address %>
-<%      end
+<%-     end
       end
     end
-  end %>
+  end -%>
     port: <%= master.p('port') %>
-<%
-  master.if_p('password') do |password|
-    unless password.to_s.empty? %>
+<%- master.if_p('password') do |password|
+    unless password.to_s.empty? -%>
     password: <%= password %>
-<%  end
-  end %>
-<% if !sentinel_master.nil? %>
+<%- end
+  end
+  if !sentinel.nil? -%>
     sentinel:
-      port: <%= sentinel_master.p('port') %>
-<%
-    sentinel_master.if_p('password') do |password|
-      unless password.to_s.empty? %>
+      port: <%= sentinel.p('port') %>
+<%- sentinel.if_p('password') do |password|
+      unless password.to_s.empty? -%>
       password: <%= password %>
-<%    end
-    end
-%>
+<%-   end
+    end -%>
       masterName: <%= spec.deployment %>
-<% end %>
+<%- end -%>
 
 security:
   user:

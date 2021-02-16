@@ -3,7 +3,10 @@ name: redis
 
 templates:
   config/redis.conf.erb: config/redis.conf
+  bin/pre-start.erb: bin/pre-start
   bin/redis_ctl.erb: bin/redis_ctl
+  bin/post-start.erb: bin/post-start
+  bin/pre-stop.erb: bin/pre-stop
   bin/post-deploy.erb: bin/post-deploy
 
 packages:
@@ -44,13 +47,13 @@ provides:
 consumes:
 - name: redis_conn
   type: conn
-- name: master_conn
-  type: conn
-  optional: true
 - name: slave_conn
   type: conn
   optional: true
 - name: redis_sentinel_conn
+  type: sentinel_conn
+  optional: true
+- name: sentinel_slave_conn
   type: sentinel_conn
   optional: true
 
@@ -155,7 +158,7 @@ properties:
     description: |
       Since version 5 of RDB a CRC64 checksum is placed at the end of the file. This makes the format more resistant to corruption but there is a performance hit to pay (around 10%) when saving and loading RDB files, so you can disable it for maximum performances.
   dir:
-    default: "/var/vcap/store/redis"
+    default: "/var/vcap/store/redis/db"
     description: |
       The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory.
 ################################# REPLICATION #################################

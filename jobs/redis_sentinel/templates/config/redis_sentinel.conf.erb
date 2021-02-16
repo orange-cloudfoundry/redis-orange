@@ -1,11 +1,5 @@
-<%
-  master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
-  slave=link('redis_conn')
-  if_link('slave_conn'){ |x| slave=x }
-  sentinel_master=link('redis_sentinel_conn')
-  if_link('sentinel_master_conn'){ |x| sentinel_master=x }
-%>
+<%- master=link('redis_conn')
+  sentinel=link('redis_sentinel_conn') -%>
 # *** IMPORTANT ***
 #
 # By default Sentinel will not be reachable from interfaces different than
@@ -21,15 +15,15 @@
 # bind 127.0.0.1 192.168.1.1
 #
 # protected-mode no
-<% if sentinel_master.p('bind') %>
-bind <%= spec.ip %>
-<% else %>
+<%- if sentinel.p('bind') -%>
+bind <%= spec.ip -%>
+<%- else %>
 bind 127.0.0.1
-<% end %>
+<%- end -%>
 
 # port <sentinel-port>
 # The port that this sentinel instance will run on
-port <%= sentinel_master.p('port') %>
+port <%= sentinel.p('port') %>
 
 # By default Redis Sentinel does not run as a daemon. Use 'yes' if you need it.
 # Note that Redis will write a pid file in /var/run/redis-sentinel.pid when
@@ -67,9 +61,9 @@ logfile <%= p('log_dir')+'/'+p('logfile') %>
 # Example:
 #
 # sentinel announce-ip 1.2.3.4
-<% if p('announce') && sentinel_master.p('bind') %>
+<%- if p('announce') && sentinel.p('bind') -%>
 sentinel announce-ip <%= spec.ip %>
-<% end %>
+<%- end -%>
 
 # dir <working-directory>
 # Every long running process should have a well-defined working directory.
@@ -95,13 +89,7 @@ dir <%= p('dir') %>
 #
 # Note: master name should not include special characters or spaces.
 # The valid charset is A-z 0-9 and the three characters ".-_".
-<%
-  instances_length=master.instances.length
-  if !slave.instances[0].name.eql?(master.instances[0].name)
-    instances_length+=slave.instances.length
-  end
-%>
-sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= (instances_length/2)+1 %>
+sentinel monitor <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master.p('port') %> <%= sentinel.p('max_detected_failures') %>
 
 # sentinel auth-pass <master-name> <password>
 #
@@ -132,7 +120,7 @@ sentinel auth-pass <%= spec.deployment %> <%= master.p('password') %>
 #
 # Default is 30 seconds.
 # sentinel down-after-milliseconds mymaster 30000
-sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel_master.p('down_after_milliseconds') %>
+sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel.p('down_after_milliseconds') %>
 
 # sentinel parallel-syncs <master-name> <numreplicas>
 #
@@ -141,7 +129,7 @@ sentinel down-after-milliseconds <%= spec.deployment %> <%= sentinel_master.p('d
 # to avoid that all the replicas will be unreachable at about the same
 # time while performing the synchronization with the master.
 # sentinel parallel-syncs mymaster 1
-sentinel parallel-syncs <%= spec.deployment %> <%= sentinel_master.p('parallel_syncs') %>
+sentinel parallel-syncs <%= spec.deployment %> <%= sentinel.p('parallel_syncs') %>
 
 # sentinel failover-timeout <master-name> <milliseconds>
 #
@@ -167,7 +155,7 @@ sentinel parallel-syncs <%= spec.deployment %> <%= sentinel_master.p('parallel_s
 #
 # Default is 3 minutes.
 # sentinel failover-timeout mymaster 180000
-sentinel failover-timeout <%= spec.deployment %> <%= sentinel_master.p('failover_timeout') %>
+sentinel failover-timeout <%= spec.deployment %> <%= sentinel.p('failover_timeout') %>
 
 # SCRIPTS EXECUTION
 #
@@ -266,46 +254,36 @@ sentinel deny-scripts-reconfig yes
 # is possible to just rename a command to itsef:
 #
 # SENTINEL rename-command mymaster CONFIG CONFIG
-
-<% master.if_p('rename_config_command') do |command| %>
+<%- master.if_p('rename_config_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> CONFIG <%= command %>
-<% end %>
-
-<% master.if_p('rename_save_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_save_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> SAVE <%= command %>
-<% end %>
-
-<% master.if_p('rename_bgsave_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_bgsave_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> BGSAVE <%= command %>
-<% end %>
-
-<% master.if_p('rename_bgrewriteaof_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_bgrewriteaof_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> BGREWRITEAOF <%= command %>
-<% end %>
-
-<% master.if_p('rename_monitor_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_monitor_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> MONITOR <%= command %>
-<% end %>
-
-<% master.if_p('rename_debug_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_debug_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> DEBUG <%= command %>
-<% end %>
-
-<% master.if_p('rename_shutdown_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_shutdown_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> SHUTDOWN <%= command %>
-<% end %>
-
-<% master.if_p('rename_slaveof_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_slaveof_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> SLAVEOF <%= command %>
-<% end %>
-
-<% master.if_p('rename_replicaof_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_replicaof_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> REPLICAOF <%= command %>
-<% end %>
-
-<% master.if_p('rename_sync_command') do |command| %>
+<%- end -%>
+<%- master.if_p('rename_sync_command') do |command| -%>
 sentinel rename-command <%= spec.deployment %> SYNC <%= command %>
-<% end %>
+<%- end -%>
 
 # You can also configure the Sentinel instance itself in order to require client
 # authentication via the AUTH command, however this feature is only available starting with
@@ -330,9 +308,8 @@ sentinel rename-command <%= spec.deployment %> SYNC <%= command %>
 #
 # Before using this configuration make sure your client library is able to send the AUTH
 # command to Sentinel instances.
-<%
-  sentinel_master.if_p('password') do |password|
-    unless password.to_s.empty? %>
+<%- sentinel.if_p('password') do |password|
+    unless password.to_s.empty? -%>
 requirepass <%= password %>
-<%  end
-  end %>
+<%- end
+  end -%>

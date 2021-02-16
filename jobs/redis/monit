@@ -1,14 +1,10 @@
-<%
-  master=link('redis_conn')
-  if_link('master_conn'){ |x| master=x }
+<%- master=link('redis_conn')
   sentinel=nil
-  if_link('redis_sentinel_conn'){ |x| sentinel=x }
-%>
+  if_link('redis_sentinel_conn'){ |x| sentinel=x } -%>
 check process redis
   with pidfile /var/vcap/sys/run/redis/redis.pid
   start program "/var/vcap/jobs/redis/bin/redis_ctl start"
-<%
-  if master.p('replication') || master.p('cluster_enabled').eql?('yes')
+<%- if master.p('replication') || master.p('cluster_enabled').eql?('yes')
     redis_persistance_rdb=0
     master.if_p('save') do |x|
       if !x.to_s.empty?
@@ -16,15 +12,13 @@ check process redis
       end
     end
     if redis_persistance_rdb==0 && master.p('appendonly').eql?('no')
-      if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0
-%>
+      if master.p('cluster_enabled').eql?('yes') && master.p('cluster_replicas_per_node').to_i>0 -%>
     with timeout <%= (master.p('cluster_node_timeout').to_i*2)/1000 %> seconds
-<%    end
-      if master.p('replication') && !sentinel.nil?
-%>
+<%-   end
+      if master.p('replication') && !sentinel.nil? -%>
     with timeout <%= (sentinel.p('down_after_milliseconds').to_i*2)/1000 %> seconds
-<%    end
+<%-   end
     end
-  end %>
+  end -%>
   stop program "/var/vcap/jobs/redis/bin/redis_ctl stop"
   group vcap

@@ -1,0 +1,43 @@
+#!/bin/bash
+<%- master=link('redis_conn') -%>
+
+ERR=0;
+<%- if master.p('cluster_enabled').eql?('yes') -%>
+CLI="/var/vcap/packages/redis/bin/redis-cli";
+RUN_DIR="<%= p('run_dir') %>";
+STORE_DIR="<%= p('dir') %>";
+CONF_FILE_NAME="<%= 'nodes-'+master.p('port')+'.conf' %>";
+IP="127.0.0.1";
+<%- if master.p('bind') -%>
+IP="<%= spec.ip %>";
+<%- end -%>
+PORT="<%= master.p('port') %>";
+CRED="";
+<%- master.if_p('password') do |x|
+    unless x.to_s.empty? -%>
+CRED="-a <%= x %>";
+<%- end
+  end -%>
+if [[ "${BOSH_DEPLOYMENT_NEXT_STATE}" == "delete" ]];
+then
+  rm -f "${STORE_DIR}/config/${CONF_FILE_NAME}";
+else
+  MSG="$("${CLI}" \
+    -h "${IP}" \
+    -p "${PORT}" \
+    ${CRED} \
+    CLUSTER SAVECONFIG)";
+  if [[ ${?} -eq 0 ]];
+  then
+    if [[ $(mkdir -p "${STORE_DIR}/config") -ne 0 ]] || \
+      [[ $(cp -f "${RUN_DIR}/${CONF_FILE_NAME}" "${STORE_DIR}/config/.") -ne 0 ]];
+    then
+      ERR=1;
+      echo "ERROR: Unable to copy ${RUN_DIR}/${CONF_FILE_NAME} to ${STORE_DIR}/config/." >&2;
+    else
+      echo "Redis cluster nodes configuration ${RUN_DIR}/${CONF_FILE_NAME} is backuped in ${STORE_DIR}/config/.";
+    fi
+  fi
+fi
+<%- end -%>
+exit ${ERR};

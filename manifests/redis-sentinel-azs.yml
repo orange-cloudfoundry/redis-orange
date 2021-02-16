@@ -7,24 +7,25 @@ instance_groups:
   instances: ((master_node_count))
   vm_type: ((default_vm_type))
   stemcell: default
-  persistent_disk_type: ((default_persistent_disk_type))
+  persistent_disk: ((persistent_disk_size))
   networks:
   - name: ((default_network))
   jobs:
   - name: redis
-    release: redis-service
+    release: ((release_name))
     provides:
       redis_conn: {as: master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
       slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
       password: ((redis_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
+      replication: ((redis_replication))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -35,113 +36,96 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-      replication: ((redis_replication))
-      min_replicas_to_write: ((redis_min_replicas_to_write))
   - name: redis_sentinel
-    release: redis-service
+    release: ((release_name))
     provides:
       redis_sentinel_conn: {as: sentinel_master}
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
     properties:
-      bind: ((redis_sentinel_bind))
-      password: ((redis_sentinel_password))
+      bind: ((redis_bind))
+      password: ((sentinel_password))
   - name: redis_check
-    release: redis-service
+    release: ((release_name))
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      slave_conn:  {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
   - name: redis_exporter
-    release: redis-service
+    release: ((release_name))
     consumes:
       redis_conn: {from: master}
-    properties:
-      debug: ((redis_exporter_debug))
   - name: redis_sentinel_exporter
-    release: redis-service
+    release: ((release_name))
     consumes:
       redis_sentinel_conn: {from: sentinel_master}
-    properties:
-      debug: ((redis_sentinel_exporter_debug))
 - name: redis-slave
   azs: [((default_az))]
   instances: ((slave_node_count))
   vm_type: ((default_vm_type))
   stemcell: default
-  persistent_disk_type: ((default_persistent_disk_type))
+  persistent_disk: ((persistent_disk_size))
   networks:
   - name: ((default_network))
   jobs:
   - name: redis
-    release: redis-service
+    release: ((release_name))
     provides:
       redis_conn: {as: slave}
     consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
+      redis_conn: {from: master}
       slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
   - name: redis_sentinel
-    release: redis-service
+    release: ((release_name))
     provides:
       redis_sentinel_conn: {as: sentinel_slave}
     consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
-      sentinel_master_conn: {from: sentinel_master}
-  - name: redis_check
-    release: redis-service
-    consumes:
-      redis_conn: {from: slave}
-      master_conn: {from: master}
-      slave_conn: {from: slave}
+      redis_conn: {from: master}
       redis_sentinel_conn: {from: sentinel_master}
-  - name: redis_exporter
-    release: redis-service
+  - name: redis_check
+    release: ((release_name))
     consumes:
       redis_conn: {from: master}
-    properties:
-      debug: ((redis_exporter_debug))
+      slave_conn:  {from: slave}
+      redis_sentinel_conn: {from: sentinel_master}
+      sentinel_slave_conn: {from: sentinel_slave}
+  - name: redis_exporter
+    release: ((release_name))
+    consumes:
+      redis_conn: {from: master}
   - name: redis_sentinel_exporter
-    release: redis-service
+    release: ((release_name))
     consumes:
       redis_sentinel_conn: {from: sentinel_master}
-    properties:
-      debug: ((redis_sentinel_exporter_debug))
 - name: broker
   azs: [((default_az))]
   instances: 1
   vm_type: ((default_vm_type))
   stemcell: default
-  persistent_disk_type: ((default_persistent_disk_type))
   networks:
   - name: ((default_network))
   jobs:
   - name: redis_broker
-    release: redis-service
+    release: ((release_name))
     consumes:
       redis_conn: {from: master}
-      master_conn: {from: master}
       slave_conn: {from: slave}
       redis_sentinel_conn: {from: sentinel_master}
-      sentinel_master_conn: {from: sentinel_master}
       sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
-      password: ((redis_broker_password))
-      loglevel: ((redis_broker_loglevel))
+      password: ((broker_password))
   - name: redis_broker_check
-    release: redis-service
+    release: ((release_name))
 
 variables:
 - name: redis_password
   type: password
-- name: redis_sentinel_password
+- name: sentinel_password
   type: password
 - name: redis_rename_config_command
   type: password
@@ -163,7 +147,7 @@ variables:
   type: password
 - name: redis_rename_sync_command
   type: password
-- name: redis_broker_password
+- name: broker_password
   type: password
 
 stemcells:
@@ -172,7 +156,7 @@ stemcells:
   version: "((stemcell_version))"
 
 releases:
-- name: redis-service
+- name: ((release_name))
   version: latest
 
 update:

@@ -1,39 +1,38 @@
 #!/bin/bash
+<%- broker=link('redis_broker_conn') -%>
 
-REDIS_BROKER_IP="127.0.0.1";
-<% if link('redis_broker_conn').p('bind') %>
-REDIS_BROKER_IP="<%= spec.ip %>";
-<% end %>
-REDIS_BROKER_PORT="<%= link('redis_broker_conn').p('port') %>";
+ERR=0;
+IP="127.0.0.1";
+<%- if broker.p('bind') -%>
+IP="<%= spec.ip %>";
+<%- end -%>
+BASE_URI="http://<%= broker.p('user') %>:<%= broker.p('password') %>@${IP}:<%= broker.p('port') %>";
 
-REDIS_BROKER_USER="<%= link('redis_broker_conn').p('user') %>";
-REDIS_BROKER_PASSWORD="<%= link('redis_broker_conn').p('password') %>";
-
-BASE_URI="http://${REDIS_BROKER_USER}:${REDIS_BROKER_PASSWORD}@${REDIS_BROKER_IP}:${REDIS_BROKER_PORT}";
-
-ERR_CATALOG=1;
 if [[ "$(curl -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/catalog)" == "200" ]];
 then
-  ERR_CATALOG=0;
-  echo "Catalog: OK";
+  echo "#### Catalog request result:";
+  echo "$(curl ${BASE_URI}/v2/catalog)";
+  echo "#### Catalog: OK";
 else
-  echo "Catalog: KO";
+  ERR=1;
+  echo "ERROR: Catalog: KO" >&2;
 fi
 
-ERR_BINDING=1;
-if [[ "$(curl -s -o /dev/null -w "%{http_code}" ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id?accepts_incomplete=true -d '{ "service_id": "redis-service", "plan_id": "redis" }' -X PUT -H 'Content-Type: application/json')" == "201" ]];
+if [[ "$(curl -s -o /dev/null -w "%{http_code}" \
+  ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id?accepts_incomplete=true \
+  -d '{ "service_id": "redis-service", "plan_id": "redis" }' \
+  -X PUT -H 'Content-Type: application/json')" == "201" ]];
 then
-  ERR_BINDING=0;
-  echo "Binding: OK";
+  echo "#### Binding request result:";
+  echo "$(curl \
+    ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id?accepts_incomplete=true \
+    -d '{ "service_id": "redis-service", "plan_id": "redis" }' \
+    -X PUT -H 'Content-Type: application/json')";
+  echo "#### Binding: OK";
 else
-  echo "Binding: KO";
-fi
-
-ERR=1;
-if [[ ${ERR_CATALOG} -eq 0 ]] && [[ ${ERR_BINDING} -eq 0 ]];
-then
-  ERR=0;
+  ERR=1;
+  echo "ERROR: Binding: KO" >&2;
 fi
 
 exit ${ERR};
