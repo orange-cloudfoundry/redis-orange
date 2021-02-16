@@ -46,8 +46,8 @@ instance_groups:
       password: ((broker_password))
     consumes:
       slave_conn: nil
-      redis_sentinel_conn: {from: sentinel_master}
-      sentinel_slave_conn: {from: sentinel_slave}
+      redis_sentinel_conn: nil
+      sentinel_slave_conn: nil
   - name: redis_broker_check
     release: ((release_name))
 

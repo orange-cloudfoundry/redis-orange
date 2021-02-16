@@ -6,7 +6,7 @@ instance_groups:
   azs: [((default_az))]
   instances: ((master_node_count))
   vm_type: ((default_vm_type))
-  stemcell: 
+  stemcell: default
   networks:
   - name: ((default_network))
   jobs:
@@ -134,6 +134,6 @@ releases:
 update:
   canaries: 2
   canary_watch_time: 60000-120000
-  max_in_flight: 2
+  max_in_flight: 7
   update_watch_time: 60000-120000
-  serial: false
+  serial: true

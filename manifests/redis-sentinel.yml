@@ -22,10 +22,10 @@ instance_groups:
       sentinel_slave_conn: {from: sentinel_slave}
     properties:
       bind: ((redis_bind))
-      password: ((redis_password))
       maxmemory: ((redis_maxmemory))
       maxmemory_policy: ((redis_maxmemory_policy))
       replication: ((redis_replication))
+      password: ((redis_password))
       rename_config_command: ((redis_rename_config_command))
       rename_save_command: ((redis_rename_save_command))
       rename_bgsave_command: ((redis_rename_bgsave_command))
@@ -36,16 +36,6 @@ instance_groups:
       rename_slaveof_command: ((redis_rename_slaveof_command))
       rename_replicaof_command: ((redis_rename_replicaof_command))
       rename_sync_command: ((redis_rename_sync_command))
-  - name: redis_sentinel
-    release: ((release_name))
-    provides:
-      redis_sentinel_conn: {as: sentinel_master}
-    consumes:
-      redis_conn: {from: master}
-      redis_sentinel_conn: {from: sentinel_master}
-    properties:
-      bind: ((redis_bind))
-      password: ((sentinel_password))
   - name: redis_check
     release: ((release_name))
     consumes:
@@ -57,6 +47,16 @@ instance_groups:
     release: ((release_name))
     consumes:
       redis_conn: {from: master}
+  - name: redis_sentinel
+    release: ((release_name))
+    provides:
+      redis_sentinel_conn: {as: sentinel_master}
+    consumes:
+      redis_conn: {from: master}
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      bind: ((redis_bind))
+      password: ((sentinel_password))
   - name: redis_sentinel_exporter
     release: ((release_name))
     consumes:
@@ -142,6 +142,6 @@ releases:
 update:
   canaries: 1
   canary_watch_time: 60000-120000
-  max_in_flight: 1
+  max_in_flight: 4
   update_watch_time: 60000-120000
   serial: true
