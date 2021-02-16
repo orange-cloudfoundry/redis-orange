@@ -22,18 +22,10 @@ redis_broker/broker-0.0.1-SNAPSHOT.jar:
   size: 27296565
   object_id: 8cd1a16b-92be-4197-4f94-08693d8ae2a6
   sha: sha256:811004a864a991c8ab2af3c987141cf5c0ca54e02aca6ee90f325e964d82d97c
-redis_exporter/redis_exporter-v1.3.5.linux-amd64.tar.gz:
-  size: 3376514
-  object_id: c6f9f3b1-a863-4793-52f5-55d133c721c9
-  sha: sha256:bb408128cb4c3024c8532dae3539080349687cc96cbab51a1e06e9a15519b874
 redis_exporter/redis_exporter-v1.16.0.linux-amd64.tar.gz:
   size: 3264022
   object_id: ff27ef12-1b6b-455e-615a-515b95d3ab3f
   sha: sha256:de350fe8638cd29eca2fde11d26bf59d429504c6a8f1752bf9c1697c5689f425
-redis_sentinel_exporter/redis_sentinel_exporter-1.3.0.linux-amd64.tar.gz:
-  size: 3217655
-  object_id: ab97ab32-3dc3-4de5-7a31-2b23aa5f23f1
-  sha: sha256:d74039cc92c914dccfb907ea6fb140377d13843193b772946ca7ec814a507b2e
 redis_sentinel_exporter/redis_sentinel_exporter-1.7.1.linux-amd64.tar.gz:
   size: 3810651
   object_id: 0b7e807d-77b5-4580-76d7-dc7e2b86cde1
