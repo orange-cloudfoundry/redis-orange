@@ -1,11 +1,8 @@
 #!/bin/bash
 <%- sentinel=link('redis_sentinel_conn') -%>
 
-ERR=0
+ERR=0;
 CLI="/var/vcap/packages/redis/bin/redis-cli";
-STORE_DIR="<%= p('dir') %>";
-CONF_DIR="/var/vcap/jobs/redis_sentinel/config";
-CONF_FILE_NAME="redis_sentinel.conf";
 IP="127.0.0.1";
 <%- if sentinel.p('bind') -%>
 IP="<%= spec.ip %>";
@@ -17,6 +14,9 @@ CRED="";
 CRED="-a <%= x %>";
 <%- end
   end -%>
+STORE_DIR="<%= p('store_dir') %>";
+CONF_DIR="/var/vcap/jobs/redis_sentinel/config";
+CONF_FILE_NAME="redis_sentinel.conf";
 
 if [[ "${BOSH_DEPLOYMENT_NEXT_STATE}" == "delete" ]];
 then

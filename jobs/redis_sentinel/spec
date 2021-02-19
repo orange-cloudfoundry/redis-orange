@@ -57,10 +57,10 @@ properties:
     default: false
     description: |
       It is useful in environments where, because of NAT, Sentinel is reachable from outside via a non-local address. When announce is provided, the Sentinel will claim the specified IP address in HELLO messages used to gossip its presence, instead of auto-detecting the local address as it usually does.
-  dir:
+  store_dir:
     default: "/var/vcap/store/redis_sentinel"
     description: |
-      Every long running process should have a well-defined working directory. For Redis Sentinel to chdir to /tmp at startup is the simplest thing for the process to do not interfere with administrative tasks such as unmounting filesystems.
+      Persistent location where to save Redis Sentinel configuration.
   max_detected_failures:
     default: "2"
     description: |      

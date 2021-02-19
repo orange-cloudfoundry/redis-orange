@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ERR=0
-STORE_DIR="<%= p('dir') %>";
+ERR=0;
+STORE_DIR="<%= p('store_dir') %>";
 CONF_DIR="/var/vcap/jobs/redis_sentinel/config";
 CONF_FILE_NAME="redis_sentinel.conf";
 if [[ -f "${STORE_DIR}/config/${CONF_FILE_NAME}" ]];
@@ -11,6 +11,7 @@ then
     ERR=1;
     echo "ERROR: Unable to copy ${STORE_DIR}/config/${CONF_FILE_NAME} to ${CONF_DIR}/." >&2;
   else
+    chown vcap:vcap "${CONF_DIR}/${CONF_FILE_NAME}";
     echo "Redis Sentinel backup file ${STORE_DIR}/config/${CONF_FILE_NAME} restored in ${CONF_DIR}/.";
   fi
 fi

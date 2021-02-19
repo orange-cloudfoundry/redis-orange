@@ -6,10 +6,9 @@ set -eu
 PRG_NAME="redis_sentinel_exporter";
 RUN_DIR="/var/vcap/sys/run/${PRG_NAME}";
 LOG_DIR="/var/vcap/sys/log/${PRG_NAME}";
-TMP_DIR="/var/vcap/sys/tmp/${PRG_NAME}";
 PID_FILE="${RUN_DIR}/${PRG_NAME}.pid";
-mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}";
-chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}";
+chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}";
 export PATH=/var/vcap/packages/${PRG_NAME}/bin:${PATH};
 
 IP="127.0.0.1";

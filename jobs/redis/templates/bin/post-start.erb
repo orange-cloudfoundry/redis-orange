@@ -17,7 +17,6 @@ function wait_replica_sync {
       ROLE)";
     ERR=${?};
     if [[ ${ERR} -eq 0 ]] && \
-      [[ "slave" == "$(echo -e "${MSG}"|grep "slave")" ]] && \
       [[ "connected" == "$(echo -e "${MSG}"|grep "connected")" ]];
     then
       is_connected=1;
@@ -87,7 +86,28 @@ then
 fi
 <%- end
   if master.p('cluster_enabled').eql?('yes') -%>
-wait_replica_sync;
+MYID="$("${CLI}" \
+      -h ${REDIS_IP} \
+      -p ${REDIS_PORT} \
+      ${REDIS_CRED} \
+      CLUSTER MYID)";
+ERR=${?};
+if [[ ${ERR} -eq 0 ]];
+then
+  MSG="$("${CLI}" \
+      -h ${REDIS_IP} \
+      -p ${REDIS_PORT} \
+      ${REDIS_CRED} \
+      CLUSTER REPLICAS ${MYID})";
+  if [[ ${?} -ne 0 ]];
+  then
+    wait_replica_sync;
+  else
+    echo "Redis instance [${REDIS_IP}:${REDIS_PORT}] is a master.";
+  fi
+else
+  echo "ERROR: Redis CLUSTER MYID command failed: \"${MYID}\"." >&2;
+fi
 <%- end -%>
 
 exit ${ERR};

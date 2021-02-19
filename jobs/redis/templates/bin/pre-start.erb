@@ -4,7 +4,7 @@
 ERR=0;
 <%- if master.p('cluster_enabled').eql?('yes') -%>
 RUN_DIR="<%= p('run_dir') %>";
-STORE_DIR="<%= p('dir') %>";
+STORE_DIR="<%= p('store_dir') %>";
 CONF_FILE_NAME="<%= 'nodes-'+master.p('port')+'.conf' %>";
 if [[ -f "${STORE_DIR}/config/${CONF_FILE_NAME}" ]];
 then
@@ -13,6 +13,7 @@ then
     ERR=1;
     echo "ERROR: Unable to copy ${STORE_DIR}/config/${CONF_FILE_NAME} to ${RUN_DIR}/." >&2;
   else
+    chown vcap:vcap "${RUN_DIR}/${CONF_FILE_NAME}";
     echo "Redis Sentinel backup file ${STORE_DIR}/config/${CONF_FILE_NAME} restored in ${RUN_DIR}/.";
   fi
 fi

@@ -1,6 +1,6 @@
 #!/bin/bash
 <%- master=link('redis_conn')
-  slave=link('redis_conn')
+  slave=nil
   if_link('slave_conn'){ |x| slave=x } -%>
 
 ERR=0;
@@ -11,14 +11,6 @@ REDIS_IP="127.0.0.1";
 REDIS_IP="<%= spec.ip %>";
 <%- end -%>
 REDIS_PORT="<%= master.p('port') %>";
-
-NODE_CONF_FILE="<%= p('run_dir')+'/nodes-'+master.p('port')+'.conf' %>";
-if [[ -f "${NODE_CONF_FILE}" ]];
-then
-  echo "Redis node [${REDIS_IP}:${REDIS_PORT}] is already configured  in a cluster.";
-  exit 0;
-fi
-
 REDIS_CRED="";
 <%- master.if_p('password') do |password|
     unless password.to_s.empty? -%>
@@ -280,7 +272,6 @@ then
       if [[ ${MASTER_INSTANCES} -eq ${AVAILABLE_NODES} ]];
       then
         echo "All required Redis master nodes [${MASTER_INSTANCES}] are available";
-        ERR=0;
       else
         echo "ERROR: The required Redis master nodes [${MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
         ERR=1;
@@ -289,7 +280,6 @@ then
       if [[ ${SLAVE_INSTANCES} -eq ${AVAILABLE_NODES} ]];
       then
         echo "All required Redis slave nodes [${SLAVE_INSTANCES}] are available";
-        ERR=0;
       else
         echo "ERROR: The required Redis slave nodes [${SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
         ERR=1;

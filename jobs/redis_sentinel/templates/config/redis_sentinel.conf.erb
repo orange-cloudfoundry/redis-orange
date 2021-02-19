@@ -70,7 +70,7 @@ sentinel announce-ip <%= spec.ip %>
 # For Redis Sentinel to chdir to /tmp at startup is the simplest thing
 # for the process to don't interfere with administrative tasks such as
 # unmounting filesystems.
-dir <%= p('dir') %>
+dir <%= p('run_dir')+'/tmp' %>
 
 # sentinel monitor <master-name> <ip> <redis-port> <quorum>
 #

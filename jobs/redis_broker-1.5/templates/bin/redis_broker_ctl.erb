@@ -20,6 +20,7 @@ chown vcap:vcap \
 
 export JAVA_HOME=/var/vcap/packages/openjdk/jdk;
 export PATH=${JAVA_HOME}/bin:${PATH};
+export JAVA_OPTS="-XX:+UseG1GC -XX:+ResizeTLAB -XX:+UseNUMA -XX:-ResizePLAB -Xms256m -Xmx256m";
 
 case $1 in
   start)
@@ -27,6 +28,7 @@ case $1 in
     echo $$ > ${PID_FILE};
 
     exec chpst -u vcap:vcap java \
+      ${JAVA_OPTS} \
       -Dspring.config.location=file:/var/vcap/jobs/${PRG_NAME}/config/application.yml \
       -Dio.netty.native.workdir=${TMP_DIR} \
       -jar /var/vcap/packages/${PRG_NAME}/bin/${PRG_NAME}.jar  \

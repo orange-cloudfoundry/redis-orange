@@ -157,7 +157,7 @@ properties:
     default: "yes"
     description: |
       Since version 5 of RDB a CRC64 checksum is placed at the end of the file. This makes the format more resistant to corruption but there is a performance hit to pay (around 10%) when saving and loading RDB files, so you can disable it for maximum performances.
-  dir:
+  store_dir:
     default: "/var/vcap/store/redis/db"
     description: |
       The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory.
