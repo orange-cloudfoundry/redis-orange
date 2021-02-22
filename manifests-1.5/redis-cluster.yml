@@ -7,6 +7,7 @@ instance_groups:
   instances: ((node_count))
   vm_type: ((default_vm_type))
   stemcell: default
+  persistent_disk: ((persistent_disk_size))
   networks:
   - name: ((default_network))
   jobs:
@@ -99,6 +100,6 @@ releases:
 update:
   canaries: 2
   canary_watch_time: 60000-120000
-  max_in_flight: 7
+  max_in_flight: 8
   update_watch_time: 60000-120000
   serial: true
