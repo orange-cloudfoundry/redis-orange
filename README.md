@@ -106,10 +106,6 @@ To avoid persistence and to maintain automatic restart, we add a delay before st
 
 **Note**: If you use persistence, the start delay is avoided.
 
-## Collocation
-
-In our release, each Redis instance has its collocated Redis exporter instance, and each Redis Sentinel instance has its collocated Redis Sentinel exporter instance.
-
 ## Usage
 
 ### Clone the repository
