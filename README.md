@@ -153,7 +153,6 @@ This release supports at most two kinds of instance groups:
   > In practical terms this means during failures **Sentinel never starts a failover if the majority of Sentinel processes are unable to talk** (aka no failover in the minority partition).
 - `node_count` or `master_node_count+slave_node_count` must be greater or equal to 3.
 - To enable Redis High Availability with Redis Sentinel, `replication` (default: `false`) property must be set to `true`.
-- The Redis Sentinel exporter we use doesn't support, yet, TLS/SSL connections. So we need to enable TCP connections by setting a non zero value to TCP port in Redis Sentinel instance. Obviously, this put a potential security hole. So, if you don't need Redis Sentinel exporter, you can disable TCP connections by setting `0` to `port` property in Redis Sentinel instance.
 
 A deployment example manifest is: [redis-sentinel.yml](manifests-1.5/redis-sentinel.yml)
 
