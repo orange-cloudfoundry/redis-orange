@@ -36,7 +36,7 @@ case "${1}" in
       "${LOG_DIR}" \
       "${STORE_DIR}";
 
-    chown vcap:vcap \
+    chown -R vcap:vcap \
       "${RUN_DIR}" \
       "${LOG_DIR}" \
       "${STORE_DIR}";
