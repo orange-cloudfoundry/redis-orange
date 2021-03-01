@@ -17,8 +17,8 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Packages versions summary
 
-- Redis [*5.0.10*](https://download.redis.io/releases/redis-5.0.10.tar.gz)
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.16.0*](https://github.com/oliver006/redis_exporter/releases/download/v1.16.0/redis_exporter-v1.16.0.linux-amd64.tar.gz)
+- Redis [*5.0.11*](https://download.redis.io/releases/redis-5.0.11.tar.gz)
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.17.1*](https://github.com/oliver006/redis_exporter/releases/download/v1.17.1/redis_exporter-v1.17.1.linux-amd64.tar.gz)
 - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.7.1*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.7.1/redis_sentinel_exporter-1.7.1.linux-amd64.tar.gz)
 - [*OpenJDK*](https://openjdk.java.net/) [*13.0.2*](https://download.java.net/java/GA/jdk13.0.2/d4173c853231432d94f001e99d882ca7/8/GPL/openjdk-13.0.2_linux-x64_bin.tar.gz)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)

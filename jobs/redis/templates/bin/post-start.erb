@@ -1,5 +1,7 @@
 #!/bin/bash
 <%- master=link('redis_conn')
+  slave=nil
+  if_link('slave_conn'){ |x| slave=x }
   sentinel=nil
   if_link('redis_sentinel_conn'){ |x| sentinel=x }
   sentinel_slave=nil
@@ -49,63 +51,76 @@ SENTINEL_CRED="-a <%= x %>";
   end
   sentinel_addresses=''
   sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
-  sentinel_instances=sentinel.instances.length
   if !sentinel_slave.nil?
     sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
-    sentinel_instances+=sentinel_slave.instances.length
   end -%>
 SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
-SENTINEL_INSTANCES="<%= sentinel_instances %>";
-i=0;
+SENTINEL_ADDRESSES="${SENTINEL_ADDRESSES//$REDIS_IP/}";
 is_replica=0;
 for x in ${SENTINEL_ADDRESSES};
 do
-  if [[ "${x}" != "${REDIS_IP}" ]];
+  MSG="$("${CLI}" \
+    -h "${x}" \
+    -p "${SENTINEL_PORT}" \
+    ${SENTINEL_CRED} \
+    SENTINEL GET-MASTER-ADDR-BY-NAME <%= spec.deployment %>)";
+  if [[ ${?} -eq 0 ]] && \
+    [[ -n "${MSG}" ]] && \
+    [[ "${REDIS_IP}" != "$(echo -e "${MSG}"|grep "${REDIS_IP}")" || \
+    "${REDIS_PORT}" != "$(echo -e "${MSG}"|grep "${REDIS_PORT}")" ]];
   then
-    MSG="$("${CLI}" \
-      -h "${x}" \
-      -p "${SENTINEL_PORT}" \
-      ${SENTINEL_CRED} \
-      SENTINEL GET-MASTER-ADDR-BY-NAME <%= spec.deployment %>)";
-    if [[ ${?} -eq 0 ]] && \
-      [[ -n "${MSG}" ]] && \
-      [[ "${REDIS_IP}" != "$(echo -e "${MSG}"|grep "${REDIS_IP}")" || \
-      "${REDIS_PORT}" != "$(echo -e "${MSG}"|grep "${REDIS_PORT}")" ]];
-    then
-      is_replica=1;
-      echo "Redis instance [${REDIS_IP}:${REDIS_PORT}] is a replica.";
-      break;
-    fi
+    ((is_replica++));
+    echo -e "Sentinel [${x}]: Redis instance [${REDIS_IP}:${REDIS_PORT}] is a replica:\n${MSG}";
   fi
-  ((i++));
 done
 
-if [[ ${i} -lt ${SENTINEL_INSTANCES} ]] && [[ ${is_replica} -eq 1 ]];
+if [[ ${is_replica} -eq 0 ]];
 then
+  echo "Redis instance [${REDIS_IP}:${REDIS_PORT}] is a master.";
+else
   wait_replica_sync;
 fi
 <%- end
-  if master.p('cluster_enabled').eql?('yes') -%>
+  if master.p('cluster_enabled').eql?('yes')
+  nodes_addresses=''
+  master.instances.each{ |x| nodes_addresses.concat(x.address).concat(' ') }
+  if !slave.nil?
+    slave.instances.each{ |x| nodes_addresses.concat(x.address).concat(' ') }
+  end -%>
+NODES_ADDRESSES="<%= nodes_addresses %>";
+NODES_ADDRESSES="${NODES_ADDRESSES//$REDIS_IP/}";
 MYID="$("${CLI}" \
-      -h ${REDIS_IP} \
-      -p ${REDIS_PORT} \
-      ${REDIS_CRED} \
-      CLUSTER MYID)";
-ERR=${?};
-if [[ ${ERR} -eq 0 ]];
+  -h ${REDIS_IP} \
+  -p ${REDIS_PORT} \
+  ${REDIS_CRED} \
+  CLUSTER MYID)";
+if [[ ${?} -eq 0 ]];
 then
-  MSG="$("${CLI}" \
-      -h ${REDIS_IP} \
-      -p ${REDIS_PORT} \
+  is_replica=0;
+  for x in ${NODES_ADDRESSES};
+  do
+    MSG="$("${CLI}" \
+      -h "${x}" \
+      -p "${REDIS_PORT}" \
       ${REDIS_CRED} \
-      CLUSTER REPLICAS ${MYID})";
-  if [[ ${?} -ne 0 ]];
+      CLUSTER NODES)";
+    if [[ ${?} -eq 0 ]] && \
+      [[ $(echo "${MSG}" | \
+        awk -v myid="${MYID}" '{if(($1==myid) && ($3!="master")) print 1;}') -eq 1 ]];
+    then
+      ((is_replica++));
+      echo -e "Node [${x}]: Redis instance [${REDIS_IP}:${REDIS_PORT}] is a replica:\n${MSG}";
+    fi
+  done
+
+  if [[ ${is_replica} -eq 0 ]];
   then
-    wait_replica_sync;
-  else
     echo "Redis instance [${REDIS_IP}:${REDIS_PORT}] is a master.";
+  else
+    wait_replica_sync;
   fi
 else
+  ERR=1;
   echo "ERROR: Redis CLUSTER MYID command failed: \"${MYID}\"." >&2;
 fi
 <%- end -%>

@@ -5,8 +5,8 @@
   
   to support BOSH recreate to support Redis high availability with Redis Sentinel and Redis Cluster high availability. Your deployment must be serial and having a persistent storage to support this feature.
 - Components update:
-  - [*Redis*](https://redis.io/) 5.0.7 -> 5.0.10
-  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.5 -> 1.16.0
+  - [*Redis*](https://redis.io/) 5.0.7 -> 5.0.11
+  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.5 -> 1.17.1
   - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.7.1
 
 ## redis-orange 1.0.2.1
