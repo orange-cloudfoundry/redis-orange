@@ -6,7 +6,7 @@
   - [*OpenJDK*](https://openjdk.java.net/) 15.0.1 -> 15.0.2,
   - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.5 -> 2.4.3,
   - [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 -> 3.3.0,
-  - [*havegd*](https://www.issihosts.com/haveged/) 1.9.13 -> 1.9.14. 
+  - [*havegd*](https://www.issihosts.com/haveged/) 1.9.13 -> 1.9.14.
 
 ## redis-orange 1.0.2.2
 
@@ -16,16 +16,16 @@
   
   to support BOSH recreate to support Redis high availability with Redis Sentinel and Redis Cluster high availability. Your deployment must be serial and having a persistent storage to support this feature.
 - Components update:
-  - [*Redis*](https://redis.io/) 5.0.7 -> 5.0.11
-  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.5 -> 1.17.1
-  - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.7.1
+  - [*Redis*](https://redis.io/) 5.0.7 -> 5.0.11,
+  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.5 -> 1.17.1,
+  - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.7.1.
 
 ## redis-orange 1.0.3
 
 - Added features introduced in Redis 6.x:
-  - TSL/SSL
-  - ACL
-  - Multi-threading
+  - TSL/SSL,
+  - ACL,
+  - Multi-threading.
 - Added [*havegd*](https://www.issihosts.com/haveged/) [*1.9.13*](https://github.com/jirka-h/haveged/releases/tag/v1.9.13) to provide a better unpredictable random number generator.
 - Added support for reconfiguring Sentinel at runtime to share Sentinels with several Redis masters.
 - Components update:
@@ -54,12 +54,12 @@
 ## redis-orange 1.0.1
 
 Components update:
-- [*Redis*](https://redis.io/) 5.0.5 -> 5.0.7
-- [*OpenJDK*](https://openjdk.java.net/) 12.0.1 -> 13.0.1
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.0.3 -> 1.3.4
-- [*Spring Boot*](https://spring.io/projects/spring-boot) 2.1.6 -> 2.2.1 and 1.5.21 -> 1.5.22
-- [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.0.3 -> 3.1.0
-- [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.3 -> 1.0.4
+- [*Redis*](https://redis.io/) 5.0.5 -> 5.0.7,
+- [*OpenJDK*](https://openjdk.java.net/) 12.0.1 -> 13.0.1,
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.0.3 -> 1.3.4,
+- [*Spring Boot*](https://spring.io/projects/spring-boot) 2.1.6 -> 2.2.1 and 1.5.21 -> 1.5.22,
+- [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.0.3 -> 3.1.0,
+- [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.3 -> 1.0.4.
 
 ## redis-orange 1.0
 
