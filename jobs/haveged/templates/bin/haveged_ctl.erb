@@ -2,35 +2,33 @@
 
 set -eu
 
-PROGNAME="haveged";
-RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
-LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
-TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
-STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
-mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
-chown root:root "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+PRG_NAME="haveged";
+RUN_DIR="/var/vcap/sys/run/${PRG_NAME}";
+LOG_DIR="/var/vcap/sys/log/${PRG_NAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}";
+chown root:root "${RUN_DIR}" "${LOG_DIR}";
 
-PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
+PID_FILE="${RUN_DIR}/${PRG_NAME}.pid";
 
-source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
-exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
-exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+source "/var/vcap/packages/${PRG_NAME}/bin/utils.sh";
+exec 1>> "${LOG_DIR}/${PRG_NAME}.stdout.log";
+exec 2>> "${LOG_DIR}/${PRG_NAME}.stderr.log";
 chown root:root \
-  "${LOG_DIR}/${PROGNAME}.stdout.log" \
-  "${LOG_DIR}/${PROGNAME}.stderr.log";
+  "${LOG_DIR}/${PRG_NAME}.stdout.log" \
+  "${LOG_DIR}/${PRG_NAME}.stderr.log";
 
 case $1 in
   start)
-    pid_guard "${PID_FILE}" "${PROGNAME}";
+    pid_guard "${PID_FILE}" "${PRG_NAME}";
     echo $$ > "${PID_FILE}";
 
-    exec "/var/vcap/packages/${PROGNAME}/sbin/${PROGNAME}"  \
+    exec "/var/vcap/packages/${PRG_NAME}/sbin/${PRG_NAME}"  \
       -F \
       -p "${PID_FILE}" \
       -w <%= p('write_wakeup_threshold') %> \
       -v <%= p('loglevel') %> \
-      >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
-      2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+      >> "${LOG_DIR}/${PRG_NAME}.stdout.log" \
+      2>> "${LOG_DIR}/${PRG_NAME}.stderr.log";
     ;;
 
   stop)

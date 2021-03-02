@@ -3,15 +3,15 @@ package com.orange.redis.service.broker;
 import java.net.InetAddress;
 
 import com.orange.redis.service.broker.model.RedisConfig;
-import org.junit.Test;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("sentinel")
 public class RedisSentinelConfigTest {
@@ -24,17 +24,15 @@ public class RedisSentinelConfigTest {
     for (InetAddress address : redisConfig.getServers())
       servers = servers.concat(address.getHostAddress()).concat(" ");
     servers = servers.trim();
-    Assert.assertEquals("192.168.56.101 192.168.56.102", servers);
-    Assert.assertEquals("6379", redisConfig.getPort().toString());
-    Assert.assertEquals("redis_secret", redisConfig.getPassword());
-    Assert.assertEquals("admin", redisConfig.getAdmin_user());
-    Assert.assertEquals("admin_secret", redisConfig.getAdmin_password());
-    Assert.assertFalse(redisConfig.getSentinel().isEmpty());
-    Assert.assertEquals("master", redisConfig.getSentinel().getMaster_name());
-    Assert.assertEquals("26379",
-        redisConfig.getSentinel().getPort().toString());
-    Assert.assertEquals("redis_sentinel_secret",
-        redisConfig.getSentinel().getPassword());
-    Assert.assertTrue(redisConfig.getTls().isEmpty());
+    Assertions.assertEquals("192.168.56.101 192.168.56.102", servers);
+    Assertions.assertEquals("6379", redisConfig.getPort().toString());
+    Assertions.assertEquals("redis_secret", redisConfig.getPassword());
+    Assertions.assertEquals("admin", redisConfig.getAdmin_user());
+    Assertions.assertEquals("admin_secret", redisConfig.getAdmin_password());
+    Assertions.assertFalse(redisConfig.getSentinel().isEmpty());
+    Assertions.assertEquals("master", redisConfig.getSentinel().getMaster_name());
+    Assertions.assertEquals("26379", redisConfig.getSentinel().getPort().toString());
+    Assertions.assertEquals("redis_sentinel_secret", redisConfig.getSentinel().getPassword());
+    Assertions.assertTrue(redisConfig.getTls().isEmpty());
   }
 }

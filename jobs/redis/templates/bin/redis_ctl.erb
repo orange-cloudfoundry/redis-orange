@@ -7,15 +7,14 @@ CLI="${REDIS_HOME}/bin/redis-cli";
 RUN_DIR="<%= p('run_dir') %>";
 LOG_DIR="<%= p('log_dir') %>";
 LOG_FILE="${LOG_DIR}/<%= p('logfile') %>";
-STORE_DIR="<%= p('dir') %>";
+STORE_DIR="<%= p('store_dir') %>";
 PID_FILE="${RUN_DIR}/<%= p('pidfile') %>";
-CONF_FILE="/var/vcap/jobs/redis/config/redis.conf";
-
+CONF_DIR="/var/vcap/jobs/redis/config";
+CONF_FILE="${CONF_DIR}/redis.conf";
 IP="127.0.0.1";
 <%- if master.p('bind') -%>
 IP="<%= spec.ip %>";
 <%- end -%>
-
 PORT="<%= master.p('port') %>";
 CRED="--user <%= master.p('admin_user') %>";
 <%- master.if_p('admin_password') do |x|
@@ -38,7 +37,7 @@ case "${1}" in
       "${LOG_DIR}" \
       "${STORE_DIR}";
 
-    chown vcap:vcap \
+    chown -R vcap:vcap \
       "${RUN_DIR}" \
       "${LOG_DIR}" \
       "${STORE_DIR}";
@@ -46,6 +45,7 @@ case "${1}" in
     chmod 750 "${STORE_DIR}";
     touch "${LOG_FILE}";
     chown vcap:vcap "${LOG_FILE}";
+    chmod 770 "${CONF_DIR}"
     chmod 660 "${CONF_FILE}";
 
     # Remove temp backup files that might be left over because of a

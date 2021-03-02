@@ -7,8 +7,10 @@ templates:
   config/redis.conf.erb: config/redis.conf
   config/users.acl.erb: config/users.acl
   bin/pre-start.erb: bin/pre-start
-  bin/post-deploy.erb: bin/post-deploy
   bin/redis_ctl.erb: bin/redis_ctl
+  bin/post-start.erb: bin/post-start
+  bin/post-deploy.erb: bin/post-deploy
+  bin/pre-stop.erb: bin/pre-stop
 
 packages:
 - redis
@@ -289,7 +291,7 @@ properties:
       An alternative (and sometimes better) way to obtain the same effect is
       to use diskless replication on both master and replicas instances. However
       in the case of replicas, diskless is not always an option.
-  dir:
+  store_dir:
     default: "/var/vcap/store/redis"
     description: |
       The working directory. The DB will be written inside this directory. The Append Only File will also be created inside this directory.

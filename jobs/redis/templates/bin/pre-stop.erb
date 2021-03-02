@@ -1,0 +1,99 @@
+#!/bin/bash
+<%- master=link('redis_conn')
+  sentinel=nil
+  if_link('redis_sentinel_conn'){ |x| sentinel=x }
+  sentinel_slave=nil
+  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } -%>
+
+ERR=0;
+CLI="/var/vcap/packages/redis/bin/redis-cli";
+<%- if !sentinel.nil? -%>
+PORT="<%= sentinel.p('port') %>";
+CRED="";
+<%- sentinel.if_p('password') do |x|
+    unless x.to_s.empty? -%>
+CRED="-a <%= x %>";
+<%- end
+  end
+  if sentinel.p('tls') -%>
+PORT="<%= sentinel.p('tls_port') %>";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+CRED+=" --tls --cert ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+CRED+=" --key ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+CRED+=" --cacert ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+<%- end
+  sentinel_addresses=''
+  sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
+  if !sentinel_slave.nil?
+    sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
+  end -%>
+SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
+if [[ ${BOSH_DEPLOYMENT_NEXT_STATE} == "delete" ]];
+then
+  for x in ${SENTINEL_ADDRESSES};
+  do
+    MSG="$("${CLI}" \
+      -h "${x}" \
+      -p "${PORT}" \
+      ${CRED} \
+      SENTINEL REMOVE <%= spec.deployment %>)";
+    if [[ ${?} -eq 0 ]];
+    then
+      echo "Sentinel [${x}] removed [<%= spec.deployment %>] from monitor.";
+    else
+      ERR=1;
+      echo "ERROR: Unable to removed [<%= spec.deployment %>] from Sentinel [${x}]: \"${MSG}\"." >&2;
+    fi
+  done
+fi
+<%- end
+  if master.p('cluster_enabled').eql?('yes') -%>
+IP="127.0.0.1";
+<%- if master.p('bind') -%>
+IP="<%= spec.ip %>";
+<%- end -%>
+PORT="<%= master.p('port') %>";
+CRED="--user <%= master.p('admin_user') %>";
+<%- master.if_p('admin_password') do |x|
+    unless x.to_s.empty? -%>
+CRED+=" --pass <%= x %>";
+<%- end
+  end
+  if master.p('tls') -%>
+PORT="<%= master.p('tls_port') %>";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+CRED+=" --tls --cert ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+CRED+=" --key ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+CRED+=" --cacert ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+<%- end -%>
+RUN_DIR="<%= p('run_dir') %>";
+STORE_DIR="<%= p('store_dir') %>";
+<%- node_port=master.p('port')
+  if master.p('tls') && master.p('tls_cluster')
+    node_port=master.p('tls_port')
+  end -%>
+CONF_FILE_NAME="<%= 'nodes-'+node_port.to_s+'.conf' %>";
+if [[ "${BOSH_DEPLOYMENT_NEXT_STATE}" == "delete" ]];
+then
+  rm -f "${STORE_DIR}/config/${CONF_FILE_NAME}";
+else
+  MSG="$("${CLI}" \
+    -h "${IP}" \
+    -p "${PORT}" \
+    ${CRED} \
+    CLUSTER SAVECONFIG)";
+  if [[ ${?} -eq 0 ]];
+  then
+    if [[ $(mkdir -p "${STORE_DIR}/config") -ne 0 ]] || \
+      [[ $(cp -f "${RUN_DIR}/${CONF_FILE_NAME}" "${STORE_DIR}/config/.") -ne 0 ]];
+    then
+      ERR=1;
+      echo "ERROR: Unable to copy ${RUN_DIR}/${CONF_FILE_NAME} to ${STORE_DIR}/config/." >&2;
+    else
+      echo "Redis cluster nodes configuration ${RUN_DIR}/${CONF_FILE_NAME} is backuped in ${STORE_DIR}/config/.";
+    fi
+  fi
+fi
+<%- end -%>
+
+exit ${ERR};

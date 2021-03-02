@@ -78,10 +78,6 @@ properties:
     default: true
     description: |
       Whether to set client name to redis_exporter, defaults to true.
-  skip_tls_verification:
-    default: false
-    description: |
-      Whether to to skip TLS verification.
   web_port:
     default: "9121"
     description: |
@@ -119,4 +115,8 @@ properties:
     default: "exporter.key"
     description: |
       See tls_cert_file.
+  skip_tls_verification:
+    default: false
+    description: |
+      Whether to to skip TLS verification.
       

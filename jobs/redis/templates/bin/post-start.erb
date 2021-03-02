@@ -1,0 +1,144 @@
+#!/bin/bash
+<%- master=link('redis_conn')
+  slave=nil
+  if_link('slave_conn'){ |x| slave=x }
+  sentinel=nil
+  if_link('redis_sentinel_conn'){ |x| sentinel=x }
+  sentinel_slave=nil
+  if_link('sentinel_slave_conn'){ |x| sentinel_slave=x } -%>
+
+function wait_replica_sync {
+  local is_connected=0;
+  while [[ ${is_connected} -eq 0 ]] && [[ ${ERR} -eq 0 ]];
+  do
+    sleep "${DEPLAY}";
+    MSG="$("${CLI}" \
+      -h ${REDIS_IP} \
+      -p ${REDIS_PORT} \
+      ${REDIS_CRED} \
+      ROLE)";
+    ERR=${?};
+    if [[ ${ERR} -eq 0 ]] && \
+      [[ "connected" == "$(echo -e "${MSG}"|grep "connected")" ]];
+    then
+      is_connected=1;
+      echo "Redis replica [${REDIS_IP}:${REDIS_PORT}] is connected";
+    fi
+  done
+}
+
+ERR=0;
+DEPLAY="1";
+CLI="/var/vcap/packages/redis/bin/redis-cli";
+REDIS_IP="127.0.0.1";
+<%- if master.p('bind') -%>
+REDIS_IP="<%= spec.ip %>";
+<%- end -%>
+REDIS_PORT="<%= master.p('port') %>";
+REDIS_CRED="--user <%= master.p('admin_user') %>";
+<%- master.if_p('admin_password') do |x|
+    unless x.to_s.empty? -%>
+REDIS_CRED+=" --pass <%= x %>";
+<%- end
+  end
+  if master.p('tls') -%>
+REDIS_PORT="<%= master.p('tls_port') %>";
+TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
+TLS_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
+REDIS_CRED+=" --tls --cert ${TLS_CERT_FILE}";
+TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
+REDIS_CRED+=" --key ${TLS_KEY_FILE}";
+TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
+REDIS_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
+<%- end
+  if !sentinel.nil? && master.p('replication') -%>
+SENTINEL_PORT="<%= sentinel.p('port') %>";
+SENTINEL_CRED="";
+<%- sentinel.if_p('password') do |x|
+    unless x.to_s.empty? -%>
+SENTINEL_CRED="-a <%= x %>";
+<%- end
+  end 
+  if sentinel.p('tls') -%>
+SENTINEL_PORT="<%= sentinel.p('tls_port') %>";
+SENTINEL_CRED+=" --tls --cert ${TLS_CERT_FILE}";
+SENTINEL_CRED+=" --key ${TLS_KEY_FILE}";
+SENTINEL_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
+<%- end
+  sentinel_addresses=''
+  sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
+  if !sentinel_slave.nil?
+    sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
+  end -%>
+SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
+SENTINEL_ADDRESSES="${SENTINEL_ADDRESSES//$REDIS_IP/}";
+is_replica=0;
+for x in ${SENTINEL_ADDRESSES};
+do
+  MSG="$("${CLI}" \
+    -h "${x}" \
+    -p "${SENTINEL_PORT}" \
+    ${SENTINEL_CRED} \
+    SENTINEL GET-MASTER-ADDR-BY-NAME <%= spec.deployment %>)";
+  if [[ ${?} -eq 0 ]] && \
+    [[ -n "${MSG}" ]] && \
+    [[ "${REDIS_IP}" != "$(echo -e "${MSG}"|grep "${REDIS_IP}")" || \
+    "${REDIS_PORT}" != "$(echo -e "${MSG}"|grep "${REDIS_PORT}")" ]];
+  then
+    ((is_replica++));
+    echo -e "Sentinel [${x}]: Redis instance [${REDIS_IP}:${REDIS_PORT}] is a replica:\n${MSG}";
+  fi
+done
+
+if [[ ${is_replica} -eq 0 ]];
+then
+  echo "Redis instance [${REDIS_IP}:${REDIS_PORT}] is a master.";
+else
+  wait_replica_sync;
+fi
+<%- end
+  if master.p('cluster_enabled').eql?('yes')
+  nodes_addresses=''
+  master.instances.each{ |x| nodes_addresses.concat(x.address).concat(' ') }
+  if !slave.nil?
+    slave.instances.each{ |x| nodes_addresses.concat(x.address).concat(' ') }
+  end -%>
+NODES_ADDRESSES="<%= nodes_addresses %>";
+NODES_ADDRESSES="${NODES_ADDRESSES//$REDIS_IP/}";
+MYID="$("${CLI}" \
+  -h ${REDIS_IP} \
+  -p ${REDIS_PORT} \
+  ${REDIS_CRED} \
+  CLUSTER MYID)";
+if [[ ${?} -eq 0 ]];
+then
+  is_replica=0;
+  for x in ${NODES_ADDRESSES};
+  do
+    MSG="$("${CLI}" \
+      -h "${x}" \
+      -p "${REDIS_PORT}" \
+      ${REDIS_CRED} \
+      CLUSTER NODES)";
+    if [[ ${?} -eq 0 ]] && \
+      [[ $(echo "${MSG}" | \
+        awk -v myid="${MYID}" '{if(($1==myid) && ($3!="master")) print 1;}') -eq 1 ]];
+    then
+      ((is_replica++));
+      echo -e "Node [${x}]: Redis instance [${REDIS_IP}:${REDIS_PORT}] is a replica:\n${MSG}";
+    fi
+  done
+
+  if [[ ${is_replica} -eq 0 ]];
+  then
+    echo "Redis instance [${REDIS_IP}:${REDIS_PORT}] is a master.";
+  else
+    wait_replica_sync;
+  fi
+else
+  ERR=1;
+  echo "ERROR: Redis CLUSTER MYID command failed: \"${MYID}\"." >&2;
+fi
+<%- end -%>
+
+exit ${ERR};

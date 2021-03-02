@@ -2,37 +2,38 @@
 
 set -eu
 
-PROGNAME="redis_broker-1.5";
-RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
-LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
-TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
-STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
-mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
-chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+PRG_NAME="redis_broker-1.5";
+RUN_DIR="/var/vcap/sys/run/${PRG_NAME}";
+LOG_DIR="/var/vcap/sys/log/${PRG_NAME}";
+TMP_DIR="/var/vcap/sys/tmp/${PRG_NAME}";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}";
+chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}";
 
-PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
+PID_FILE="${RUN_DIR}/${PRG_NAME}.pid";
 
-source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
-exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
-exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+source "/var/vcap/packages/${PRG_NAME}/bin/utils.sh";
+exec 1>> "${LOG_DIR}/${PRG_NAME}.stdout.log";
+exec 2>> "${LOG_DIR}/${PRG_NAME}.stderr.log";
 chown vcap:vcap \
-  "${LOG_DIR}/${PROGNAME}.stdout.log" \
-  "${LOG_DIR}/${PROGNAME}.stderr.log";
+  "${LOG_DIR}/${PRG_NAME}.stdout.log" \
+  "${LOG_DIR}/${PRG_NAME}.stderr.log";
 
 export JAVA_HOME="/var/vcap/packages/openjdk/jdk";
 export PATH="${JAVA_HOME}/bin:${PATH}";
+export JAVA_OPTS="-XX:+UseG1GC -XX:+ResizeTLAB -XX:+UseNUMA -XX:-ResizePLAB -Xms256m -Xmx256m";
 
 case $1 in
   start)
-    pid_guard "${PID_FILE}" "${PROGNAME}";
+    pid_guard "${PID_FILE}" "${PRG_NAME}";
     echo $$ > "${PID_FILE}";
 
     exec chpst -u vcap:vcap java \
-      -Dspring.config.location="file:/var/vcap/jobs/${PROGNAME}/config/application.yml" \
+      ${JAVA_OPTS} \
+      -Dspring.config.location="file:/var/vcap/jobs/${PRG_NAME}/config/application.yml" \
       -Dio.netty.native.workdir="${TMP_DIR}" \
-      -jar "/var/vcap/packages/${PROGNAME}/bin/${PROGNAME}.jar"  \
-      >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
-      2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+      -jar "/var/vcap/packages/${PRG_NAME}/bin/${PRG_NAME}.jar"  \
+      >> "${LOG_DIR}/${PRG_NAME}.stdout.log" \
+      2>> "${LOG_DIR}/${PRG_NAME}.stderr.log";
     ;;
 
   stop)

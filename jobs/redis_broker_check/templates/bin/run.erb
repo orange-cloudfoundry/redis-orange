@@ -1,6 +1,7 @@
 #!/bin/bash
 <% broker=link('redis_broker_conn') %>
 
+ERR=0;
 IP="127.0.0.1";
 <%- if broker.p('bind') -%>
 IP="<%= spec.ip %>";
@@ -12,36 +13,29 @@ PORT="<%= broker.p('tls_port') %>";
 PROTOCOLE="http";
 PORT="<%= broker.p('port') %>";
 <%- end -%>
-
 BASE_URI="${PROTOCOLE}://<%= broker.p('user') %>:<%= broker.p('password') %>@${IP}:${PORT}";
 
-ERR_CATALOG=1;
 if [[ "$(curl -k -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/catalog)" == "200" ]];
 then
-  ERR_CATALOG=0;
+  echo "#### Catalog request result:";
   echo "$(curl -k -s ${BASE_URI}/v2/catalog)";
-  echo "Catalog: OK";
+  echo "#### Catalog: OK";
 else
-  echo "Catalog: KO";
+  ERR=1;
+  echo "ERROR: Catalog: KO" >&2;
 fi
 
-ERR_BINDING=1;
 if [[ "$(curl -k -s -o /dev/null -I -w "%{http_code}" \
   ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)" == "200" ]];
 then
-  ERR_BINDING=0;
+  echo "#### Binding request result:";
   echo "$(curl -k -s \
   ${BASE_URI}/v2/service_instances/:instance_id/service_bindings/:binding_id)";
-  echo "Binding: OK";
+  echo "#### Binding: OK";
 else
-  echo "Binding: KO";
-fi
-
-ERR=1;
-if [[ ${ERR_CATALOG} -eq 0 ]] && [[ ${ERR_BINDING} -eq 0 ]];
-then
-  ERR=0;
+  ERR=1;
+  echo "ERROR: Binding: KO" >&2;
 fi
 
 exit ${ERR};

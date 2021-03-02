@@ -7,10 +7,9 @@ CLI="${REDIS_HOME}/bin/redis-cli";
 RUN_DIR="<%= p('run_dir') %>";
 LOG_DIR="<%= p('log_dir') %>";
 LOG_FILE="${LOG_DIR}/<%= p('logfile') %>";
-STORE_DIR="<%= p('dir') %>";
 PID_FILE="${RUN_DIR}/<%= p('pidfile') %>";
-CONF_FILE="/var/vcap/jobs/redis_sentinel/config/redis_sentinel.conf";
-
+CONF_DIR="/var/vcap/jobs/redis_sentinel/config";
+CONF_FILE="${CONF_DIR}/redis_sentinel.conf";
 IP="127.0.0.1";
 <%- if sentinel.p('bind') -%>
 IP="<%= spec.ip %>";
@@ -33,23 +32,22 @@ CRED+=" --cacert ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 case "${1}" in
   start)
     mkdir -p \
-      "${RUN_DIR}" \
-      "${LOG_DIR}" \
-      "${STORE_DIR}";
+      "${RUN_DIR}/tmp" \
+      "${LOG_DIR}";
 
-    chown vcap:vcap \
+    chown -R vcap:vcap \
       "${RUN_DIR}" \
-      "${LOG_DIR}" \
-      "${STORE_DIR}";
+      "${LOG_DIR}";
 
-    chmod 750 "${STORE_DIR}";
+    chmod 750 "${RUN_DIR}" "${RUN_DIR}/tmp";
     touch "${LOG_FILE}";
     chown vcap:vcap "${LOG_FILE}";
+    chmod 770 "${CONF_DIR}";
     chmod 660 "${CONF_FILE}";
 
     # Remove temp backup files that might be left over because of a
     # previously aborted
-    rm -f "${STORE_DIR}"/*
+    rm -f "${RUN_DIR}/tmp"/*
 
     ulimit -n 10032
 
@@ -67,7 +65,7 @@ case "${1}" in
   stop)
     if [[ -f "${PID_FILE}" ]];
     then
-      redis_sentinel_pid="$(cat ${PID_FILE})";
+      pid="$(cat ${PID_FILE})";
       echo "Stopping ...";
       exec chpst -u vcap:vcap \
         "${CLI}" \
@@ -75,7 +73,7 @@ case "${1}" in
           -p "${PORT}" \
           ${CRED} \
           SHUTDOWN;
-      while [[ -x "/proc/${redis_sentinel_pid}" ]];
+      while [[ -x "/proc/${pid}" ]];
       do
         echo "Waiting for Redis Sentinel to shutdown ...";
         sleep 1;

@@ -4,8 +4,8 @@ set -e
 # $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
 # $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
 
-PROGNAME="redis_broker"
+PRG_NAME="redis_broker"
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp -a common/utils.sh ${BOSH_INSTALL_TARGET}/bin/.
 cp -a common/gen-certs.sh ${BOSH_INSTALL_TARGET}/bin/.
-cp -a ${PROGNAME}/broker-*.jar ${BOSH_INSTALL_TARGET}/bin/${PROGNAME}.jar
+cp -a ${PRG_NAME}/broker-*.jar ${BOSH_INSTALL_TARGET}/bin/${PRG_NAME}.jar

@@ -9,7 +9,6 @@
 
 ERR=0;
 CLI="/var/vcap/packages/redis/bin/redis-cli";
-
 REDIS_IP="127.0.0.1";
 <%- if master.p('bind') -%>
 REDIS_IP="<%= spec.ip %>";
@@ -30,12 +29,11 @@ TLS_KEY_FILE="${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 REDIS_CRED+=" --key ${TLS_KEY_FILE}";
 TLS_CA_CERT_FILE="${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 REDIS_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
-<%- end -%>
-
+<%- end
+  if !sentinel.nil? && master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) -%>
 #
 # Bind to Sentinel
 #
-<%- if !sentinel.nil? && master.p('replication') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address) -%>
 SENTINEL_PORT="<%= sentinel.p('port') %>";
 SENTINEL_CRED="";
 <%- sentinel.if_p('password') do |x|
@@ -52,59 +50,69 @@ SENTINEL_CRED+=" --cacert ${TLS_CA_CERT_FILE}";
   master_port=master.p('port')
   if master.p('tls') && master.p('tls_replication')
     master_port=master.p('tls_port')
-  end -%>
-SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> <%= master.instances.find{ |x| x.bootstrap }.address %> <%= master_port %> <%= master.p('max_detected_failures') %>\n";
-<%- master.if_p('sentinel_password') do |x|
-    unless x.to_s.empty? -%>
-SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
-<%- end
-  end -%>
-SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-USER <%= master.p('sentinel_user') %>\n";
-SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
-SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= master.p('parallel_syncs') %>\n";
-SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
-
-SENTINEL_ADDRESS="";
-<%- sentinel_addresses=''
+  end
+  sentinel_addresses=''
   sentinel.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   if !sentinel_slave.nil?
     sentinel_slave.instances.each{ |x| sentinel_addresses.concat(x.address).concat(' ') }
   end -%>
 SENTINEL_ADDRESSES="<%= sentinel_addresses %>";
-SENTINEL_DONE="";
+
+SENTINEL_TODO="";
+MASTER_IP="<%= master.instances.find{ |x| x.bootstrap }.address %>";
+MASTER_PORT="<%= master_port %>";
 for x in ${SENTINEL_ADDRESSES};
 do
-  MSG="$(echo -e "${SENTINEL_CMD}" | \
-    "${CLI}" \
-      -h "${x}" \
-      -p "${SENTINEL_PORT}" \
-      ${SENTINEL_CRED})";
-  if [[ ! ${?} -eq 0 ]];
+  MSG="$("${CLI}" \
+    -h "${x}" \
+    -p "${SENTINEL_PORT}" \
+    ${SENTINEL_CRED} \
+    SENTINEL GET-MASTER-ADDR-BY-NAME <%= spec.deployment %>)";
+  if [[ ${?} -eq 0 ]];
   then
+    if [[ -z "${MSG}" ]];
+    then
+      SENTINEL_TODO+=" ${x}";
+    else
+      MASTER_IP="${MSG%%[[:space:]]*}";
+      MASTER_PORT="${MSG#*[[:space:]]}";
+    fi
+  else
     ERR=1;
-    echo "ERROR: Commands failed with Sentinel \"${x}\": \"${MSG}\".";
-    break;
+    echo "ERROR: Unable to get Redis master from Sentinel [${x}]: \"${MSG}\"." >&2;
   fi
-  SENTINEL_DONE+="${x} ";
 done
 
-if [[ ${ERR} -eq 1 ]];
+if [[ -n "${SENTINEL_TODO}" ]];
 then
-  for x in ${SENTINEL_DONE};
+  SENTINEL_CMD="SENTINEL MONITOR <%= spec.deployment %> ${MASTER_IP} ${MASTER_PORT} <%= master.p('max_detected_failures') %>\n";
+  <%- master.if_p('sentinel_password') do |x|
+      unless x.to_s.empty? -%>
+  SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-PASS <%= x %>\n";
+  <%- end
+    end -%>
+  SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> AUTH-USER <%= master.p('sentinel_user') %>\n";
+  SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> DOWN-AFTER-MILLISECONDS <%= master.p('down_after_milliseconds') %>\n";
+  SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> PARALLEL-SYNCS <%= master.p('parallel_syncs') %>\n";
+  SENTINEL_CMD+="SENTINEL SET <%= spec.deployment %> FAILOVER-TIMEOUT <%= master.p('failover_timeout') %>\n";
+  for x in ${SENTINEL_TODO};
   do
-    "${CLI}" \
-      -h "${x}" \
-      -p "${SENTINEL_PORT}" \
-      ${SENTINEL_CRED} \
-      SENTINEL REMOVE <%= spec.deployment %>;
+    MSG="$(echo -e "${SENTINEL_CMD}" | \
+      "${CLI}" \
+        -h "${x}" \
+        -p "${SENTINEL_PORT}" \
+        ${SENTINEL_CRED})";
+    if [[ ${?} -eq 0 ]];
+    then
+      echo "Sentinel [${x}] added [<%= spec.deployment %>] to monitor.";
+    else
+      ERR=1;
+      echo "ERROR: Commands failed to add [<%= spec.deployment %>] to Sentinel [${x}]: \"${MSG}\"." >&2;
+    fi
   done
 fi
-<%- end -%>
-
-#
-# Build Redis cluster
-#
-<%- if master.p('cluster_enabled').eql?('yes') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address)
+<%- end
+  if master.p('cluster_enabled').eql?('yes') && master.instances.find{ |x| x.bootstrap }.address.eql?(spec.address)
   node_port=master.p('port')
   if master.p('tls') && master.p('tls_cluster')
     node_port=master.p('tls_port')
@@ -139,6 +147,9 @@ fi
   if replicas_per_node>0 && master_instances*replicas_per_node>slave_instances
     STDERR.puts "WARNING: Not enough slave: masters [#{master_instances}], slaves [#{slave_instances}], slaves per master [#{replicas_per_node}]"
   end -%>
+#
+# Build Redis cluster
+#
 MASTER_ADDRESSES="<%= master_addresses %>";
 MASTER_INSTANCES="<%= master_instances %>";
 SLAVE_ADDRESSES="<%= slaves_addresses %>";
@@ -366,7 +377,6 @@ then
       if [[ ${MASTER_INSTANCES} -eq ${AVAILABLE_NODES} ]];
       then
         echo "All required Redis master nodes [${MASTER_INSTANCES}] are available";
-        ERR=0;
       else
         echo "ERROR: The required Redis master nodes [${MASTER_INSTANCES}] is not equal to the available master nodes [${AVAILABLE_NODES}]" >&2;
         ERR=1;
@@ -375,7 +385,6 @@ then
       if [[ ${SLAVE_INSTANCES} -eq ${AVAILABLE_NODES} ]];
       then
         echo "All required Redis slave nodes [${SLAVE_INSTANCES}] are available";
-        ERR=0;
       else
         echo "ERROR: The required Redis slave nodes [${SLAVE_INSTANCES}] is not equal to the available slave nodes [${AVAILABLE_NODES}]" >&2;
         ERR=1;

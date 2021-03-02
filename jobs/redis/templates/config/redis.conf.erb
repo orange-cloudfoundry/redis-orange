@@ -415,7 +415,7 @@ rdb-del-sync-files <%= p('rdb_del_sync_files') %>
 # The Append Only File will also be created inside this directory.
 #
 # Note that you must specify a directory here, not a file name.
-dir "<%= p('dir') %>"
+dir "<%= p('store_dir') %>"
 
 ################################# REPLICATION #################################
 
@@ -697,7 +697,7 @@ min-replicas-max-lag <%= master.p('min_replicas_max_lag') %>
   end -%>
 
 <%- replicas_per_node=master.p('cluster_replicas_per_node').to_i
-  if master.p('cluster_enabled').eql?('yes') && replicas_per_node > 0 && min_replicas_to_write>0
+  if master.p('cluster_enabled').eql?('yes') && replicas_per_node>0 && min_replicas_to_write>0
     master_length=master.instances.length
     enough_replicas=false
     if !slave.nil?

@@ -3,14 +3,13 @@
   
 set -eu
 
-PROGNAME="redis_exporter";
-RUN_DIR="/var/vcap/sys/run/${PROGNAME}";
-LOG_DIR="/var/vcap/sys/log/${PROGNAME}";
-TMP_DIR="/var/vcap/sys/tmp/${PROGNAME}";
-STORE_DIR="/var/vcap/sys/store/${PROGNAME}";
-PID_FILE="${RUN_DIR}/${PROGNAME}.pid";
-mkdir -p "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
-chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}" "${TMP_DIR}" "${STORE_DIR}";
+PRG_NAME="redis_exporter";
+RUN_DIR="/var/vcap/sys/run/${PRG_NAME}";
+LOG_DIR="/var/vcap/sys/log/${PRG_NAME}";
+PID_FILE="${RUN_DIR}/${PRG_NAME}.pid";
+mkdir -p "${RUN_DIR}" "${LOG_DIR}";
+chown vcap:vcap "${RUN_DIR}" "${LOG_DIR}";
+export PATH="/var/vcap/packages/${PRG_NAME}/bin:${PATH}";
 
 PROTOCOLE="redis";
 IP="127.0.0.1";
@@ -32,7 +31,12 @@ ARGS+=" -tls-client-cert-file ${TLS_KEYS_DIR}/<%= p('tls_cert_file') %>";
 ARGS+=" -tls-client-key-file ${TLS_KEYS_DIR}/<%= p('tls_key_file') %>";
 ARGS+=" -tls-ca-cert-file ${TLS_KEYS_DIR}/<%= p('tls_ca_cert_file') %>";
 <%- end -%>
-ARGS+=" -redis.addr=${PROTOCOLE}://${IP}:${PORT}";
+ARGS+=" -redis.addr ${PROTOCOLE}://${IP}:${PORT}";
+ARGS+=" -log-format <%= p('log_format') %>";
+ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
+ARGS+=" -namespace <%= p('namespace') %>";
+ARGS+=" -web.listen-address <%= spec.ip + ':' + p('web_port') %>";
+ARGS+=" -web.telemetry-path <%= p('web_telemetry_path') %>";
 <%- if_p('check_keys') do |x| -%>
 ARGS+=" -check-keys <%= x %>";
 <%- end -%>
@@ -48,7 +52,6 @@ ARGS+=" -check-single-streams <%= x %>";
 <%- if_p('config_command') do |x| -%>
 ARGS+=" -config-command <%= x %>";
 <%- end -%>
-ARGS+=" -connection-timeout <%= p('connection_timeout') %>";
 <%- if p('debug') -%>
 ARGS+=" -debug";
 <%- end -%>
@@ -74,28 +77,21 @@ ARGS+=" -set-client-name";
 ARGS+=" -skip-tls-verification";
 <%- end -%>
 
-source "/var/vcap/packages/${PROGNAME}/bin/utils.sh";
-exec 1>> "${LOG_DIR}/${PROGNAME}.stdout.log";
-exec 2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+source "/var/vcap/packages/${PRG_NAME}/bin/utils.sh";
+exec 1>> "${LOG_DIR}/${PRG_NAME}.stdout.log";
+exec 2>> "${LOG_DIR}/${PRG_NAME}.stderr.log";
 chown vcap:vcap \
-  "${LOG_DIR}/${PROGNAME}.stdout.log" \
-  "${LOG_DIR}/${PROGNAME}.stderr.log";
-
-export PATH="/var/vcap/packages/${PROGNAME}/bin:${PATH}";
+  "${LOG_DIR}/${PRG_NAME}.stdout.log" \
+  "${LOG_DIR}/${PRG_NAME}.stderr.log";
 
 case $1 in
   start)
-    pid_guard "${PID_FILE}" "${PROGNAME}";
+    pid_guard "${PID_FILE}" "${PRG_NAME}";
     echo $$ > "${PID_FILE}";
 
-    exec chpst -u vcap:vcap "${PROGNAME}" \
-      ${ARGS} \
-      -log-format <%= p('log_format') %> \
-      -namespace <%= p('namespace') %> \
-      -web.listen-address <%= spec.ip+':'+p('web_port') %> \
-      -web.telemetry-path <%= p('web_telemetry_path') %> \
-      >> "${LOG_DIR}/${PROGNAME}.stdout.log" \
-      2>> "${LOG_DIR}/${PROGNAME}.stderr.log";
+    exec chpst -u vcap:vcap "${PRG_NAME}" ${ARGS} \
+      >> "${LOG_DIR}/${PRG_NAME}.stdout.log" \
+      2>> "${LOG_DIR}/${PRG_NAME}.stderr.log";
     ;;
 
   stop)

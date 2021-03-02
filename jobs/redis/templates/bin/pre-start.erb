@@ -1,6 +1,8 @@
 #!/bin/bash
+<%- master=link('redis_conn') -%>
+
 ERR=0;
-<%- if link('redis_conn').p('tls') -%>
+<%- if master.p('tls') -%>
 source "/var/vcap/packages/redis/bin/gen-certs.sh";
 TLS_KEYS_DIR="<%= p('tls_keys_dir') %>";
 gen_signed_cert \
@@ -19,5 +21,25 @@ gen_dh \
 chown -R vcap:vcap "${TLS_KEYS_DIR}" && \
 chmod -R g-rwx,o-rwx "${TLS_KEYS_DIR}";
 ERR=${?};
+<%- end
+  if master.p('cluster_enabled').eql?('yes') -%>
+RUN_DIR="<%= p('run_dir') %>";
+STORE_DIR="<%= p('store_dir') %>";
+<%- node_port=master.p('port')
+  if master.p('tls') && master.p('tls_cluster')
+    node_port=master.p('tls_port')
+  end -%>
+CONF_FILE_NAME="<%= 'nodes-'+node_port.to_s+'.conf' %>";
+if [[ -f "${STORE_DIR}/config/${CONF_FILE_NAME}" ]];
+then
+  if [[ $(cp -f "${STORE_DIR}/config/${CONF_FILE_NAME}" "${RUN_DIR}/.") -ne 0 ]];
+  then
+    ERR=1;
+    echo "ERROR: Unable to copy ${STORE_DIR}/config/${CONF_FILE_NAME} to ${RUN_DIR}/." >&2;
+  else
+    chown vcap:vcap "${RUN_DIR}/${CONF_FILE_NAME}";
+    echo "Redis Cluster backup file ${STORE_DIR}/config/${CONF_FILE_NAME} restored in ${RUN_DIR}/.";
+  fi
+fi
 <%- end -%>
 exit ${ERR};
