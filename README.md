@@ -8,7 +8,7 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 - [*Redis cluster*](https://redis.io/topics/cluster-spec) with high availability,
 - Multi-zone for high availability by Redis Sentinel and Redis cluster with high availability,
 - Monitoring by [*Prometheus*](https://prometheus.io/)/[*Grafana*](https://grafana.com/),
-- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.4 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
+- An Open Service Broker with [*Spring Boot*](https://spring.io/projects/spring-boot) 2.4.3 and [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.3.0 and another broker with *Spring Boot* 1.5.22 and [*Spring Cloud - Cloud Foundry Service Broker*](https://spring.io/projects/spring-cloud-cloudfoundry-service-broker) 1.0.4.
 
 ## TODO
 
@@ -17,11 +17,11 @@ A [*Redis*](https://redis.io/) release for Cloud Foundry
 
 ## Packages versions summary
 
-- Redis [*6.0.8*](http://download.redis.io/releases/redis-6.0.8.tar.gz)
-- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.11.1*](https://github.com/oliver006/redis_exporter/releases/download/v1.11.1/redis_exporter-v1.11.1.linux-amd64.tar.gz)
-- [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.6.0*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.6.0/redis_sentinel_exporter-1.6.0.linux-amd64.tar.gz)
-- [*OpenJDK*](https://openjdk.java.net/) [*15*](https://download.java.net/java/GA/jdk15/779bf45e88a44cbd9ea6621d33e33db1/36/GPL/openjdk-15_linux-x64_bin.tar.gz)
-- [*havegd*](https://www.issihosts.com/haveged/) [*1.9.13*](https://github.com/jirka-h/haveged/releases/tag/v1.9.13)
+- Redis [*6.0.11*](https://download.redis.io/releases/redis-6.0.11.tar.gz)
+- [*redis_exporter*](https://github.com/oliver006/redis_exporter) [*1.17.1*](https://github.com/oliver006/redis_exporter/releases/download/v1.17.1/redis_exporter-v1.17.1.linux-amd64.tar.gz)
+- [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) [*1.7.1*](https://github.com/leominov/redis_sentinel_exporter/releases/download/v1.7.1/redis_sentinel_exporter-1.7.1.linux-amd64.tar.gz)
+- [*OpenJDK*](https://openjdk.java.net/) [*15.0.2*](https://download.java.net/java/GA/jdk15.0.2/0d1cfde4252546c6931946de8db48ee2/7/GPL/openjdk-15.0.2_linux-x64_bin.tar.gz)
+- [*havegd*](https://www.issihosts.com/haveged/) [*1.9.14*](https://github.com/jirka-h/haveged/releases/tag/v1.9.14)
 - [*utils.sh*](https://github.com/bosh-prometheus/prometheus-boshrelease/blob/master/src/common/utils.sh)
 
 ## Memory Management
@@ -87,10 +87,6 @@ To avoid persistence and to maintain automatic restart, we add a delay before st
 - By default, for obvious performance reasons, we don't use persistence, so we use the new diskless replication feature as it was recommended:
   > [Even if you have persistence disabled, Redis will need to perform RDB saves if you use replication, unless you use the new diskless replication feature. If you have no disk usage on the master, make sure to enable diskless replication.](https://redis.io/topics/admin)
 - If you use persistence, the start delay is avoided.
-
-## Redis and Redis Sentinel Exporters Collocation
-
-In our release, each Redis instance has its collocated Redis exporter instance, and each Redis Sentinel instance has its collocated Redis Sentinel exporter instance. So Redis exporter and Redis Sentinel exporter are listen on the loop-back network interface for monitoring Redis and Redis Sentinel. Redis and Redis Sentinel, in addition to others networks interfaces, are binding to the loop-back network interface too.
 
 ## Usage
 

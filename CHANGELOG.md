@@ -1,3 +1,17 @@
+## redis-orange 1.0.3.1
+- Added:
+  - pre-start, post-start and pre-stop in Redis job,
+  - pre-start and pre-stop to Redis Sentinel job
+  
+  to support BOSH recreate to support Redis high availability with Redis Sentinel and Redis Cluster high availability. Your deployment must be serial and having a persistent storage to support this feature.
+- Components update:
+  - [*Redis*](https://redis.io/) 6.0.9 -> 6.0.11,
+  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.12.1 -> 1.17.1,
+  - [*OpenJDK*](https://openjdk.java.net/) 15.0.1 -> 15.0.2,
+  - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.5 -> 2.4.3,
+  - [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 -> 3.3.0,
+  - [*havegd*](https://www.issihosts.com/haveged/) 1.9.13 -> 1.9.14.
+
 ## redis-orange 1.0.3
 
 - Added features introduced in Redis 6.x:
@@ -7,11 +21,11 @@
 - Added [*havegd*](https://www.issihosts.com/haveged/) [*1.9.13*](https://github.com/jirka-h/haveged/releases/tag/v1.9.13) to provide a better unpredictable random number generator.
 - Added support for reconfiguring Sentinel at runtime to share Sentinels with several Redis masters.
 - Components update:
-  - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.8,
-  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.11.1,
-  - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.6.0,
-  - [*OpenJDK*](https://openjdk.java.net/) 13.0.2 -> 15,
-  - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.2 -> 2.3.4,
+  - [*Redis*](https://redis.io/) 5.0.7 -> 6.0.9,
+  - [*redis_exporter*](https://github.com/oliver006/redis_exporter) 1.3.4 -> 1.12.1,
+  - [*redis_sentinel_exporter*](https://github.com/leominov/redis_sentinel_exporter) 1.3.0 -> 1.7.1,
+  - [*OpenJDK*](https://openjdk.java.net/) 13.0.2 -> 15.0.1,
+  - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.2.2 -> 2.3.5,
   - [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.0 -> 3.1.2.
 
 ## redis-orange 1.0.2.1
