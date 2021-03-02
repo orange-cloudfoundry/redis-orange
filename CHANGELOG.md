@@ -6,7 +6,7 @@
   - [*OpenJDK*](https://openjdk.java.net/) 15.0.1 -> 15.0.2,
   - [*Spring Boot*](https://spring.io/projects/spring-boot) 2.3.5 -> 2.4.3,
   - [*Spring Cloud Open Service Broker*](https://spring.io/projects/spring-cloud-open-service-broker) 3.1.2 -> 3.3.0,
-  - [*havegd*](https://www.issihosts.com/haveged/) 1.9.13 -> 1.9.14.## 
+  - [*havegd*](https://www.issihosts.com/haveged/) 1.9.13 -> 1.9.14. 
 
 ## redis-orange 1.0.2.2
 
